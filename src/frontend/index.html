@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI 交互模式实验室 — 樊书洋</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧪</text></svg>" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Serif+SC:wght@400;600;700;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/lxgw-wenkai-webfont/1.7.0/lxgwwenkai-regular.css" />
+  <link rel="stylesheet" href="css/style.css?v=2.0.0" />
+</head>
+<body>
+  <div class="app-shell">
+    <header class="app-header">
+      <a href="/" class="app-logo">🧪 AI 交互模式实验室</a>
+      <nav class="app-nav">
+        <a href="/principles-summary.html">设计原则</a>
+        <a href="/about.html">关于我</a>
+        <a href="/behind-the-scenes.html">制作幕后</a>
+      </nav>
+    </header>
+
+    <div class="hero-statement">
+      <h1>我是<span class="highlight">樊书洋</span>，我在探索<span class="highlight">人和 AI 怎么更好地对话</span>。</h1>
+      <div class="sub">
+        下面是 7 种 AI 交互模式，每一种都包含<strong>设计思路说明</strong>和<strong>可交互 Demo</strong>。
+        不会写代码的设计学生，用 AI 工具链从零构建了这个实验室。
+      </div>
+      <div class="quick-links">
+        <a href="/principles-summary.html" class="ql-primary">AI 交互设计原则总结</a>
+        <a href="/review.html" class="ql-outline">试试完整产品：AI 设计评审 →</a>
+      </div>
+    </div>
+
+    <div class="section-label">7 种 AI 交互模式</div>
+    <div class="pattern-grid">
+      <a href="/patterns/streaming.html" class="pattern-card">
+        <div class="pattern-card-icon">📝</div>
+        <div class="pattern-card-title">流式输出</div>
+        <div class="pattern-card-desc">AI 逐字生成，让用户感知进度，减少等待焦虑</div>
+        <div class="pattern-card-source">SSE 实时推送</div>
+      </a>
+      <a href="/patterns/cards.html" class="pattern-card">
+        <div class="pattern-card-icon">🃏</div>
+        <div class="pattern-card-title">结构化卡片</div>
+        <div class="pattern-card-desc">AI 输出用卡片展示，信息可扫读可分层</div>
+        <div class="pattern-card-source">JSON→卡片渲染</div>
+      </a>
+      <a href="/patterns/clarify.html" class="pattern-card">
+        <div class="pattern-card-icon">❓</div>
+        <div class="pattern-card-title">澄清提问</div>
+        <div class="pattern-card-desc">AI 不确定时反问用户，不瞎猜，减少幻觉</div>
+        <div class="pattern-card-source">两阶段 Prompt</div>
+      </a>
+      <a href="/patterns/degradation.html" class="pattern-card">
+        <div class="pattern-card-icon">🛡️</div>
+        <div class="pattern-card-title">失败兜底</div>
+        <div class="pattern-card-desc">API 出错时优雅降级，用户看不到崩溃</div>
+        <div class="pattern-card-source">重试+回退+脱敏</div>
+      </a>
+      <a href="/patterns/context.html" class="pattern-card">
+        <div class="pattern-card-icon">💬</div>
+        <div class="pattern-card-title">多轮上下文</div>
+        <div class="pattern-card-desc">AI 记得之前聊了什么，持续追问不丢失线索</div>
+        <div class="pattern-card-source">会话管理+裁剪</div>
+      </a>
+      <a href="/patterns/confirmation.html" class="pattern-card">
+        <div class="pattern-card-icon">✅</div>
+        <div class="pattern-card-title">确认机制</div>
+        <div class="pattern-card-desc">关键操作前确认，人类在回路中，防误操作</div>
+        <div class="pattern-card-source">两阶段确认流</div>
+      </a>
+      <a href="/patterns/progressive.html" class="pattern-card">
+        <div class="pattern-card-icon">🪜</div>
+        <div class="pattern-card-title">渐进式加载</div>
+        <div class="pattern-card-desc">按认知顺序分步展开，降低信息过载</div>
+        <div class="pattern-card-source">SSE 分阶段推送</div>
+      </a>
+    </div>
+
+    <div class="about-compact">
+      <div class="ac-avatar">👤</div>
+      <div class="ac-info">
+        <div class="ac-name">樊书洋</div>
+        <div class="ac-detail">南京传媒学院 · 智能交互设计专业 大二 · 求职 AI 交互设计师实习<br>核心竞争力：产品判断力 × AI 协作能力 —— 不会写代码，但能用 AI 工具链从零做出完整产品</div>
+      </div>
+      <a href="/about.html" class="ac-link">完整介绍 →</a>
+    </div>
+
+    <footer class="app-footer">
+      AI 交互模式实验室 · 樊书洋 · <a href="/about.html">关于我</a> · <a href="/behind-the-scenes.html">制作幕后</a>
+    </footer>
+  </div>
+</body>
+</html>

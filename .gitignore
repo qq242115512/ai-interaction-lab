@@ -11,3 +11,10 @@ Thumbs.db
 node_modules/
 __pycache__/
 *.pyc
+venv/
+
+# 部署配置（含服务器路径）
+src/deploy/
+
+# 大文件
+assets/

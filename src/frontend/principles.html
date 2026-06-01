@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>设计原则图书馆 — 设计引路人</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎓</text></svg>" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Serif+SC:wght@400;600;700;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/lxgw-wenkai-webfont/1.7.0/lxgwwenkai-regular.css" />
+  <link rel="stylesheet" href="css/style.css?v=2.0.0" />
+  <style>
+    .principles-hero { text-align: center; padding: 32px 0 24px; }
+    .principles-hero h1 { font-size: 1.5rem; margin-bottom: 8px; }
+    .principles-hero p { color: var(--color-text-secondary); font-size: 0.9rem; max-width: 600px; margin: 0 auto; }
+
+    .category-section { margin-bottom: 32px; }
+    .category-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 14px; padding-bottom: 6px; border-bottom: 2px solid var(--color-primary); display: inline-block; }
+
+    .principle-list { display: grid; gap: 14px; }
+    .principle-entry {
+      background: var(--color-surface);
+      border-radius: var(--radius-md);
+      padding: 18px 20px;
+      box-shadow: var(--shadow-sm);
+    }
+    .principle-entry h3 { font-size: 0.95rem; font-weight: 700; margin-bottom: 4px; }
+    .principle-entry .principle-source { font-size: 0.7rem; color: var(--color-text-muted); margin-bottom: 8px; }
+    .principle-entry .principle-body { font-size: 0.85rem; color: var(--color-text-secondary); line-height: 1.7; }
+    .principle-entry .principle-example {
+      background: var(--color-bg);
+      border-radius: var(--radius-sm);
+      padding: 10px 14px;
+      margin-top: 10px;
+      font-size: 0.8rem;
+      color: var(--color-text-secondary);
+    }
+    .principle-entry .principle-example strong { color: var(--color-primary); }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="app-header">
+      <a href="/" class="app-logo">🧪 AI 交互模式实验室</a>
+      <nav class="app-nav">
+        <a href="/review.html">设计评审工具</a>
+        <a href="/principles.html" style="color:var(--color-primary);">设计原则</a>
+        <a href="/behind-the-scenes.html">制作幕后</a>
+      </nav>
+    </header>
+
+    <div class="principles-hero">
+      <h1>设计原则图书馆</h1>
+      <p>好的设计不是凭感觉，而是有据可依。这里整理了 AI 评审时引用的核心设计原则，帮你建立系统化的设计思维。</p>
+    </div>
+
+    <!-- 交互原则 -->
+    <section class="category-section">
+      <div class="category-title">交互原则</div>
+      <div class="principle-list">
+
+        <div class="principle-entry">
+          <h3>系统状态可见性</h3>
+          <div class="principle-source">尼尔森十大原则 #1</div>
+          <div class="principle-body">系统应当在合理的时间内，通过适当的反馈让用户了解当前状态。用户在任何一个界面上都应该能回答三个问题：我在哪里、我能做什么、我刚才做了什么。</div>
+          <div class="principle-example"><strong>生活类比：</strong>电梯里的楼层显示屏——你随时知道自己在几楼，不会焦虑。如果电梯没有任何显示，你会一直担心是不是卡住了。</div>
+        </div>
+
+        <div class="principle-entry">
+          <h3>用户控制与自由</h3>
+          <div class="principle-source">尼尔森十大原则 #3</div>
+          <div class="principle-body">用户经常会误操作，需要明确的"紧急出口"来离开不想要的状态。撤销和重做功能就是最典型的实现。</div>
+          <div class="principle-example"><strong>生活类比：</strong>浏览器里的"后退"按钮——你不怕点错链接，因为随时可以回到上一页。</div>
+        </div>
+
+        <div class="principle-entry">
+          <h3>一致性与标准化</h3>
+          <div class="principle-source">尼尔森十大原则 #4</div>
+          <div class="principle-body">不要让用户猜测不同的词语、情况或操作是否意味着同一件事。同一产品内，相同功能的视觉表现和交互方式应该一致。</div>
+          <div class="principle-example"><strong>生活类比：</strong>所有红绿灯都是红灯停绿灯行——换了城市也不需要重新学习交通规则。</div>
+        </div>
+
+        <div class="principle-entry">
+          <h3>预防错误</h3>
+          <div class="principle-source">尼尔森十大原则 #5</div>
+          <div class="principle-body">好的错误提示不如一开始就不让错误发生。通过约束条件（比如灰掉不可用按钮）、默认值和确认对话框来预防错误。</div>
+          <div class="principle-example"><strong>生活类比：</strong>微波炉开门就自动停止——不是贴个警告让你别在运行时开门，而是从根本上防止危险发生。</div>
+        </div>
+
+        <div class="principle-entry">
+          <h3>识别而非回忆</h3>
+          <div class="principle-source">尼尔森十大原则 #6</div>
+          <div class="principle-body">减少用户的记忆负担。让对象、操作和选项可见，用户不需要记住从对话的一个部分到另一个部分的信息。</div>
+          <div class="principle-example"><strong>生活类比：</strong>选择题比填空题容易——看到选项就能认出来，凭空回忆就困难得多。</div>
+        </div>
+
+        <div class="principle-entry">
+          <h3>灵活性与效率</h3>
+          <div class="principle-source">尼尔森十大原则 #7</div>
+          <div class="principle-body">为新手和专家用户提供不同的使用路径。快捷键、自定义工具栏、宏命令等让专家用户操作更快，但不影响新手的上手体验。</div>
+          <div class="principle-example"><strong>生活类比：</strong>电脑的 Ctrl+C/Ctrl+V 快捷键——新手用右键菜单复制粘贴，熟手用快捷键快得多，但两种方式都能完成同样的任务。</div>
+        </div>
+
+        <div class="principle-entry">
+          <h3>美学与极简主义</h3>
+          <div class="principle-source">尼尔森十大原则 #8</div>
+          <div class="principle-body">界面不应包含不相关或很少需要的信息。每个额外的信息单元都会与相关信息单元竞争，降低它们的相对可见度。</div>
+          <div class="principle-example"><strong>生活类比：</strong>Google 首页只有一个搜索框——不是因为他们做不出花哨的设计，而是知道用户来搜索的，其他都是干扰。</div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 视觉原则 -->
+    <section class="category-section">
+      <div class="category-title">视觉原则</div>
+      <div class="principle-list">
+
+        <div class="principle-entry">
+          <h3>格式塔 — 邻近性</h3>
+          <div class="principle-source">格式塔心理学原理</div>
+          <div class="principle-body">彼此靠近的物体被认为是一组。通过控制间距来暗示元素之间的分组关系，比加边框或分割线更自然。</div>
+          <div class="principle-example"><strong>生活类比：</strong>站在同一张桌子旁的人被认为是一起的，即使他们没有说话。</div>
+        </div>
+
+        <div class="principle-entry">
+          <h3>格式塔 — 相似性</h3>
+          <div class="principle-source">格式塔心理学原理</div>
+          <div class="principle-body">看起来相似的物体被认为具有相同的功能或属于同一类别。在 UI 设计中，相同功能的按钮应该保持一致的样式。</div>
+          <div class="principle-example"><strong>生活类比：</strong>穿同样队服的运动员被认为是一队的，即使分散在场地上也能一眼认出来。</div>
+        </div>
+
+        <div class="principle-entry">
+          <h3>F 型阅读模式</h3>
+          <div class="principle-source">尼尔森诺曼集团眼动研究</div>
+          <div class="principle-body">用户在浏览网页时，视线通常呈 F 型：先水平扫过顶部，然后向下移动并在中间位置水平扫过较短距离，最后沿左侧垂直向下。重要内容应放在 F 型的路径上。</div>
+          <div class="principle-example"><strong>生活类比：</strong>报纸头条放在最上面——读者第一眼看到的就是最重要的新闻。</div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 认知原则 -->
+    <section class="category-section">
+      <div class="category-title">认知原则</div>
+      <div class="principle-list">
+
+        <div class="principle-entry">
+          <h3>Fitts 定律</h3>
+          <div class="principle-source">Paul Fitts, 1954</div>
+          <div class="principle-body">到达目标的时间取决于目标的距离和大小。目标越大、越近，就越容易点击。重要的按钮应该做大一些，相关操作放在一起。</div>
+          <div class="principle-example"><strong>生活类比：</strong>篮球筐比高尔夫球洞容易进——不仅因为球大，也因为球筐本身大得多。</div>
+        </div>
+
+        <div class="principle-entry">
+          <h3>Hick 定律</h3>
+          <div class="principle-source">William Hick, 1952</div>
+          <div class="principle-body">决策时间随选项数量的增加而对数增加。选项越多，人的决策越慢。复杂功能可分层级逐步展示，而不是一次性抛出所有选项。</div>
+          <div class="principle-example"><strong>生活类比：</strong>菜单只有几页的餐厅，你点菜很快；菜单像字典一样厚的餐厅，你看半天也不知道点什么。</div>
+        </div>
+
+        <div class="principle-entry">
+          <h3>米勒定律</h3>
+          <div class="principle-source">George Miller, 1956</div>
+          <div class="principle-body">普通人的工作记忆只能同时记住 7±2 个信息单元。导航选项、表单字段等应该控制在这个范围内，必要时分组。</div>
+          <div class="principle-example"><strong>生活类比：</strong>电话号码为什么是 3-4-4 分段而不是一串 11 位数字——分组帮你记住更多信息。</div>
+        </div>
+
+      </div>
+    </section>
+
+    <footer class="app-footer">
+      设计引路人 · 用 AI 学习设计思维 · <a href="/behind-the-scenes.html">这个产品是怎么做出来的？</a>
+    </footer>
+  </div>
+</body>
+</html>

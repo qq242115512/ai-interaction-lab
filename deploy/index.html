@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>樊书洋 — AI 交互设计</title>
+<meta name="description" content="樊书洋 智能交互设计专业 · 探索人与AI的对话方式">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Serif+SC:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #FAFAF9;
+  --surface: #FFFFFF;
+  --text: #1C1C1C;
+  --text-secondary: #6B6B6B;
+  --text-tertiary: #9E9E9E;
+  --accent: #2D5F7E;
+  --accent-warm: #C2784E;
+  --accent-light: #E8F0F6;
+  --accent-warm-light: #FDF0E8;
+  --border: #E8E4DF;
+  --radius: 12px;
+  --max-width: 720px;
+  --gap-section: 120px;
+  --gap-block: 48px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
+
+body {
+  font-family: 'Inter', -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 17px;
+  line-height: 1.75;
+  letter-spacing: 0.01em;
+}
+
+.container { max-width: var(--max-width); margin: 0 auto; padding: 0 28px; }
+
+h1, h2, h3 { font-weight: 500; letter-spacing: -0.02em; }
+h1 { font-size: 3rem; line-height: 1.15; letter-spacing: -0.03em; }
+h2 { font-size: 1.6rem; line-height: 1.35; margin-bottom: var(--gap-block); }
+h3 { font-size: 1.1rem; font-weight: 600; margin-bottom: 10px; }
+
+/* Hero */
+.hero { padding: 140px 0 80px; min-height: 100vh; display: flex; flex-direction: column; justify-content: center; }
+.hero h1 { margin-bottom: 28px; }
+.hero h1 em { font-style: normal; color: var(--accent); }
+.hero .subtitle { font-size: 1.2rem; color: var(--text-secondary); line-height: 1.7; max-width: 580px; }
+.hero .subtitle strong { color: var(--text); font-weight: 500; }
+.hero-meta { display: flex; gap: 24px; margin-top: 40px; font-size: 0.9rem; color: var(--text-tertiary); }
+
+/* Sections */
+section { padding: var(--gap-section) 0; }
+.section-label { display: inline-flex; align-items: center; gap: 8px; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); margin-bottom: 20px; }
+
+/* Concepts */
+.concepts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.concept-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 28px; transition: box-shadow 0.3s, transform 0.3s; }
+.concept-card:hover { box-shadow: 0 8px 30px rgba(0,0,0,0.06); transform: translateY(-2px); }
+.concept-card .icon { font-size: 1.6rem; margin-bottom: 16px; }
+.concept-card p { font-size: 0.9rem; color: var(--text-secondary); line-height: 1.6; }
+
+/* Project */
+.project-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 36px; }
+.project-card .status { display: inline-block; font-size: 0.75rem; font-weight: 600; padding: 4px 12px; border-radius: 20px; background: var(--accent-warm-light); color: var(--accent-warm); margin-bottom: 20px; }
+.project-card h3 { font-size: 1.3rem; }
+.tags { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 20px; }
+.tag { font-size: 0.8rem; padding: 4px 14px; border-radius: 20px; background: var(--accent-light); color: var(--accent); font-weight: 500; }
+
+/* Skill map */
+.skill-map { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+.skill-block { padding: 24px; border-radius: var(--radius); border: 1px solid var(--border); background: var(--surface); }
+.skill-block .label { font-size: 0.75rem; font-weight: 600; color: var(--accent); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 12px; }
+.skill-block ul { list-style: none; font-size: 0.85rem; color: var(--text-secondary); line-height: 2; }
+
+/* Insights */
+.insight { border-left: 3px solid var(--accent-warm); padding: 12px 0 12px 24px; margin-bottom: 32px; }
+.insight .date { font-size: 0.75rem; color: var(--text-tertiary); margin-bottom: 6px; font-weight: 500; }
+.insight p { font-size: 0.95rem; color: var(--text-secondary); line-height: 1.65; }
+.insight p strong { color: var(--text); }
+
+/* Contact */
+.contact-line { display: flex; gap: 32px; align-items: center; padding: 40px 0; border-top: 1px solid var(--border); margin-top: 40px; font-size: 0.95rem; color: var(--text-secondary); flex-wrap: wrap; }
+.contact-line a { color: var(--accent); text-decoration: none; font-weight: 500; transition: color 0.2s; }
+.contact-line a:hover { color: var(--accent-warm); }
+.footer-line { font-size: 0.8rem; color: var(--text-tertiary); padding-bottom: 60px; padding-top: 20px; }
+.divider { height: 1px; background: var(--border); margin: 0; border: none; }
+
+@media (max-width: 640px) {
+  h1 { font-size: 2rem; }
+  .concepts-grid, .skill-map { grid-template-columns: 1fr; }
+  .hero { padding: 80px 0 60px; }
+  section { padding: 64px 0; }
+}
+</style>
+</head>
+<body>
+
+<section class="hero">
+  <div class="container">
+    <h1>
+      <em>樊书洋</em>
+      <br>探索人与 AI 的对话方式
+    </h1>
+    <p class="subtitle">
+      智能交互设计专业在读。关注 <strong>AI 对话交互</strong>、<strong>人机意图理解</strong>和<strong>交互体验设计</strong>。<br>相信好的 AI 交互不是更聪明的回答，而是更懂分寸的提问。
+    </p>
+    <div class="hero-meta">
+      <span>南京传媒学院 · 智能交互设计</span>
+      <span>寻找 AI 交互设计实习</span>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<section>
+  <div class="container">
+    <div class="section-label">What I Study</div>
+    <h2>我理解的 AI 交互</h2>
+    <div class="concepts-grid">
+      <div class="concept-card">
+        <div class="icon">&#x1F4AC;</div>
+        <h3>对话流设计</h3>
+        <p>不只是来回消息——怎么开场、什么时候追问、如何优雅结束，每一步都需要设计</p>
+      </div>
+      <div class="concept-card">
+        <div class="icon">&#x2753;</div>
+        <h3>澄清提问</h3>
+        <p>当 AI 不确定你的意图时，应该怎么问回来而不让人烦躁？这是交互设计的核心命题</p>
+      </div>
+      <div class="concept-card">
+        <div class="icon">&#x1F6E1;</div>
+        <h3>失败兜底策略</h3>
+        <p>AI 一定会出错。出错之后怎么处理才能不伤害信任，这比不出错更重要</p>
+      </div>
+      <div class="concept-card">
+        <div class="icon">&#x1F4CB;</div>
+        <h3>多轮上下文管理</h3>
+        <p>聊了 20 轮之后，AI 还记得你最开始说的是什么吗？记忆不该是技术债</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<section>
+  <div class="container">
+    <div class="section-label">In Progress</div>
+    <h2>AI 交互模式实验室</h2>
+    <div class="project-card">
+      <div class="status">进行中</div>
+      <h3>一个可交互的 AI 对话设计原型集合</h3>
+      <p style="margin-top:12px;color:var(--text-secondary);line-height:1.7;max-width:580px">
+        展示多种 AI 交互模式——流式输出、结构化卡片、澄清提问机制、失败兜底策略、多轮记忆管理等。
+        不只是设计稿，每一个模式都是真实可点击、可对话的 Demo。
+      </p>
+      <p style="margin-top:16px;color:var(--text-tertiary);font-size:0.9rem">搭建中 · 预计 2026 年夏季完成</p>
+      <div class="tags">
+        <span class="tag">对话设计</span>
+        <span class="tag">原型开发</span>
+        <span class="tag">Claude API</span>
+        <span class="tag">Figma</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<section>
+  <div class="container">
+    <div class="section-label">Capabilities</div>
+    <h2>我的技能地图</h2>
+    <div class="skill-map">
+      <div class="skill-block">
+        <div class="label">AI 工具链</div>
+        <ul>
+          <li>Claude Code · Agent 工作流</li>
+          <li>多 MCP 服务器编排</li>
+          <li>Prompt Engineering</li>
+          <li>AI 记忆系统设计</li>
+        </ul>
+      </div>
+      <div class="skill-block">
+        <div class="label">设计</div>
+        <ul>
+          <li>Figma · AI 驱动设计</li>
+          <li>交互原型 · 用户旅程</li>
+          <li>对话流设计</li>
+          <li>UI/UX 规范</li>
+        </ul>
+      </div>
+      <div class="skill-block">
+        <div class="label">技术基础</div>
+        <ul>
+          <li>HTML/CSS · 前端落地</li>
+          <li>Git · 版本控制</li>
+          <li>Docker · 部署运维</li>
+          <li>Linux 基础</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<section>
+  <div class="container">
+    <div class="section-label">Thinking</div>
+    <h2>学习与思考</h2>
+
+    <div class="insight">
+      <div class="date">2026.05</div>
+      <p><strong>AI 记忆系统的分层设计</strong><br lang="zh">搭建了 Hindsight（冷层）+ Session Hooks（温层）+ 上下文（热层）的三层记忆架构。理解到：长期记忆不是"把一切都存下来"，而是在正确的时间检索到正确的那几条。</p>
+    </div>
+
+    <div class="insight">
+      <div class="date">2026.05</div>
+      <p><strong>从 Figma 到 AI 驱动设计的转变</strong><br lang="zh">通过 MCP 让 Claude Code 直接操作 Figma 画布——不是 AI 替代设计，而是设计师用 AI 加速"想法→原型"的循环。</p>
+    </div>
+
+    <div class="insight">
+      <div class="date">2026.04</div>
+      <p><strong>多 Agent 协作的工作流设计</strong><br lang="zh">将软件开发流程拆分为设计→实现→审查→测试四个角色，每个角色由独立的 AI Agent 承担。理解了角色定义和交接规则比单 Agent 能力更重要。</p>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<section>
+  <div class="container">
+    <div class="section-label">Contact</div>
+    <h2>联系我</h2>
+    <div class="contact-line">
+      <span>邮箱：fanshuyang@outlook.com</span>
+      <a href="https://github.com/qq242" target="_blank">GitHub</a>
+      <span>飞书 / 微信可联系</span>
+    </div>
+    <div class="footer-line">
+      樊书洋 · 南京传媒学院 智能交互设计 · &copy; 2026
+    </div>
+  </div>
+</section>
+
+</body>
+</html>

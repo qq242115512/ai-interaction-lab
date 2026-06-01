@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>制作幕后 — 设计引路人</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎓</text></svg>" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Serif+SC:wght@400;600;700;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/lxgw-wenkai-webfont/1.7.0/lxgwwenkai-regular.css" />
+  <link rel="stylesheet" href="css/style.css?v=2.0.0" />
+  <style>
+    .bts-hero { text-align: center; padding: 32px 0 20px; }
+    .bts-hero h1 { font-size: 1.5rem; margin-bottom: 8px; }
+    .bts-hero .tagline { font-size: 1rem; color: var(--color-primary); font-weight: 600; line-height: 1.6; }
+
+    .bts-section { margin-bottom: 36px; }
+    .bts-section h2 { font-size: 1.15rem; font-weight: 700; margin-bottom: 12px; padding-bottom: 6px; border-bottom: 2px solid var(--color-primary); display: inline-block; }
+    .bts-section p { font-size: 0.9rem; color: var(--color-text-secondary); line-height: 1.85; margin-bottom: 10px; }
+
+    .toolchain-diagram {
+      background: var(--color-surface); border-radius: var(--radius-lg); padding: 24px;
+      box-shadow: var(--shadow-sm); font-family: monospace; font-size: 0.85rem;
+      line-height: 2; overflow-x: auto; margin: 16px 0;
+    }
+    .toolchain-diagram .arrow { color: var(--color-primary); font-weight: 700; }
+    .toolchain-diagram .node { color: var(--color-text); font-weight: 600; }
+
+    .iteration-card {
+      background: var(--color-surface); border-radius: var(--radius-md); padding: 20px 24px;
+      box-shadow: var(--shadow-sm); margin-bottom: 14px; border-left: 3px solid var(--color-primary);
+    }
+    .iteration-card h3 { font-size: 0.95rem; font-weight: 700; margin-bottom: 4px; }
+    .iteration-card .ver { font-size: 0.75rem; color: var(--color-primary); font-weight: 600; }
+    .iteration-card p { font-size: 0.825rem; margin-bottom: 0; }
+    .iteration-card ul { font-size: 0.825rem; color: var(--color-text-secondary); padding-left: 18px; line-height: 1.8; margin-top: 6px; }
+
+    .skill-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+    .skill-tag { background: var(--color-primary-light); color: var(--color-primary); font-size: 0.75rem; font-weight: 600; padding: 4px 12px; border-radius: 16px; }
+
+    .highlight-box {
+      background: var(--color-primary-light); border-left: 3px solid var(--color-primary);
+      border-radius: 0 var(--radius-md) var(--radius-md) 0; padding: 16px 20px; margin: 16px 0;
+      font-size: 0.875rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="app-header">
+      <a href="/" class="app-logo">🧪 AI 交互模式实验室</a>
+      <nav class="app-nav">
+        <a href="/review.html">设计评审工具</a>
+        <a href="/principles.html">设计原则</a>
+        <a href="/behind-the-scenes.html" style="color:var(--color-primary);">制作幕后</a>
+      </nav>
+    </header>
+
+    <div class="bts-hero">
+      <h1>这个产品是怎么做出来的？</h1>
+      <div class="tagline">不会写代码的设计学生 + AI 工具链<br>= 两个晚上从零到上线的完整产品</div>
+    </div>
+
+    <!-- 核心叙事 -->
+    <section class="bts-section">
+      <h2>一句话总结</h2>
+      <p>这个产品<strong>不是用 AI 一句话生成的</strong>。我（一个不会写代码的设计专业学生）指挥 Claude Code 当我的工程师团队，通过<span style="color:var(--color-primary);">两次迭代、三轮测试、六项生产环境加固</span>，把一个想法变成了运行在真实服务器上的完整产品。</p>
+    </section>
+
+    <!-- 我的角色 -->
+    <section class="bts-section">
+      <h2>我做了什么（人的部分）</h2>
+      <p>我的角色不是写代码，而是<strong>定义方向和控制质量</strong>：</p>
+      <ul style="font-size:0.9rem;color:var(--color-text-secondary);line-height:2;padding-left:20px;">
+        <li><strong>市场调研</strong>：搜索南京 AI 岗位需求，分析自己的优劣势，确认「面向设计学生+AI 评审学习工具」的产品方向</li>
+        <li><strong>目标用户决策</strong>：在「专业设计师工具」和「学生学习辅助」之间选择后者，因为核心价值是启发思考</li>
+        <li><strong>交互流程设计</strong>：定义上传→选维度→评审→追问的核心路径</li>
+        <li><strong>设计原则知识整理</strong>：把尼尔森十大原则、格式塔原理等设计理论用于 Prompt 设计</li>
+        <li><strong>Prompt 工程迭代</strong>：发现 AI 编造像素值后修改 GLM-4V Prompt，要求用相对描述；发现小数评分被 Pydantic 拒绝后修正数据模型</li>
+        <li><strong>质量审查</strong>：AI 写完代码后检查 CORS 配置、JSON 解析鲁棒性、错误信息安全等</li>
+        <li><strong>部署运维</strong>：配置 Nginx 路由、systemd 服务、测试 AI 管道端到端</li>
+      </ul>
+    </section>
+
+    <!-- AI 做了什么 -->
+    <section class="bts-section">
+      <h2>AI 做了什么（机器的部分）</h2>
+      <p>Claude Code 担任了全套工程师角色：</p>
+      <div class="skill-tags">
+        <span class="skill-tag">FastAPI 后端开发</span>
+        <span class="skill-tag">Streaming SSE 实时流</span>
+        <span class="skill-tag">HTML/CSS/JS 前端</span>
+        <span class="skill-tag">GLM-4V 视觉客户端</span>
+        <span class="skill-tag">DeepSeek 评审引擎</span>
+        <span class="skill-tag">Nginx 反向代理</span>
+        <span class="skill-tag">systemd 服务管理</span>
+        <span class="skill-tag">Prompt Engineering</span>
+        <span class="skill-tag">Pydantic 数据建模</span>
+        <span class="skill-tag">CSS 响应式设计</span>
+        <span class="skill-tag">错误处理与重试</span>
+        <span class="skill-tag">会话管理与日志</span>
+      </div>
+    </section>
+
+    <!-- 迭代过程 -->
+    <section class="bts-section">
+      <h2>真实开发过程</h2>
+
+      <div class="iteration-card">
+        <span class="ver">v0.1.0 — 第一晚</span>
+        <h3>从零到跑通</h3>
+        <ul>
+          <li>搭建 FastAPI 骨架 + GLM-4V / DeepSeek 双模型管道</li>
+          <li>创建上传组件、评审结果渲染、追问对话界面</li>
+          <li>设计原则图书馆 + 制作幕后页面</li>
+          <li>Nginx 配置、systemd 部署、端到端测试通过</li>
+        </ul>
+        <p><strong>问题：</strong>6 维度全开时 DeepSeek token 不够导致 JSON 截断；AI 编造具体像素值；CORS 配置有误；分数类型不匹配。</p>
+      </div>
+
+      <div class="iteration-card">
+        <span class="ver">v0.2.0 — 第二天</span>
+        <h3>专业审查与安全加固</h3>
+        <ul>
+          <li>修复 Pydantic 字段类型（score: int → float）</li>
+          <li>增加 JSON 解析三层回退机制（直接解析→去 fences→括号匹配）</li>
+          <li>CORS 改为 allow_credentials=False</li>
+          <li>错误信息脱敏，防止 API Key 泄露</li>
+          <li>添加 API 重试逻辑（指数退避）</li>
+          <li>添加请求日志中间件</li>
+          <li>会话 1 小时 TTL 自动清理</li>
+          <li>前端脚本依赖解耦（提取 utils.js）</li>
+          <li>增加「重新开始」按钮</li>
+          <li>GLM-4V Prompt 强化"不确定就省略"约束</li>
+        </ul>
+      </div>
+
+      <div class="iteration-card">
+        <span class="ver">v0.3.0 — 第二天（续）</span>
+        <h3>体验优化</h3>
+        <ul>
+          <li>流式 SSE 端点：DeepSeek 边生成边推送，消除 63 秒白等</li>
+          <li>聊天上下文裁剪：只发评审摘要 + 最近 6 轮对话</li>
+          <li>制作幕后页面更新为真实开发故事</li>
+          <li>添加 favicon + 移动端 CSS 优化</li>
+          <li>Nginx 关闭流式端点缓冲</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 工具链 -->
+    <section class="bts-section">
+      <h2>我的 AI 工具链</h2>
+      <div class="toolchain-diagram">
+        <span class="node">VS Code + Claude Code</span><br>
+        &nbsp;&nbsp;<span class="arrow">├──</span> <span class="node">DeepSeek API</span>（主力推理 + 流式输出）<br>
+        &nbsp;&nbsp;<span class="arrow">├──</span> <span class="node">智谱 GLM-4V</span>（设计稿视觉分析）<br>
+        &nbsp;&nbsp;<span class="arrow">├──</span> <span class="node">MCP 工具链 × 24</span>（文件/版本/设计/检索）<br>
+        &nbsp;&nbsp;<span class="arrow">├──</span> <span class="node">Skill 系统 × 34</span>（专业能力插件）<br>
+        &nbsp;&nbsp;<span class="arrow">├──</span> <span class="node">三层记忆体系</span>（冷层+温层+热层）<br>
+        &nbsp;&nbsp;<span class="arrow">├──</span> <span class="node">Git Worktree 隔离</span>（安全开发环境）<br>
+        &nbsp;&nbsp;<span class="arrow">└──</span> <span class="node">阿里云服务器</span>（生产部署 + HTTPS）<br>
+      </div>
+    </section>
+
+    <!-- 关键决策 -->
+    <section class="bts-section">
+      <h2>关键设计决策</h2>
+      <div class="decision-card">
+        <h3>为什么用双模型管道而不是一个多模态模型？</h3>
+        <p>GLM-4V 擅长客观视觉识别，DeepSeek 擅长中文推理和教学式表达。分开让「看设计」和「评设计」各司其职，Prompt 更可控，成本也低（每次约 0.03 元）。</p>
+      </div>
+      <div class="decision-card">
+        <h3>为什么前端不用 React/Vue？</h3>
+        <p>交互不复杂，纯 HTML/CSS/JS 对 Claude Code 最友好，修改零成本。用框架反而增加 AI 协作负担。</p>
+      </div>
+      <div class="decision-card">
+        <h3>为什么 Prompt 强调「引导式」而非「说教式」？</h3>
+        <p>目标用户是学习中的设计学生。冰冷的技术评审让人沮丧，启发式反馈让人愿意继续学。给 AI 设定了「用生活类比」「不说你应该这样做」的语调约束。</p>
+      </div>
+    </section>
+
+    <!-- 收获 -->
+    <section class="bts-section">
+      <h2>核心收获</h2>
+      <div class="highlight-box">
+        <strong>不会写代码不是做不出产品的理由。</strong>在 AI 时代，<strong>知道自己要做什么产品</strong>比<strong>知道怎么写代码</strong>更重要。竞争力不是技术栈的熟练度，而是产品判断力 + AI 协作能力。
+      </div>
+    </section>
+
+    <footer class="app-footer">
+      设计引路人 · 用 AI 学习设计思维 · <a href="/">回到首页开始评审</a>
+    </footer>
+  </div>
+</body>
+</html>

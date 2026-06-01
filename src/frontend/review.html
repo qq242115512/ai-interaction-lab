@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>设计引路人 — AI 设计评审学习工具</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎓</text></svg>" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Serif+SC:wght@400;600;700;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/lxgw-wenkai-webfont/1.7.0/lxgwwenkai-regular.css" />
+  <link rel="stylesheet" href="css/style.css?v=2.0.0" />
+</head>
+<body>
+  <div class="app-shell">
+    <header class="app-header">
+      <a href="/" class="app-logo">🧪 AI 交互模式实验室</a>
+      <nav class="app-nav">
+        <a href="/review.html">设计评审工具</a>
+        <a href="/principles.html">设计原则</a>
+        <a href="/behind-the-scenes.html">制作幕后</a>
+      </nav>
+    </header>
+
+    <!-- Error Banner -->
+    <div id="errorBanner" class="error-banner"></div>
+
+    <!-- Upload Section -->
+    <section class="upload-section">
+      <div id="uploadZone" class="upload-zone">
+        <input type="file" id="uploadInput" class="upload-input" accept="image/png,image/jpeg,image/webp" />
+        <div id="uploadPlaceholder">
+          <span class="upload-icon">📤</span>
+          <div class="upload-title">上传你的设计截图</div>
+          <div class="upload-hint">支持 PNG / JPG / WebP，不超过 10MB。拖拽也可以。</div>
+        </div>
+        <div id="uploadPreview" class="upload-preview" style="display:none;">
+          <img id="previewImg" src="" alt="预览" />
+          <div class="upload-preview-info">
+            <div id="previewName" class="upload-preview-name"></div>
+            <div id="previewSize" class="upload-preview-size"></div>
+          </div>
+          <button class="upload-remove-btn" onclick="removeFile()">移除</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Dimension Selection -->
+    <section class="dimension-section">
+      <div class="dimension-title">选择你想评审的维度（可多选）</div>
+      <div class="dimension-grid">
+        <div class="dimension-card" data-dimension="信息架构">
+          <div class="dimension-checkbox"></div>
+          <div>
+            <div class="dimension-label">信息架构</div>
+            <div class="dimension-desc">导航是否清晰、分类是否合理、信息层级是否明确</div>
+          </div>
+        </div>
+        <div class="dimension-card" data-dimension="视觉层级">
+          <div class="dimension-checkbox"></div>
+          <div>
+            <div class="dimension-label">视觉层级</div>
+            <div class="dimension-desc">重要信息是否突出、视觉流是否顺畅、对比是否得当</div>
+          </div>
+        </div>
+        <div class="dimension-card" data-dimension="可用性">
+          <div class="dimension-checkbox"></div>
+          <div>
+            <div class="dimension-label">可用性</div>
+            <div class="dimension-desc">操作是否便捷、反馈是否及时、是否有预防错误的设计</div>
+          </div>
+        </div>
+        <div class="dimension-card" data-dimension="色彩系统">
+          <div class="dimension-checkbox"></div>
+          <div>
+            <div class="dimension-label">色彩系统</div>
+            <div class="dimension-desc">颜色搭配是否和谐、情感表达是否匹配、对比度是否达标</div>
+          </div>
+        </div>
+        <div class="dimension-card" data-dimension="版式设计">
+          <div class="dimension-checkbox"></div>
+          <div>
+            <div class="dimension-label">版式设计</div>
+            <div class="dimension-desc">字体层级是否清晰、间距节奏是否舒适、对齐是否规整</div>
+          </div>
+        </div>
+        <div class="dimension-card" data-dimension="无障碍">
+          <div class="dimension-checkbox"></div>
+          <div>
+            <div class="dimension-label">无障碍</div>
+            <div class="dimension-desc">文字大小是否可读、色彩对比度是否足够、触控区域是否友好</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Submit -->
+    <div class="submit-row">
+      <button id="submitBtn" class="btn btn-primary" disabled>开始评审</button>
+    </div>
+
+    <!-- Loading -->
+    <div id="loadingOverlay" class="loading-overlay">
+      <div class="spinner"></div>
+      <div id="loadingStepVisual" class="loading-step">AI 正在识别设计元素...</div>
+      <div id="loadingStepReview" class="loading-step"></div>
+      <div id="streamTextContainer" class="stream-text-container" style="display:none;">
+        <div class="stream-text-label">AI 实时输出：</div>
+        <pre id="streamText" class="stream-text"></pre>
+      </div>
+    </div>
+
+    <!-- Review Results -->
+    <section id="reviewResults" class="review-results">
+      <div class="overall-score-card">
+        <div id="overallNumber" class="overall-number">—</div>
+        <div class="overall-label">综合评分</div>
+      </div>
+      <div id="dimensionsContainer"></div>
+      <div class="submit-row" style="margin-top: 24px;">
+        <button class="btn btn-secondary" onclick="resetAll()">重新开始新的评审</button>
+      </div>
+    </section>
+
+    <!-- Chat -->
+    <section id="chatSection" class="chat-section" style="display:none;">
+      <div class="chat-title">追问 AI 导师</div>
+      <div id="chatMessages" class="chat-messages"></div>
+      <div class="chat-input-row">
+        <input id="chatInput" class="chat-input" placeholder="对评审内容有任何疑问？在这里追问..." />
+        <button id="chatSendBtn" class="btn btn-primary" style="padding:10px 20px;">发送</button>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+      设计引路人 · 用 AI 学习设计思维 · <a href="/behind-the-scenes.html">这个产品是怎么做出来的？</a> · <a href="/about.html">关于我</a>
+    </footer>
+  </div>
+
+  <script src="js/utils.js?v=1.2.0"></script>
+  <script src="js/api.js?v=1.2.0"></script>
+  <script src="js/upload.js?v=1.2.0"></script>
+  <script src="js/review.js?v=1.2.0"></script>
+  <script src="js/chat.js?v=1.2.0"></script>
+  <script src="js/main.js?v=1.2.0"></script>
+</body>
+</html>

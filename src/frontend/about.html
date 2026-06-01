@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>关于我 — AI 交互模式实验室</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧪</text></svg>" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Serif+SC:wght@400;600;700;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/lxgw-wenkai-webfont/1.7.0/lxgwwenkai-regular.css" />
+  <link rel="stylesheet" href="css/style.css?v=2.0.0" />
+  <style>
+    .info-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:16px; }
+    .info-item { background:var(--color-bg); border-radius:var(--radius-md); padding:14px 18px; }
+    .info-item .info-label { font-size:0.68rem; color:var(--color-text-muted); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:4px; }
+    .info-item .info-value { font-size:0.88rem; color:var(--color-text); font-weight:600; }
+    .info-item .info-value a { color:var(--color-primary); text-decoration:none; }
+    @media (max-width:640px) { .info-grid { grid-template-columns:1fr; } }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="app-header">
+      <a href="/" class="app-logo">🧪 AI 交互模式实验室</a>
+      <nav class="app-nav">
+        <a href="/principles-summary.html">设计原则</a>
+        <a href="/about.html" style="color:var(--color-primary);">关于我</a>
+        <a href="/behind-the-scenes.html">制作幕后</a>
+      </nav>
+    </header>
+
+    <div class="about-card">
+      <h1>樊书洋</h1>
+      <div class="about-role">AI 交互设计师 · 南京传媒学院 智能交互设计专业 大二</div>
+      <div class="about-bio">
+        不会写代码，但能用 AI 工具链从零做出完整产品。<br>
+        核心竞争力：产品判断力 × AI 协作能力。<br>
+        这个实验室展示了 7 种 AI 交互模式——从设计理论到技术实现的全流程思考。
+      </div>
+      <div class="skill-tags">
+        <span class="skill-tag">AI 交互设计</span>
+        <span class="skill-tag">Prompt Engineering</span>
+        <span class="skill-tag">Vibe Coding</span>
+        <span class="skill-tag">多智能体编排</span>
+        <span class="skill-tag">设计系统</span>
+        <span class="skill-tag">FastAPI</span>
+        <span class="skill-tag">服务器部署</span>
+        <span class="skill-tag">尼尔森十大原则</span>
+        <span class="skill-tag">格式塔原理</span>
+      </div>
+    </div>
+
+    <div class="info-grid">
+      <div class="info-item">
+        <div class="info-label">学校</div>
+        <div class="info-value">南京传媒学院</div>
+      </div>
+      <div class="info-item">
+        <div class="info-label">专业 · 年级</div>
+        <div class="info-value">智能交互设计 · 大二下学期</div>
+      </div>
+      <div class="info-item">
+        <div class="info-label">目标岗位</div>
+        <div class="info-value">AI 交互设计师（暑期实习）</div>
+      </div>
+      <div class="info-item">
+        <div class="info-label">备选方向</div>
+        <div class="info-value">AI 产品助理 · AI 前端开发</div>
+      </div>
+      <div class="info-item">
+        <div class="info-label">可入职时间</div>
+        <div class="info-value">2026 年 7 月</div>
+      </div>
+      <div class="info-item">
+        <div class="info-label">邮箱</div>
+        <div class="info-value"><a href="mailto:fsy20060225@163.com">fsy20060225@163.com</a></div>
+      </div>
+    </div>
+
+    <div class="pattern-section" style="margin-top:24px;">
+      <h2>这个项目是什么</h2>
+      <p>一个 AI 交互模式实验室，展示 7 种 AI 产品中常见的交互设计模式。每种模式包含设计思路说明和可交互 Demo。目标是让面试官通过实际体验理解我的 AI 交互设计思维。</p>
+    </div>
+
+    <div class="pattern-section">
+      <h2>我为什么适合 AI 交互设计</h2>
+      <p>我不会写代码，但我理解设计理论（尼尔森十大原则、格式塔原理、简约至上），并且能指挥 AI 把这些理论变成真实的、可交互的产品。在 AI 时代，<strong>知道自己要做什么产品</strong>比<strong>知道怎么写代码</strong>更重要。这个项目的每一行代码都是 AI 写的，但每一个设计决策——为什么用流式输出而不是一次性加载、为什么 AI 不确定时要反问——都是我做的。</p>
+    </div>
+
+    <footer class="app-footer">
+      AI 交互模式实验室 · 樊书洋 · <a href="/">回到首页</a> · <a href="/behind-the-scenes.html">制作幕后</a>
+    </footer>
+  </div>
+</body>
+</html>

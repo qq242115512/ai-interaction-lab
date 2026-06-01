@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>连通性诊断</title>
+<style>
+body { font-family: -apple-system, 'PingFang SC', sans-serif; padding: 16px; max-width: 500px; margin: 0 auto; }
+h2 { font-size: 18px; }
+button { display: block; width: 100%; padding: 14px; margin: 8px 0; font-size: 15px; border: 1.5px solid #d4d4d4; border-radius: 8px; background: #fff; text-align: left; cursor: pointer; }
+button:active { background: #f0f0ff; }
+.result { margin: 8px 0; padding: 10px 14px; border-radius: 8px; font-size: 13px; word-break: break-all; }
+.result.ok { background: #ecfdf5; color: #065f46; }
+.result.fail { background: #fef2f2; color: #991b1b; }
+.result.wait { background: #fffbeb; color: #92400e; }
+#log { margin-top: 12px; }
+</style>
+</head>
+<body>
+<h2>设计引路人 — 连通性诊断</h2>
+<p style="font-size:13px;color:#888;">依次点击下面的按钮进行测试</p>
+
+<div id="btns"></div>
+<div id="log"></div>
+
+<script>
+var logEl = document.getElementById("log");
+
+function addResult(msg, type) {
+  var d = document.createElement("div");
+  d.className = "result " + (type || "ok");
+  d.textContent = (type === "ok" ? "[OK] " : type === "fail" ? "[FAIL] " : "[...] ") + msg;
+  logEl.appendChild(d);
+}
+
+function addBtn(label, fn) {
+  var b = document.createElement("button");
+  b.textContent = label;
+  b.onclick = fn;
+  document.getElementById("btns").appendChild(b);
+}
+
+function test1() {
+  addResult("测试页面可以运行 JavaScript", "ok");
+  addResult("浏览器: " + navigator.userAgent.substring(0, 80), "wait");
+}
+
+function test2() {
+  addResult("请求 GET /api/health ...", "wait");
+  fetch("/api/health")
+    .then(function(r) {
+      if (!r.ok) throw new Error("HTTP " + r.status);
+      return r.json();
+    })
+    .then(function(d) {
+      addResult("健康检查通过: v" + d.version + ", sessions=" + d.sessions, "ok");
+    })
+    .catch(function(e) {
+      addResult("健康检查失败: " + e.message, "fail");
+    });
+}
+
+function test3() {
+  addResult("请求 POST /api/review ...", "wait");
+
+  var canvas = document.createElement("canvas");
+  canvas.width = 200;
+  canvas.height = 150;
+  var ctx = canvas.getContext("2d");
+  ctx.fillStyle = "#f5f5f7";
+  ctx.fillRect(0, 0, 200, 150);
+  ctx.fillStyle = "#4f46e5";
+  ctx.fillRect(20, 20, 160, 40);
+  ctx.fillStyle = "#1c1917";
+  ctx.font = "14px sans-serif";
+  ctx.fillText("Dashboard", 30, 46);
+
+  canvas.toBlob(function(blob) {
+    var fd = new FormData();
+    fd.append("image", blob, "test.png");
+    fd.append("dimensions", '["视觉层级"]');
+
+    var t0 = Date.now();
+    fetch("/api/review", { method: "POST", body: fd })
+      .then(function(r) {
+        addResult("服务器响应: HTTP " + r.status + " (" + ((Date.now()-t0)/1000).toFixed(1) + "s)", "wait");
+        var ct = r.headers.get("content-type") || "";
+        addResult("Content-Type: " + ct, "wait");
+        return r.text();
+      })
+      .then(function(text) {
+        var preview = text.substring(0, 100).replace(/\n/g, " ");
+        addResult("响应开头: " + preview, "wait");
+        try {
+          var d = JSON.parse(text);
+          addResult("JSON 解析成功! session=" + d.session_id.substring(0,8) + ", score=" + d.overall_score, "ok");
+        } catch(e) {
+          addResult("JSON 解析失败: " + e.message, "fail");
+        }
+      })
+      .catch(function(e) {
+        addResult("请求失败: " + e.message, "fail");
+      });
+  }, "image/png");
+}
+
+addBtn("1. 测试 JavaScript 运行", test1);
+addBtn("2. 测试健康检查 GET /api/health", test2);
+addBtn("3. 测试评审 POST /api/review", test3);
+</script>
+</body>
+</html>
