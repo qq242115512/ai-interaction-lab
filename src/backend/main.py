@@ -1,7 +1,7 @@
 import time
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from routers import review, chat, stream, patterns
+from routers import review, chat, stream, patterns, agent_system
 from services.utils import setup_logging, cleanup_old_sessions, logger
 
 setup_logging()
@@ -21,6 +21,7 @@ app.include_router(review.router, prefix="/api")
 app.include_router(chat.router, prefix="/api")
 app.include_router(stream.router, prefix="/api")
 app.include_router(patterns.router, prefix="/api")
+app.include_router(agent_system.router, prefix="/api")
 
 # Share session store across routers
 chat.sessions = review.sessions
