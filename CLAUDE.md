@@ -16,7 +16,7 @@
 
 ## 15 角色工作流
 
-所有角色定义在 `C:\Users\qq242\.claude\skill\agents\` 下，每个角色有独立的 SKILL.md。
+所有角色定义在 `C:\Users\qq242\.claude\skills\agents\` 下，每个角色有独立的 SKILL.md。
 
 ### 流水线顺序
 

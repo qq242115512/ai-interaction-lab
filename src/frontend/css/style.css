@@ -836,11 +836,7 @@ strong { color: var(--stone-900); }
   color: var(--stone-700);
   transition: border-color 0.3s var(--ease-out),
               transform 0.25s var(--ease-out);
-
-  /* card entrance animation */
-  opacity: 0;
-  transform: translateY(24px);
-  animation: card-enter 0.5s var(--ease-out) forwards;
+  opacity: 1;
 }
 .pattern-card:nth-child(1) { animation-delay: 0.05s; }
 .pattern-card:nth-child(2) { animation-delay: 0.13s; }
@@ -1631,9 +1627,4 @@ strong { color: var(--stone-900); }
   }
 }
 
-/* Wrap motion-heavy animations */
-@media (prefers-reduced-motion: no-preference) {
-  .pattern-card {
-    animation: card-enter 0.5s var(--ease-out) forwards;
-  }
-}
+/* animations moved to GSAP — see js/animations.js */
