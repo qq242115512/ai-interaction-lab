@@ -31,12 +31,18 @@ jobs:
           echo "${{ secrets.DEPLOY_SSH_KEY }}" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
           ssh-keyscan -H ${{ secrets.DEPLOY_HOST }} > ~/.ssh/known_hosts 2>/dev/null
+          # 让 rsync 和 ssh 自动用这个密钥
+          echo "Host ${{ secrets.DEPLOY_HOST }}
+            IdentityFile ~/.ssh/id_ed25519
+            User ${{ secrets.DEPLOY_USER }}
+            StrictHostKeyChecking yes" > ~/.ssh/config
+          chmod 600 ~/.ssh/config
           echo "SSH 连接配置完成"
 
       # ── 第 3 步：创建备份（部署前的代码快照）──
       - name: 创建备份
         run: |
-          ssh ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} "
+          ssh ${{ secrets.DEPLOY_HOST }} "
             mkdir -p /opt/design-mentor/backups
             BACKUP_FILE=/opt/design-mentor/backups/backup-\$(date +%Y%m%d_%H%M%S).tar.gz
             sudo tar czf \"\$BACKUP_FILE\" \
@@ -59,7 +65,7 @@ jobs:
             --exclude='__pycache__/' \
             --exclude='*.pyc' \
             src/backend/ \
-            ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:/opt/design-mentor/
+            ${{ secrets.DEPLOY_HOST }}:/opt/design-mentor/
           echo "后端代码上传完成"
 
       # ── 第 5 步：上传前端代码 ──
@@ -67,22 +73,22 @@ jobs:
         run: |
           rsync -avz --delete \
             src/frontend/ \
-            ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:/var/www/html/
+            ${{ secrets.DEPLOY_HOST }}:/var/www/html/
           echo "前端代码上传完成"
 
       # ── 第 6 步：上传静态数据（agents.json 等）──
       - name: 上传数据文件
         run: |
-          ssh ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} "mkdir -p /opt/design-mentor/data"
+          ssh ${{ secrets.DEPLOY_HOST }} "mkdir -p /opt/design-mentor/data"
           rsync -avz \
             src/backend/data/ \
-            ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:/opt/design-mentor/data/
+            ${{ secrets.DEPLOY_HOST }}:/opt/design-mentor/data/
           echo "数据文件上传完成"
 
       # ── 第 7 步：安装 Python 依赖 ──
       - name: 安装 Python 依赖
         run: |
-          ssh ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} "
+          ssh ${{ secrets.DEPLOY_HOST }} "
             sudo /opt/design-mentor/venv/bin/pip install \
               -r /opt/design-mentor/requirements.txt -q
           "
@@ -91,7 +97,7 @@ jobs:
       # ── 第 8 步：重启后端服务 ──
       - name: 重启服务
         run: |
-          ssh ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} "
+          ssh ${{ secrets.DEPLOY_HOST }} "
             sudo systemctl restart design-mentor
             sleep 3
             echo '服务已重启'
@@ -101,7 +107,7 @@ jobs:
       - name: 健康检查
         run: |
           for i in 1 2 3 4 5; do
-            STATUS=$(ssh ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} "
+            STATUS=$(ssh ${{ secrets.DEPLOY_HOST }} "
               curl -s -o /dev/null -w '%{http_code}' http://localhost:8080/api/health
             ")
             if [ "$STATUS" = "200" ]; then
@@ -118,7 +124,7 @@ jobs:
       - name: 清理旧备份
         if: success()
         run: |
-          ssh ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} "
+          ssh ${{ secrets.DEPLOY_HOST }} "
             cd /opt/design-mentor/backups
             ls -t backup-*.tar.gz 2>/dev/null | tail -n +6 | xargs -r sudo rm -f
           "
@@ -129,7 +135,7 @@ jobs:
         if: failure()
         run: |
           echo "⚠️ 部署失败，开始自动回滚..."
-          ssh ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} '
+          ssh ${{ secrets.DEPLOY_HOST }} '
             LATEST=$(ls -t /opt/design-mentor/backups/backup-*.tar.gz 2>/dev/null | head -1)
             if [ -z "$LATEST" ]; then
               echo "❌ 没有找到备份文件，无法回滚！"
