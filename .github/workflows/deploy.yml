@@ -1,170 +1,153 @@
 # ============================================================
-# 自动部署工作流（持续部署 / CD）
-# 触发条件：往 main 分支 push 代码时自动运行
-# 做的事情：备份 → 上传 → 装依赖 → 重启 → 检查健康 → 失败自动回滚
+# 自动部署工作流（持续部署 / Continuous Deployment）
+# 触发：往 main 分支 push src/ 目录下代码时自动运行
+# 流程：备份 → 上传 → 装依赖 → 重启 → 健康检查 → 失败自动回滚
 # ============================================================
 
-name: 自动部署到阿里云
+name: 自动部署
 
 on:
   push:
     branches: [main]
     paths:
-      - 'src/**'                      # 只有 src/ 目录有变更才触发
-      - '.github/workflows/deploy.yml' # 部署脚本自身有变更也触发
-  workflow_dispatch:                   # 允许手动触发（GitHub 网页上点按钮）
+      - 'src/**'
+      - '.github/workflows/deploy.yml'
+  workflow_dispatch:
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest            # 在 GitHub 提供的最新 Ubuntu 虚拟机上跑
-    timeout-minutes: 10               # 超时 10 分钟自动终止
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
 
     steps:
-      # ── 第 1 步：拉取代码 ──
       - name: 拉取代码
         uses: actions/checkout@v4
 
-      # ── 第 2 步：配置 SSH 免密登录 ──
-      - name: 配置 SSH 连接
+      - name: 配置 SSH
+        env:
+          SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          SSH_HOST: ${{ secrets.DEPLOY_HOST }}
+          SSH_USER: ${{ secrets.DEPLOY_USER }}
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.DEPLOY_SSH_KEY }}" > ~/.ssh/deploy_key
+          echo "$SSH_KEY" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
-          ssh-keyscan -H deploy_server > ~/.ssh/known_hosts 2>/dev/null
-          # 让后续所有 ssh/rsync 命令自动用这个密钥
-          echo "export RSYNC_RSH='ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=accept-new'" >> ~/.bashrc
-          export RSYNC_RSH="ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=accept-new"
-          # 也创建一个 SSH 别名
-          echo "Host deploy_server
-            HostName deploy_server
-            User ${{ secrets.DEPLOY_USER }}
-            IdentityFile ~/.ssh/deploy_key
-            StrictHostKeyChecking accept-new" > ~/.ssh/config
-          chmod 600 ~/.ssh/config
-          echo "SSH 配置完成"
+          ssh-keyscan -H $SSH_HOST >> ~/.ssh/known_hosts 2>/dev/null
+          # 关键：环境变量让后续 rsync/ssh 自动用密钥
+          echo "RSYNC_RSH=ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=accept-new -o BatchMode=yes" >> $GITHUB_ENV
+          echo "SSH_CMD=ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=accept-new -o BatchMode=yes -l $SSH_USER" >> $GITHUB_ENV
+          # 先测试连接
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=accept-new -o BatchMode=yes -l $SSH_USER $SSH_HOST "echo 'SSH 连接成功'"
 
-      # ── 第 3 步：创建备份（部署前的代码快照）──
       - name: 创建备份
+        env:
+          SSH_HOST: ${{ secrets.DEPLOY_HOST }}
+          SSH_USER: ${{ secrets.DEPLOY_USER }}
         run: |
-          ssh deploy_server "
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=accept-new -o BatchMode=yes -l $SSH_USER $SSH_HOST "
             mkdir -p /opt/design-mentor/backups
             BACKUP_FILE=/opt/design-mentor/backups/backup-\$(date +%Y%m%d_%H%M%S).tar.gz
-            sudo tar czf \"\$BACKUP_FILE\" \
-              -C /opt/design-mentor \
-              --exclude='venv' \
-              --exclude='backups' \
-              --exclude='__pycache__' \
-              --exclude='.env' \
-              .
-            echo \"BACKUP_OK \$BACKUP_FILE\"
+            sudo tar czf \"\$BACKUP_FILE\" -C /opt/design-mentor \
+              --exclude='venv' --exclude='backups' --exclude='__pycache__' --exclude='.env' .
+            echo \"备份完成: \$BACKUP_FILE\"
           "
 
-      # ── 第 4 步：上传后端代码（rsync 增量传输）──
-      - name: 上传后端代码
+      - name: 上传后端
+        env:
+          SSH_HOST: ${{ secrets.DEPLOY_HOST }}
+          SSH_USER: ${{ secrets.DEPLOY_USER }}
         run: |
           rsync -avz --delete \
-            --exclude='.env' \
-            --exclude='venv/' \
-            --exclude='backups/' \
-            --exclude='__pycache__/' \
-            --exclude='*.pyc' \
+            -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=accept-new -o BatchMode=yes" \
+            --exclude='.env' --exclude='venv/' --exclude='backups/' --exclude='__pycache__/' --exclude='*.pyc' \
             src/backend/ \
-            deploy_server:/opt/design-mentor/
-          echo "后端代码上传完成"
+            $SSH_USER@$SSH_HOST:/opt/design-mentor/
 
-      # ── 第 5 步：上传前端代码 ──
-      - name: 上传前端代码
+      - name: 上传前端
+        env:
+          SSH_HOST: ${{ secrets.DEPLOY_HOST }}
+          SSH_USER: ${{ secrets.DEPLOY_USER }}
         run: |
           rsync -avz --delete \
+            -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=accept-new -o BatchMode=yes" \
             src/frontend/ \
-            deploy_server:/var/www/html/
-          echo "前端代码上传完成"
+            $SSH_USER@$SSH_HOST:/var/www/html/
 
-      # ── 第 6 步：上传静态数据（agents.json 等）──
-      - name: 上传数据文件
+      - name: 上传数据
+        env:
+          SSH_HOST: ${{ secrets.DEPLOY_HOST }}
+          SSH_USER: ${{ secrets.DEPLOY_USER }}
         run: |
-          ssh deploy_server "mkdir -p /opt/design-mentor/data"
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=accept-new -o BatchMode=yes -l $SSH_USER $SSH_HOST "mkdir -p /opt/design-mentor/data"
           rsync -avz \
+            -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=accept-new -o BatchMode=yes" \
             src/backend/data/ \
-            deploy_server:/opt/design-mentor/data/
-          echo "数据文件上传完成"
+            $SSH_USER@$SSH_HOST:/opt/design-mentor/data/
 
-      # ── 第 7 步：安装 Python 依赖 ──
-      - name: 安装 Python 依赖
+      - name: 装依赖
+        env:
+          SSH_HOST: ${{ secrets.DEPLOY_HOST }}
+          SSH_USER: ${{ secrets.DEPLOY_USER }}
         run: |
-          ssh deploy_server "
-            sudo /opt/design-mentor/venv/bin/pip install \
-              -r /opt/design-mentor/requirements.txt -q
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=accept-new -o BatchMode=yes -l $SSH_USER $SSH_HOST "
+            sudo /opt/design-mentor/venv/bin/pip install -r /opt/design-mentor/requirements.txt -q
           "
-          echo "依赖安装完成"
 
-      # ── 第 8 步：重启后端服务 ──
       - name: 重启服务
+        env:
+          SSH_HOST: ${{ secrets.DEPLOY_HOST }}
+          SSH_USER: ${{ secrets.DEPLOY_USER }}
         run: |
-          ssh deploy_server "
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=accept-new -o BatchMode=yes -l $SSH_USER $SSH_HOST "
             sudo systemctl restart design-mentor
             sleep 3
-            echo '服务已重启'
           "
 
-      # ── 第 9 步：健康检查（验证服务是否正常）──
       - name: 健康检查
+        env:
+          SSH_HOST: ${{ secrets.DEPLOY_HOST }}
+          SSH_USER: ${{ secrets.DEPLOY_USER }}
         run: |
           for i in 1 2 3 4 5; do
-            STATUS=$(ssh deploy_server "
+            STATUS=$(ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=accept-new -o BatchMode=yes -l $SSH_USER $SSH_HOST "
               curl -s -o /dev/null -w '%{http_code}' http://localhost:8080/api/health
             ")
             if [ "$STATUS" = "200" ]; then
-              echo "✅ 健康检查通过（第 $i 次，HTTP $STATUS）"
+              echo "✅ 健康检查通过（第 $i 次）"
               exit 0
             fi
-            echo "⏳ 第 $i 次状态 HTTP $STATUS，等待 3 秒..."
+            echo "⏳ 第 $i 次 HTTP $STATUS，等待..."
             sleep 3
           done
-          echo "❌ 健康检查失败——5 次尝试后服务仍未响应"
+          echo "❌ 健康检查失败"
           exit 1
 
-      # ── 第 10 步：清理旧备份（只在成功时）──
       - name: 清理旧备份
         if: success()
+        env:
+          SSH_HOST: ${{ secrets.DEPLOY_HOST }}
+          SSH_USER: ${{ secrets.DEPLOY_USER }}
         run: |
-          ssh deploy_server "
-            cd /opt/design-mentor/backups
-            ls -t backup-*.tar.gz 2>/dev/null | tail -n +6 | xargs -r sudo rm -f
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=accept-new -o BatchMode=yes -l $SSH_USER $SSH_HOST "
+            ls -t /opt/design-mentor/backups/backup-*.tar.gz 2>/dev/null | tail -n +6 | xargs -r sudo rm -f
           "
-          echo "旧备份清理完成（保留最近 5 个）"
 
-      # ── 回滚步骤：部署失败时自动恢复（只在失败时）──
       - name: 自动回滚
         if: failure()
+        env:
+          SSH_HOST: ${{ secrets.DEPLOY_HOST }}
+          SSH_USER: ${{ secrets.DEPLOY_USER }}
         run: |
-          echo "⚠️ 部署失败，开始自动回滚..."
-          ssh deploy_server '
+          echo "⚠️ 部署失败，回滚..."
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=accept-new -o BatchMode=yes -l $SSH_USER $SSH_HOST '
             LATEST=$(ls -t /opt/design-mentor/backups/backup-*.tar.gz 2>/dev/null | head -1)
-            if [ -z "$LATEST" ]; then
-              echo "❌ 没有找到备份文件，无法回滚！"
-              exit 1
-            fi
-            echo "找到备份: $LATEST"
-
-            # 清空当前代码
-            sudo find /opt/design-mentor -mindepth 1 -maxdepth 1 \
-              ! -name "venv" ! -name "backups" ! -name ".env" \
-              -exec rm -rf {} \;
-
-            # 恢复备份
+            if [ -z "$LATEST" ]; then echo "无备份可回滚"; exit 1; fi
+            sudo find /opt/design-mentor -mindepth 1 -maxdepth 1 ! -name "venv" ! -name "backups" ! -name ".env" -exec rm -rf {} \;
             sudo tar xzf "$LATEST" -C /opt/design-mentor/
             sudo chown -R deploy:deploy /opt/design-mentor
-
-            # 重启服务
             sudo systemctl restart design-mentor
             sleep 3
-
-            # 验证回滚
             STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/api/health)
-            if [ "$STATUS" != "200" ]; then
-              echo "❌ 回滚后健康检查仍然失败（HTTP $STATUS）——需要人工介入"
-              exit 1
-            fi
-            echo "✅ 回滚成功——服务已恢复到上一个正常版本"
+            if [ "$STATUS" != "200" ]; then echo "❌ 回滚失败 HTTP $STATUS"; exit 1; fi
+            echo "✅ 回滚成功"
           '
