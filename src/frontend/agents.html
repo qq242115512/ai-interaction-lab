@@ -114,7 +114,7 @@
     }
     .btn-agent-primary {
       display: inline-flex;
-      align-items: flex-start;
+      align-items: center;
       gap: var(--space-2);
       padding: 10px 24px;
       background: var(--agent-accent);
@@ -132,7 +132,7 @@
     .btn-agent-primary:active { transform: scale(0.97); }
     .btn-agent-secondary {
       display: inline-flex;
-      align-items: flex-start;
+      align-items: center;
       gap: var(--space-2);
       padding: 10px 24px;
       background: transparent;
@@ -151,14 +151,13 @@
 
     /* ===== Pipeline Visualization ===== */
     .pipeline-container {
-    overflow: visible;
       position: relative;
       padding: var(--space-8) 0 var(--space-4);
     }
     .pipeline-header-row {
       display: flex;
       justify-content: space-between;
-      align-items: flex-start;
+      align-items: center;
       margin-bottom: var(--space-3);
     }
     .btn-expand-all {
@@ -177,7 +176,6 @@
 
     /* Orchestrator hexagon */
     .orchestrator-row {
-    margin-bottom: var(--space-8);
       display: flex;
       justify-content: center;
       margin-bottom: var(--space-5);
@@ -189,7 +187,7 @@
       background: var(--agent-accent);
       clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
       display: flex;
-      align-items: flex-start;
+      align-items: center;
       justify-content: center;
       cursor: pointer;
       transition: transform 0.2s var(--ease-out), box-shadow 0.2s var(--ease-out);
@@ -212,12 +210,17 @@
       font-size: var(--text-xs);
       color: var(--stone-400);
     }
-.orchestrator-dashed-lines { display: none; }
+    .orchestrator-dashed-lines {
+      position: absolute;
+      top: 64px;
+      left: 50%;
+      width: 1px;
+      height: 32px;
+      border-left: 2px dashed var(--agent-accent-muted);
+    }
 
     /* Stage row */
     .pipeline-stages-row {
-      margin-bottom: var(--space-3);
-    align-items: flex-start;
       display: flex;
       align-items: flex-start;
       justify-content: center;
@@ -230,14 +233,14 @@
     .pipeline-stage-item {
       display: flex;
       flex-direction: column;
-      align-items: flex-start;
+      align-items: center;
       flex-shrink: 0;
       position: relative;
     }
 
     .pipeline-connector-wrap {
       display: flex;
-      align-items: flex-start;
+      align-items: center;
       align-self: center;
       flex-shrink: 0;
       width: 40px;
@@ -254,7 +257,7 @@
       height: 64px;
       border-radius: 50%;
       display: flex;
-      align-items: flex-start;
+      align-items: center;
       justify-content: center;
       cursor: pointer;
       position: relative;
@@ -292,7 +295,7 @@
       border: 1.5px solid var(--stone-200);
       font-size: 0.6rem;
       display: flex;
-      align-items: flex-start;
+      align-items: center;
       justify-content: center;
       color: var(--stone-600);
       font-weight: 700;
@@ -302,7 +305,6 @@
 
     /* Expanded sub-roles */
     .stage-expanded-row {
-      margin-top: var(--space-3);
       width: 100%;
       overflow: hidden;
       transition: max-height 0.4s var(--ease-out), opacity 0.3s var(--ease-out);
@@ -316,7 +318,7 @@
     }
     .sub-role-node {
       display: inline-flex;
-      align-items: flex-start;
+      align-items: center;
       gap: var(--space-2);
       padding: 8px 16px;
       border-radius: var(--radius-full);
@@ -381,14 +383,14 @@
     }
     .detail-panel-header {
       display: flex;
-      align-items: flex-start;
+      align-items: center;
       justify-content: space-between;
       padding: var(--space-5) var(--space-5) var(--space-3);
       border-bottom: 1px solid var(--stone-200);
     }
     .detail-panel-title {
       display: flex;
-      align-items: flex-start;
+      align-items: center;
       gap: var(--space-3);
     }
     .detail-panel-icon {
@@ -396,7 +398,7 @@
       height: 40px;
       border-radius: var(--radius-sm);
       display: flex;
-      align-items: flex-start;
+      align-items: center;
       justify-content: center;
       font-size: 1.2rem;
     }
@@ -411,7 +413,7 @@
       cursor: pointer;
       font-size: 1rem;
       display: flex;
-      align-items: flex-start;
+      align-items: center;
       justify-content: center;
       color: var(--stone-600);
       transition: background 0.15s var(--ease-out);
@@ -469,7 +471,7 @@
     .detail-stat-label { font-size: var(--text-xs); color: var(--stone-600); }
     .detail-lesson-badge {
       display: inline-flex;
-      align-items: flex-start;
+      align-items: center;
       gap: var(--space-1);
       background: var(--color-warning-light);
       color: var(--color-warning);
@@ -513,7 +515,7 @@
     .agent-card:hover::before { width: 6px; }
     .agent-card-header {
       display: flex;
-      align-items: flex-start;
+      align-items: center;
       gap: var(--space-2);
       margin-bottom: var(--space-2);
     }
@@ -522,7 +524,7 @@
       height: 36px;
       border-radius: var(--radius-sm);
       display: flex;
-      align-items: flex-start;
+      align-items: center;
       justify-content: center;
       font-size: 1.1rem;
       flex-shrink: 0;
@@ -546,7 +548,7 @@
     .agent-card-skill-row {
       display: flex;
       justify-content: space-between;
-      align-items: flex-start;
+      align-items: center;
       margin-bottom: 3px;
     }
     .agent-card-skill-label {
@@ -573,7 +575,7 @@
     }
     .agent-card-lessons {
       display: flex;
-      align-items: flex-start;
+      align-items: center;
       gap: var(--space-1);
       font-size: var(--text-xs);
     }
@@ -700,7 +702,7 @@
     }
     .lesson-card-meta {
       display: flex;
-      align-items: flex-start;
+      align-items: center;
       justify-content: space-between;
       font-size: var(--text-xs);
       color: var(--stone-600);
@@ -818,16 +820,14 @@
     @media (max-width: 640px) {
       .stat-strip-inner { grid-template-columns: repeat(2, 1fr); gap: var(--space-4); }
       .stat-number { font-size: 2rem; }
-      .pipeline-stages-row {
-      margin-bottom: var(--space-3);
-    align-items: flex-start; flex-wrap: wrap; justify-content: center; gap: var(--space-3); }
+      .pipeline-stages-row { flex-wrap: wrap; justify-content: center; gap: var(--space-3); }
       .pipeline-connector-wrap { display: none; }
       .pipeline-stage-node { width: 52px; height: 52px; font-size: 1.1rem; }
       .agent-grid { grid-template-columns: repeat(2, 1fr); }
       .detail-panel { width: 100vw; }
       .framework-table-wrap { margin: 0 calc(-1 * var(--page-padding-x)); }
       .framework-table { min-width: 640px; }
-      .sub-roles-inner { flex-direction: column; align-items: flex-start; }
+      .sub-roles-inner { flex-direction: column; align-items: center; }
       .timeline-container { padding-left: 32px; }
       .timeline-dot { left: -27px; }
     }
