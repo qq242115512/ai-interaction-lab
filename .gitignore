@@ -13,8 +13,9 @@ __pycache__/
 *.pyc
 venv/
 
-# 部署配置（含服务器路径）
-src/deploy/
+# 部署脚本（含服务器信息不提交）
+src/deploy/deploy.sh
+src/deploy/test_*.py
 
 # 大文件
 assets/
