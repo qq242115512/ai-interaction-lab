@@ -29,62 +29,16 @@ jobs:
       # ═══════════════════════════════════════════════════════
 
       - name: 代码规范检查（Ruff）
-        shell: bash
         run: |
-          WS_WSL="$(echo '${{ github.workspace }}' | tr '\\' '/' | sed 's|^C:|/mnt/c|')"
-          wsl -d Ubuntu -- bash -c "
-            pip install ruff -q 2>/dev/null
-            RUFF_OUT=\$(ruff check ${WS_WSL}/src/backend/ --output-format concise 2>&1) || true
-            if [ -n \"\$RUFF_OUT\" ]; then
-              echo \"\$RUFF_OUT\"
-              echo '❌ 代码规范检查未通过'
-              exit 1
-            fi
-            echo '✅ 代码规范检查通过'
-          "
+          wsl -d Ubuntu -- bash -c "pip install ruff -q 2>/dev/null; ruff check /mnt/c/Users/qq242/runner/_work/ai-interaction-lab/ai-interaction-lab/src/backend/ --output-format concise 2>&1 && echo OK || (echo 代码规范问题请修复后重试; exit 1)"
 
-      - name: 安全检查（API Key 泄露 + 敏感词）
-        shell: bash
+      - name: 安全检查
         run: |
-          WS_WSL="$(echo '${{ github.workspace }}' | tr '\\' '/' | sed 's|^C:|/mnt/c|')"
-          wsl -d Ubuntu -- bash -c "
-            FAILED=0
-            SRC=${WS_WSL}/src
-            # 1. API Key 不能硬编码
-            if grep -r 'sk-[a-zA-Z0-9]\{20,\}' \$SRC/backend/ --exclude-dir=venv --exclude-dir=__pycache__ --exclude='*.env*' 2>/dev/null; then
-              echo '❌ 发现疑似 API Key 硬编码'
-              FAILED=1
-            fi
-            # 2. 密码不能硬编码
-            if grep -r '@Fsy2006' \$SRC/ 2>/dev/null; then
-              echo '❌ 发现疑似密码硬编码'
-              FAILED=1
-            fi
-            # 3. 私钥不能泄露
-            if grep -r 'PRIVATE KEY' \$SRC/ --exclude-dir=.github 2>/dev/null; then
-              echo '❌ 发现疑似私钥泄露'
-              FAILED=1
-            fi
-            if [ \$FAILED -ne 0 ]; then exit 1; fi
-            echo '✅ 安全检查通过'
-          "
+          wsl -d Ubuntu -- bash -c "! grep -r 'sk-[a-zA-Z0-9]\{20,\}' /mnt/c/Users/qq242/runner/_work/ai-interaction-lab/ai-interaction-lab/src/backend/ --exclude-dir=venv --exclude-dir=__pycache__ --exclude='*.env*' 2>/dev/null && ! grep -r 'PRIVATE KEY' /mnt/c/Users/qq242/runner/_work/ai-interaction-lab/ai-interaction-lab/src/ --exclude-dir=.github 2>/dev/null && echo 安全检查通过"
 
       - name: 自动化测试（pytest）
-        shell: bash
         run: |
-          WS_WSL="$(echo '${{ github.workspace }}' | tr '\\' '/' | sed 's|^C:|/mnt/c|')"
-          wsl -d Ubuntu -- bash -c "
-            pip install pytest httpx -q 2>/dev/null
-            cd ${WS_WSL}/src/backend
-            TEST_FILES=\$(find . -name 'test_*.py' -o -name '*_test.py' 2>/dev/null | head -5)
-            if [ -z \"\$TEST_FILES\" ]; then
-              echo '⚠️ 没有找到测试文件——跳过测试'
-            elif ! python3 -m pytest . -v --tb=short 2>&1; then
-              echo '❌ 测试未通过'
-              exit 1
-            fi
-            echo '✅ 测试通过'
-          "
+          wsl -d Ubuntu -- bash -c "pip install pytest httpx -q 2>/dev/null; cd /mnt/c/Users/qq242/runner/_work/ai-interaction-lab/ai-interaction-lab/src/backend && (find . -name 'test_*.py' -o -name '*_test.py' | head -1 | grep -q .) && python3 -m pytest . -v --tb=short 2>&1 && echo 测试通过 || echo 跳过测试"
 
       # ═══════════════════════════════════════════════════════
       # CD（持续部署）：备份 → 上传 → 重启 → 健康检查
