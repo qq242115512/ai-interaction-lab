@@ -31,59 +31,60 @@ jobs:
       - name: 代码规范检查（Ruff）
         shell: bash
         run: |
-          echo "=== 检查 Python 代码规范 ==="
-          RUFF_OUT=$(ruff check src/backend/ --output-format concise 2>&1)
-          if [ -n "$RUFF_OUT" ]; then
-            echo "$RUFF_OUT"
-            echo ""
-            echo "❌ 代码规范检查未通过"
-            exit 1
-          fi
-          echo "✅ 代码规范检查通过"
+          WS_WSL="$(echo '${{ github.workspace }}' | tr '\\' '/' | sed 's|^C:|/mnt/c|')"
+          wsl -d Ubuntu -- bash -c "
+            pip install ruff -q 2>/dev/null
+            RUFF_OUT=\$(ruff check ${WS_WSL}/src/backend/ --output-format concise 2>&1) || true
+            if [ -n \"\$RUFF_OUT\" ]; then
+              echo \"\$RUFF_OUT\"
+              echo '❌ 代码规范检查未通过'
+              exit 1
+            fi
+            echo '✅ 代码规范检查通过'
+          "
 
       - name: 安全检查（API Key 泄露 + 敏感词）
         shell: bash
         run: |
-          echo "=== 检查是否泄露敏感信息 ==="
-          FAILED=0
-          # 1. API Key 不能出现在代码中
-          if grep -r "sk-[a-zA-Z0-9]\{20,\}" src/backend/ --exclude-dir=venv --exclude-dir=__pycache__ --exclude='*.env*' 2>/dev/null; then
-            echo "❌ 发现疑似 API Key 硬编码"
-            FAILED=1
-          fi
-          # 2. 服务器密码不能出现在代码中
-          if grep -r "@Fsy2006" src/ 2>/dev/null; then
-            echo "❌ 发现疑似密码硬编码"
-            FAILED=1
-          fi
-          # 3. 私钥不能出现在代码中
-          if grep -r "PRIVATE KEY" src/ --exclude-dir=.github 2>/dev/null; then
-            echo "❌ 发现疑似私钥泄露"
-            FAILED=1
-          fi
-          if [ $FAILED -ne 0 ]; then echo "❌ 安全检查未通过"; exit 1; fi
-          echo "✅ 安全检查通过"
+          WS_WSL="$(echo '${{ github.workspace }}' | tr '\\' '/' | sed 's|^C:|/mnt/c|')"
+          wsl -d Ubuntu -- bash -c "
+            FAILED=0
+            SRC=${WS_WSL}/src
+            # 1. API Key 不能硬编码
+            if grep -r 'sk-[a-zA-Z0-9]\{20,\}' \$SRC/backend/ --exclude-dir=venv --exclude-dir=__pycache__ --exclude='*.env*' 2>/dev/null; then
+              echo '❌ 发现疑似 API Key 硬编码'
+              FAILED=1
+            fi
+            # 2. 密码不能硬编码
+            if grep -r '@Fsy2006' \$SRC/ 2>/dev/null; then
+              echo '❌ 发现疑似密码硬编码'
+              FAILED=1
+            fi
+            # 3. 私钥不能泄露
+            if grep -r 'PRIVATE KEY' \$SRC/ --exclude-dir=.github 2>/dev/null; then
+              echo '❌ 发现疑似私钥泄露'
+              FAILED=1
+            fi
+            if [ \$FAILED -ne 0 ]; then exit 1; fi
+            echo '✅ 安全检查通过'
+          "
 
       - name: 自动化测试（pytest）
         shell: bash
         run: |
-          echo "=== 运行 Python 测试 ==="
-          if [ -f "src/backend/requirements.txt" ]; then
-            pip install -r src/backend/requirements.txt -q 2>/dev/null
-          fi
-          pip install pytest -q 2>/dev/null
-          # 先试试有没有测试文件
-          TEST_FILES=$(find src/backend -name "test_*.py" -o -name "*_test.py" 2>/dev/null | head -5)
-          if [ -z "$TEST_FILES" ]; then
-            echo "⚠️ 没有找到测试文件——跳过测试"
-            echo "💡 建议添加至少一个测试用例（test_api_health.py 之类的）"
-          else
-            python3 -m pytest src/backend/ -v --tb=short 2>&1 || {
-              echo "❌ 测试未通过——请修复失败的测试再 push"
+          WS_WSL="$(echo '${{ github.workspace }}' | tr '\\' '/' | sed 's|^C:|/mnt/c|')"
+          wsl -d Ubuntu -- bash -c "
+            pip install pytest httpx -q 2>/dev/null
+            cd ${WS_WSL}/src/backend
+            TEST_FILES=\$(find . -name 'test_*.py' -o -name '*_test.py' 2>/dev/null | head -5)
+            if [ -z \"\$TEST_FILES\" ]; then
+              echo '⚠️ 没有找到测试文件——跳过测试'
+            elif ! python3 -m pytest . -v --tb=short 2>&1; then
+              echo '❌ 测试未通过'
               exit 1
-            }
-            echo "✅ 所有测试通过"
-          fi
+            fi
+            echo '✅ 测试通过'
+          "
 
       # ═══════════════════════════════════════════════════════
       # CD（持续部署）：备份 → 上传 → 重启 → 健康检查
