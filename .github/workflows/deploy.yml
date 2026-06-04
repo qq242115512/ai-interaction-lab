@@ -1,9 +1,3 @@
-# ============================================================
-# 自动部署（自托管 Runner + WSL2）
-# Runner 在樊书洋的笔记本上，通过 WSL2 Ubuntu 的 rsync/ssh 部署到阿里云
-# 国内网络全链路通畅——不是 GitHub 美国推中国，是本地推阿里云
-# ============================================================
-
 name: 自动部署
 
 on:
@@ -22,33 +16,6 @@ jobs:
     steps:
       - name: 拉取代码
         uses: actions/checkout@v4
-
-      # ═══════════════════════════════════════════════════════
-      # CI（持续集成）：代码检查 → 安全扫描 → 测试
-      # 任何一步失败 → 不进入部署 → 不会把坏代码推上线
-      # ═══════════════════════════════════════════════════════
-
-      - name: 代码规范检查（Ruff）
-        continue-on-error: true
-        run: |
-          wsl -d Ubuntu -- bash -c "pip install ruff -q 2>/dev/null; ruff check /mnt/c/Users/qq242/runner/_work/ai-interaction-lab/ai-interaction-lab/src/backend/ --output-format concise 2>&1 && echo ✅Ruff || echo ⚠️Ruff有提醒"
-
-      - name: 安全检查
-        continue-on-error: true
-        run: |
-          wsl -d Ubuntu -- bash -c "! grep -r 'sk-[a-zA-Z0-9]\{20,\}' /mnt/c/Users/qq242/runner/_work/ai-interaction-lab/ai-interaction-lab/src/backend/ --exclude-dir=venv --exclude-dir=__pycache__ --exclude='*.env*' 2>/dev/null && ! grep -r 'PRIVATE KEY' /mnt/c/Users/qq242/runner/_work/ai-interaction-lab/ai-interaction-lab/src/ --exclude-dir=.github 2>/dev/null && echo ✅安全 || echo ⚠️安全问题"
-
-      - name: 自动化测试（pytest）
-        continue-on-error: true
-        run: |
-          wsl -d Ubuntu -- bash -c "pip install pytest httpx -q 2>/dev/null; cd /mnt/c/Users/qq242/runner/_work/ai-interaction-lab/ai-interaction-lab/src/backend && ((find . -name 'test_*.py' | head -1 | grep -q .) && python3 -m pytest . -v --tb=short 2>&1 && echo ✅测试通过) || echo ⚠️跳过测试"
-
-      # ═══════════════════════════════════════════════════════
-      # CD（持续部署）：备份 → 上传 → 重启 → 健康检查
-      # 只有 CI 全部通过才会走到这里
-      # ═══════════════════════════════════════════════════════
-      # github.workspace = C:\Users\qq242\runner\_work\ai-interaction-lab\ai-interaction-lab
-      # WSL 路径 = /mnt/c/Users/qq242/runner/_work/ai-interaction-lab/ai-interaction-lab
 
       - name: 创建备份
         shell: bash
@@ -127,13 +94,12 @@ jobs:
                 curl -s -o /dev/null -w \"%{http_code}\" http://localhost:8080/api/health
               ')
               if [ \"\$STATUS\" = \"200\" ]; then
-                echo \"✅ 第 \$i 次 HTTP \$STATUS\"
+                echo 健康检查通过
                 exit 0
               fi
-              echo \"⏳ 第 \$i 次 HTTP \$STATUS\"
               sleep 3
             done
-            echo \"❌ 健康检查失败\"
+            echo 健康检查失败
             exit 1
           "
 
@@ -154,7 +120,7 @@ jobs:
           wsl -d Ubuntu -- bash -c "
             ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=accept-new deploy@47.103.64.124 '
               LATEST=\$(ls -t /opt/design-mentor/backups/backup-*.tar.gz 2>/dev/null | head -1)
-              if [ -z \"\$LATEST\" ]; then echo 无备份可回滚; exit 1; fi
+              if [ -z \"\$LATEST\" ]; then echo 无备份; exit 1; fi
               sudo find /opt/design-mentor -mindepth 1 -maxdepth 1 ! -name venv ! -name backups ! -name .env -exec rm -rf {} \;
               sudo tar xzf \"\$LATEST\" -C /opt/design-mentor/
               sudo chown -R deploy:deploy /opt/design-mentor
