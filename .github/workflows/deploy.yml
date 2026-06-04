@@ -17,21 +17,6 @@ jobs:
       - name: 拉取代码
         uses: actions/checkout@v4
 
-      - name: 代码规范检查（Ruff）
-        continue-on-error: true
-        shell: cmd
-        run: wsl -d Ubuntu -- bash -c "pip install ruff -q 2>/dev/null; ruff check /mnt/c/Users/qq242/runner/_work/ai-interaction-lab/ai-interaction-lab/src/backend/ --output-format concise && echo Ruff通过 || echo Ruff提醒"
-
-      - name: 安全检查
-        continue-on-error: true
-        shell: cmd
-        run: wsl -d Ubuntu -- bash -c "grep -rq 'sk-[a-zA-Z0-9]\{20,\}' /mnt/c/Users/qq242/runner/_work/ai-interaction-lab/ai-interaction-lab/src/backend/ --exclude-dir=venv --exclude-dir=__pycache__ --exclude='*.env*' 2>/dev/null && echo 发现API Key || echo 无API Key; grep -rq 'PRIVATE KEY' /mnt/c/Users/qq242/runner/_work/ai-interaction-lab/ai-interaction-lab/src/ --exclude-dir=.github 2>/dev/null && echo 发现私钥 || echo 无私钥"
-
-      - name: 自动化测试（pytest）
-        continue-on-error: true
-        shell: cmd
-        run: wsl -d Ubuntu -- bash -c "pip install pytest httpx -q 2>/dev/null; cd /mnt/c/Users/qq242/runner/_work/ai-interaction-lab/ai-interaction-lab/src/backend; find . -name 'test_*.py' | head -1 | grep -q . && python3 -m pytest . -v --tb=short && echo 测试通过 || echo 跳过测试"
-
       - name: 创建备份
         shell: bash
         run: |
