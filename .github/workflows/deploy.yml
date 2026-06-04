@@ -23,7 +23,72 @@ jobs:
       - name: 拉取代码
         uses: actions/checkout@v4
 
-      # === 以下全部用 shell: bash + wsl 执行，rsync/ssh 由 WSL2 Ubuntu 提供 ===
+      # ═══════════════════════════════════════════════════════
+      # CI（持续集成）：代码检查 → 安全扫描 → 测试
+      # 任何一步失败 → 不进入部署 → 不会把坏代码推上线
+      # ═══════════════════════════════════════════════════════
+
+      - name: 代码规范检查（Ruff）
+        shell: bash
+        run: |
+          echo "=== 检查 Python 代码规范 ==="
+          RUFF_OUT=$(ruff check src/backend/ --output-format concise 2>&1)
+          if [ -n "$RUFF_OUT" ]; then
+            echo "$RUFF_OUT"
+            echo ""
+            echo "❌ 代码规范检查未通过"
+            exit 1
+          fi
+          echo "✅ 代码规范检查通过"
+
+      - name: 安全检查（API Key 泄露 + 敏感词）
+        shell: bash
+        run: |
+          echo "=== 检查是否泄露敏感信息 ==="
+          FAILED=0
+          # 1. API Key 不能出现在代码中
+          if grep -r "sk-[a-zA-Z0-9]\{20,\}" src/backend/ --exclude-dir=venv --exclude-dir=__pycache__ --exclude='*.env*' 2>/dev/null; then
+            echo "❌ 发现疑似 API Key 硬编码"
+            FAILED=1
+          fi
+          # 2. 服务器密码不能出现在代码中
+          if grep -r "@Fsy2006" src/ 2>/dev/null; then
+            echo "❌ 发现疑似密码硬编码"
+            FAILED=1
+          fi
+          # 3. 私钥不能出现在代码中
+          if grep -r "PRIVATE KEY" src/ --exclude-dir=.github 2>/dev/null; then
+            echo "❌ 发现疑似私钥泄露"
+            FAILED=1
+          fi
+          if [ $FAILED -ne 0 ]; then echo "❌ 安全检查未通过"; exit 1; fi
+          echo "✅ 安全检查通过"
+
+      - name: 自动化测试（pytest）
+        shell: bash
+        run: |
+          echo "=== 运行 Python 测试 ==="
+          if [ -f "src/backend/requirements.txt" ]; then
+            pip install -r src/backend/requirements.txt -q 2>/dev/null
+          fi
+          pip install pytest -q 2>/dev/null
+          # 先试试有没有测试文件
+          TEST_FILES=$(find src/backend -name "test_*.py" -o -name "*_test.py" 2>/dev/null | head -5)
+          if [ -z "$TEST_FILES" ]; then
+            echo "⚠️ 没有找到测试文件——跳过测试"
+            echo "💡 建议添加至少一个测试用例（test_api_health.py 之类的）"
+          else
+            python3 -m pytest src/backend/ -v --tb=short 2>&1 || {
+              echo "❌ 测试未通过——请修复失败的测试再 push"
+              exit 1
+            }
+            echo "✅ 所有测试通过"
+          fi
+
+      # ═══════════════════════════════════════════════════════
+      # CD（持续部署）：备份 → 上传 → 重启 → 健康检查
+      # 只有 CI 全部通过才会走到这里
+      # ═══════════════════════════════════════════════════════
       # github.workspace = C:\Users\qq242\runner\_work\ai-interaction-lab\ai-interaction-lab
       # WSL 路径 = /mnt/c/Users/qq242/runner/_work/ai-interaction-lab/ai-interaction-lab
 
