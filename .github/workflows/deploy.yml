@@ -1,7 +1,7 @@
 # ============================================================
 # 自动部署（自托管 Runner + WSL2）
-# 跑在樊书洋的笔记本上，通过 WSL2 Ubuntu 的 rsync/ssh 部署到阿里云
-# 国内网络全链路通畅，不受墙影响
+# Runner 在樊书洋的笔记本上，通过 WSL2 Ubuntu 的 rsync/ssh 部署到阿里云
+# 国内网络全链路通畅——不是 GitHub 美国推中国，是本地推阿里云
 # ============================================================
 
 name: 自动部署
@@ -23,8 +23,12 @@ jobs:
       - name: 拉取代码
         uses: actions/checkout@v4
 
-      # 所有命令通过 WSL2 Ubuntu 执行（rsync/ssh/bash 全有了）
+      # === 以下全部用 shell: bash + wsl 执行，rsync/ssh 由 WSL2 Ubuntu 提供 ===
+      # github.workspace = C:\Users\qq242\runner\_work\ai-interaction-lab\ai-interaction-lab
+      # WSL 路径 = /mnt/c/Users/qq242/runner/_work/ai-interaction-lab/ai-interaction-lab
+
       - name: 创建备份
+        shell: bash
         run: |
           wsl -d Ubuntu -- bash -c "
             ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=accept-new deploy@47.103.64.124 '
@@ -32,41 +36,48 @@ jobs:
               BACKUP_FILE=/opt/design-mentor/backups/backup-\$(date +%Y%m%d_%H%M%S).tar.gz
               sudo tar czf \"\$BACKUP_FILE\" -C /opt/design-mentor \
                 --exclude=venv --exclude=backups --exclude=__pycache__ --exclude=.env .
-              echo \"备份: \$BACKUP_FILE\"
+              echo 备份完成
             '
           "
 
       - name: 上传后端
+        shell: bash
         run: |
+          WS_WSL="$(echo '${{ github.workspace }}' | tr '\\' '/' | sed 's|^C:|/mnt/c|')"
           wsl -d Ubuntu -- bash -c "
             rsync -avz --delete \
               -e 'ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=accept-new' \
               --exclude='.env' --exclude='venv/' --exclude='backups/' --exclude='__pycache__/' --exclude='*.pyc' \
-              /mnt/d/桌面/desktop/src/backend/ \
+              ${WS_WSL}/src/backend/ \
               deploy@47.103.64.124:/opt/design-mentor/
           "
 
       - name: 上传前端
+        shell: bash
         run: |
+          WS_WSL="$(echo '${{ github.workspace }}' | tr '\\' '/' | sed 's|^C:|/mnt/c|')"
           wsl -d Ubuntu -- bash -c "
             rsync -avz --delete \
               -e 'ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=accept-new' \
-              /mnt/d/桌面/desktop/src/frontend/ \
+              ${WS_WSL}/src/frontend/ \
               deploy@47.103.64.124:/var/www/html/
           "
 
       - name: 上传数据
+        shell: bash
         run: |
+          WS_WSL="$(echo '${{ github.workspace }}' | tr '\\' '/' | sed 's|^C:|/mnt/c|')"
           wsl -d Ubuntu -- bash -c "
             ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=accept-new deploy@47.103.64.124 \
               'mkdir -p /opt/design-mentor/data'
             rsync -avz \
               -e 'ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=accept-new' \
-              /mnt/d/桌面/desktop/src/backend/data/ \
+              ${WS_WSL}/src/backend/data/ \
               deploy@47.103.64.124:/opt/design-mentor/data/
           "
 
       - name: 装依赖
+        shell: bash
         run: |
           wsl -d Ubuntu -- bash -c "
             ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=accept-new deploy@47.103.64.124 '
@@ -75,6 +86,7 @@ jobs:
           "
 
       - name: 重启服务
+        shell: bash
         run: |
           wsl -d Ubuntu -- bash -c "
             ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=accept-new deploy@47.103.64.124 '
@@ -84,6 +96,7 @@ jobs:
           "
 
       - name: 健康检查
+        shell: bash
         run: |
           wsl -d Ubuntu -- bash -c "
             for i in 1 2 3 4 5; do
@@ -103,6 +116,7 @@ jobs:
 
       - name: 清理旧备份
         if: success()
+        shell: bash
         run: |
           wsl -d Ubuntu -- bash -c "
             ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=accept-new deploy@47.103.64.124 '
@@ -112,18 +126,19 @@ jobs:
 
       - name: 自动回滚
         if: failure()
+        shell: bash
         run: |
           wsl -d Ubuntu -- bash -c "
             ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=accept-new deploy@47.103.64.124 '
               LATEST=\$(ls -t /opt/design-mentor/backups/backup-*.tar.gz 2>/dev/null | head -1)
-              if [ -z \"\$LATEST\" ]; then echo \"❌ 无备份\"; exit 1; fi
+              if [ -z \"\$LATEST\" ]; then echo 无备份可回滚; exit 1; fi
               sudo find /opt/design-mentor -mindepth 1 -maxdepth 1 ! -name venv ! -name backups ! -name .env -exec rm -rf {} \;
               sudo tar xzf \"\$LATEST\" -C /opt/design-mentor/
               sudo chown -R deploy:deploy /opt/design-mentor
               sudo systemctl restart design-mentor
               sleep 3
               STATUS=\$(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:8080/api/health)
-              if [ \"\$STATUS\" != \"200\" ]; then echo \"❌ 回滚失败 HTTP \$STATUS\"; exit 1; fi
-              echo \"✅ 回滚成功\"
+              if [ \"\$STATUS\" != \"200\" ]; then echo 回滚失败; exit 1; fi
+              echo 回滚成功
             '
           "
