@@ -17,6 +17,31 @@ jobs:
       - name: 拉取代码
         uses: actions/checkout@v4
 
+      - name: 代码规范检查（Ruff）
+        continue-on-error: true
+        run: >
+          wsl -d Ubuntu -- bash -c
+          "pip install ruff -q 2>/dev/null
+          && ruff check /mnt/c/Users/qq242/runner/_work/ai-interaction-lab/ai-interaction-lab/src/backend/ --output-format concise
+          && echo ✅Ruff通过
+          || echo ⚠️Ruff提醒"
+
+      - name: 安全检查（API Key / 私钥泄露）
+        continue-on-error: true
+        run: >
+          wsl -d Ubuntu -- bash -c
+          "SRC=/mnt/c/Users/qq242/runner/_work/ai-interaction-lab/ai-interaction-lab/src;
+          if grep -rq 'sk-[a-zA-Z0-9]\{20,\}' \$SRC/backend/ --exclude-dir=venv --exclude-dir=__pycache__ --exclude='*.env*' 2>/dev/null; then echo ❌发现API Key硬编码; else echo ✅无API Key泄露; fi;
+          if grep -rq 'PRIVATE KEY' \$SRC/ --exclude-dir=.github 2>/dev/null; then echo ❌发现私钥泄露; else echo ✅无私钥泄露; fi"
+
+      - name: 自动化测试（pytest）
+        continue-on-error: true
+        run: >
+          wsl -d Ubuntu -- bash -c
+          "pip install pytest httpx -q 2>/dev/null;
+          cd /mnt/c/Users/qq242/runner/_work/ai-interaction-lab/ai-interaction-lab/src/backend;
+          if find . -name 'test_*.py' | head -1 | grep -q .; then python3 -m pytest . -v --tb=short 2>&1 && echo ✅测试通过 || echo ❌测试失败; else echo ⚠️无测试文件; fi"
+
       - name: 创建备份
         shell: bash
         run: |
