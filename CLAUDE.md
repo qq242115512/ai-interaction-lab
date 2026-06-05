@@ -116,9 +116,20 @@ PO (用户)
 ## 待做
 
 - **投递实习**：博西 AI Agent 战略实习生（200-300/天，南京）
-- **修复遗留问题**：SecurityMiddleware 定义但未接入 main.py，限流/CSP/注入过滤未实际生效
 - 学习：开源 Agent 框架对比（AutoGen/CrewAI/LangGraph）、Git branch/merge
 - agent-system 端点数据源从本地文件改为 Hindsight 知识图谱（当前 Linux 服务器读不到 Windows 文件）
+
+## CI/CD 自动部署
+
+**方案**：自托管 Runner（Self-hosted Runner，本地执行）跑在笔记本上，通过 WSL2 Ubuntu 的 rsync/ssh 部署到阿里云。国内网络全链路通畅，不被墙。
+
+**日常使用**：`git push` → 90 秒 → 自动上线。不需任何手动操作。
+
+**维护**：Runner 进程在 C:\Users\qq242\runner\run.cmd 后台运行。如果掉了，开 cmd 跑 `cd C:\Users\qq242\runner && run.cmd`。
+
+**CI 检查**：push 前本地跑 `check.bat`（Ruff 代码规范 + 安全扫描 + pytest 测试）。
+
+**部署脚本**：`.github/workflows/deploy.yml` — 备份 → rsync 后端 → rsync 前端 → systemctl restart → 健康检查 × 5 → 失败自动回滚到备份。
 
 ## 设计决策
 
