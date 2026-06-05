@@ -122,7 +122,7 @@ PO (用户)
 
 ## 设计决策
 
-- 前端不用框架（React/Vue），纯 HTML/CSS/JS 对 AI 协作最友好
+- 前端不用框架（React/Vue）——但已从"纯手写 CSS"升级为 Tailwind CSS（2026年 AI 模型对 Tailwind 的训练数据远超裸 CSS，class 即样式也不需要维护多个 CSS 文件）。旧页面不改动，新页面用 Tailwind，旧页面每次改一个时顺手迁移
 - 双模型管道（GLM-4V 看 + DeepSeek 评），各司其职
 - Prompt 风格：引导式而非说教式
 - 所有 AI 输出要求纯 JSON，三层解析回退
