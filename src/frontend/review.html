@@ -89,6 +89,37 @@
     /* Spinner */
     .spinner { width: 36px; height: 36px; border: 3px solid #e8e4e0; border-top-color: #e07340; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 16px; }
     @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ===== JS-generated review result elements ===== */
+    .dimension-card-result { background: #fff; border: 1px solid #e8e4e0; border-radius: 16px; padding: 20px 24px; margin-bottom: 16px; }
+    .dim-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .dim-name { font-family: 'DM Serif Display','Noto Serif SC',serif; font-size: 18px; font-weight: 700; color: #292d57; }
+    .dim-score { font-size: 20px; font-weight: 800; padding: 2px 10px; border-radius: 8px; }
+    .dim-score.high { color: #059669; background: #ecfdf5; }
+    .dim-score.mid { color: #d97706; background: #fffbeb; }
+    .dim-score.low { color: #dc2626; background: #fef2f2; }
+    .dim-summary { font-size: 14px; color: #5e554c; line-height: 1.6; margin-bottom: 16px; }
+
+    .finding-item { border-top: 1px solid #f5f3f1; padding: 14px 0; }
+    .finding-header { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+    .finding-badge { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 11px; font-weight: 600; }
+    .finding-badge.issue { background: #fef2f2; color: #dc2626; }
+    .finding-badge.strength { background: #ecfdf5; color: #059669; }
+    .finding-title { font-size: 15px; font-weight: 600; color: #292d57; }
+    .finding-desc { font-size: 13px; color: #5e554c; line-height: 1.6; margin-bottom: 10px; }
+
+    .principle-card { background: #fafaf9; border-radius: 12px; padding: 14px 16px; border: 1px solid #f5f3f1; }
+    .principle-name { font-size: 14px; font-weight: 700; color: #6e76c4; margin-bottom: 2px; }
+    .principle-brief { font-size: 12px; color: #a89f96; margin-bottom: 8px; }
+    .principle-detail { font-size: 13px; color: #4a423b; line-height: 1.6; }
+    .principle-detail summary { cursor: pointer; font-weight: 600; color: #6e76c4; font-size: 13px; margin-bottom: 6px; }
+    .principle-detail p { margin-bottom: 6px; }
+
+    /* ===== JS-generated chat elements ===== */
+    .chat-typing { opacity: 0.6; }
+    .chat-typing::after { content: '...'; animation: dotPulse 1.2s infinite; }
+    @keyframes dotPulse { 0%,20%{opacity:0} 50%{opacity:1} 80%,100%{opacity:0} }
+    .chat-refs { margin-top: 6px; padding: 6px 14px; background: #f5f3f1; border-radius: 10px; font-size: 12px; color: #6e76c4; }
   </style>
 </head>
 <body class="bg-neutral-100 font-body text-neutral-700 antialiased">
