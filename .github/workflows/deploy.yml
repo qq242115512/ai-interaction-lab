@@ -39,7 +39,11 @@ jobs:
               -e 'ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=accept-new' \
               --exclude='.env' --exclude='venv/' --exclude='backups/' --exclude='__pycache__/' --exclude='*.pyc' \
               ${WS_WSL}/src/backend/ \
-              deploy@47.103.64.124:/opt/design-mentor/
+              deploy@47.103.64.124:/tmp/design-mentor-deploy/
+            ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=accept-new deploy@47.103.64.124 '
+              sudo tar cf - -C /tmp/design-mentor-deploy . | sudo tar xf - -C /opt/design-mentor/ --no-same-owner
+              sudo chown -R deploy:deploy /opt/design-mentor/
+            '
           "
 
       - name: 上传前端
@@ -50,7 +54,11 @@ jobs:
             rsync -avz --delete \
               -e 'ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=accept-new' \
               ${WS_WSL}/src/frontend/ \
-              deploy@47.103.64.124:/var/www/html/
+              deploy@47.103.64.124:/tmp/frontend-deploy/
+            ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=accept-new deploy@47.103.64.124 '
+              sudo tar cf - -C /tmp/frontend-deploy . | sudo tar xf - -C /var/www/html/ --no-same-owner
+              echo frontend-ok
+            '
           "
 
       - name: 上传数据
