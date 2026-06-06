@@ -1,115 +1,354 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>连通性诊断</title>
-<style>
-body { font-family: -apple-system, 'PingFang SC', sans-serif; padding: 16px; max-width: 500px; margin: 0 auto; }
-h2 { font-size: 18px; }
-button { display: block; width: 100%; padding: 14px; margin: 8px 0; font-size: 15px; border: 1.5px solid #d4d4d4; border-radius: 8px; background: #fff; text-align: left; cursor: pointer; }
-button:active { background: #f0f0ff; }
-.result { margin: 8px 0; padding: 10px 14px; border-radius: 8px; font-size: 13px; word-break: break-all; }
-.result.ok { background: #ecfdf5; color: #065f46; }
-.result.fail { background: #fef2f2; color: #991b1b; }
-.result.wait { background: #fffbeb; color: #92400e; }
-#log { margin-top: 12px; }
-</style>
-</head>
-<body>
-<h2>设计引路人 — 连通性诊断</h2>
-<p style="font-size:13px;color:#888;">依次点击下面的按钮进行测试</p>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>API 测试控制台 — AI 交互模式实验室</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧪</text></svg>" />
 
-<div id="btns"></div>
-<div id="log"></div>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Noto+Sans+SC:wght@300;400;500;700&family=Noto+Serif+SC:wght@400;600;700&display=swap" rel="stylesheet" />
 
-<script>
-var logEl = document.getElementById("log");
-
-function addResult(msg, type) {
-  var d = document.createElement("div");
-  d.className = "result " + (type || "ok");
-  d.textContent = (type === "ok" ? "[OK] " : type === "fail" ? "[FAIL] " : "[...] ") + msg;
-  logEl.appendChild(d);
-}
-
-function addBtn(label, fn) {
-  var b = document.createElement("button");
-  b.textContent = label;
-  b.onclick = fn;
-  document.getElementById("btns").appendChild(b);
-}
-
-function test1() {
-  addResult("测试页面可以运行 JavaScript", "ok");
-  addResult("浏览器: " + navigator.userAgent.substring(0, 80), "wait");
-}
-
-function test2() {
-  addResult("请求 GET /api/health ...", "wait");
-  fetch("/api/health")
-    .then(function(r) {
-      if (!r.ok) throw new Error("HTTP " + r.status);
-      return r.json();
-    })
-    .then(function(d) {
-      addResult("健康检查通过: v" + d.version + ", sessions=" + d.sessions, "ok");
-    })
-    .catch(function(e) {
-      addResult("健康检查失败: " + e.message, "fail");
-    });
-}
-
-function test3() {
-  addResult("请求 POST /api/review ...", "wait");
-
-  var canvas = document.createElement("canvas");
-  canvas.width = 200;
-  canvas.height = 150;
-  var ctx = canvas.getContext("2d");
-  ctx.fillStyle = "#f5f5f7";
-  ctx.fillRect(0, 0, 200, 150);
-  ctx.fillStyle = "#4f46e5";
-  ctx.fillRect(20, 20, 160, 40);
-  ctx.fillStyle = "#1c1917";
-  ctx.font = "14px sans-serif";
-  ctx.fillText("Dashboard", 30, 46);
-
-  canvas.toBlob(function(blob) {
-    var fd = new FormData();
-    fd.append("image", blob, "test.png");
-    fd.append("dimensions", '["视觉层级"]');
-
-    var t0 = Date.now();
-    fetch("/api/review", { method: "POST", body: fd })
-      .then(function(r) {
-        addResult("服务器响应: HTTP " + r.status + " (" + ((Date.now()-t0)/1000).toFixed(1) + "s)", "wait");
-        var ct = r.headers.get("content-type") || "";
-        addResult("Content-Type: " + ct, "wait");
-        return r.text();
-      })
-      .then(function(text) {
-        var preview = text.substring(0, 100).replace(/\n/g, " ");
-        addResult("响应开头: " + preview, "wait");
-        try {
-          var d = JSON.parse(text);
-          addResult("JSON 解析成功! session=" + d.session_id.substring(0,8) + ", score=" + d.overall_score, "ok");
-        } catch(e) {
-          addResult("JSON 解析失败: " + e.message, "fail");
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: {
+              50: '#f3f4fb', 100: '#e4e6f6', 200: '#ccd0ee', 300: '#acb2e3',
+              400: '#8b92d5', 500: '#6e76c4', 600: '#5b63b0', 700: '#4a5194',
+              800: '#3a3f76', 900: '#292d57', 950: '#1a1d3a',
+            },
+            accent: {
+              50: '#fef7f4', 100: '#fdebe3', 200: '#fad4c2', 300: '#f5b598',
+              400: '#ee936a', 500: '#e07340', 600: '#c55a2e', 700: '#a3461f',
+              800: '#803515', 900: '#5c250e',
+            },
+            neutral: {
+              50: '#fafaf9', 100: '#f5f3f1', 200: '#e8e4e0', 300: '#d4cec8',
+              400: '#a89f96', 500: '#7d7368', 600: '#5e554c', 700: '#4a423b',
+              800: '#332d28', 900: '#1f1b18', 950: '#14100e',
+            },
+          },
+          fontFamily: {
+            display: ['"DM Serif Display"', '"Noto Serif SC"', 'serif'],
+            body: ['"Inter"', '"Noto Sans SC"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
         }
-      })
-      .catch(function(e) {
-        addResult("请求失败: " + e.message, "fail");
-      });
-  }, "image/png");
-}
+      }
+    }
+  </script>
 
-addBtn("1. 测试 JavaScript 运行", test1);
-addBtn("2. 测试健康检查 GET /api/health", test2);
-addBtn("3. 测试评审 POST /api/review", test3);
-</script>
+  <style>
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+    }
+    :focus-visible { outline: 2px solid #e07340; outline-offset: 2px; border-radius: 2px; }
+    .section-divider { display: flex; align-items: center; gap: 1rem; }
+    .section-divider::before, .section-divider::after { content: ''; flex: 1; height: 1px; background: #e8e4e0; }
+    .section-divider-dot { width: 8px; height: 8px; border-radius: 50%; background: #e07340; flex-shrink: 0; }
+    .mobile-menu { max-height: 0; overflow: hidden; transition: max-height 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease; opacity: 0; }
+    .mobile-menu.open { max-height: 320px; opacity: 1; }
+  </style>
+</head>
+<body class="bg-neutral-100 font-body text-neutral-700 antialiased">
+
+  <!-- Navigation -->
+  <nav id="navbar" class="fixed top-0 w-full z-50 bg-neutral-100/90 backdrop-blur-md border-b border-neutral-200">
+    <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+      <a href="/" class="font-display text-2xl text-primary-700 tracking-tight no-underline">AI<span class="text-accent-500">·</span>Lab</a>
+      <div class="hidden md:flex items-center gap-8">
+        <a href="/patterns/streaming.html" class="text-sm font-medium text-neutral-500 hover:text-neutral-800 transition-colors no-underline">Patterns</a>
+        <a href="/about.html" class="text-sm font-medium text-neutral-500 hover:text-neutral-800 transition-colors no-underline">About</a>
+        <a href="/agents.html" class="text-sm font-medium text-neutral-500 hover:text-neutral-800 transition-colors no-underline">Agents</a>
+        <a href="/behind-the-scenes.html" class="text-sm font-medium text-neutral-500 hover:text-neutral-800 transition-colors no-underline">Behind the Scenes</a>
+        <a href="/review.html" class="px-6 py-2.5 bg-accent-500 text-white font-semibold rounded-full text-sm hover:bg-accent-600 transition-colors shadow-lg shadow-accent-500/25 no-underline">Try Review Tool</a>
+      </div>
+      <button id="hamburger" class="md:hidden flex flex-col gap-1.5 p-2 bg-transparent border-0 cursor-pointer" aria-label="打开菜单">
+        <span class="block w-6 h-0.5 bg-neutral-700 rounded transition-transform duration-300"></span>
+        <span class="block w-6 h-0.5 bg-neutral-700 rounded transition-opacity duration-300"></span>
+        <span class="block w-6 h-0.5 bg-neutral-700 rounded transition-transform duration-300"></span>
+      </button>
+    </div>
+    <div id="mobile-menu" class="mobile-menu md:hidden bg-neutral-100/95 backdrop-blur-md border-b border-neutral-200">
+      <div class="px-6 py-4 flex flex-col gap-3">
+        <a href="/patterns/streaming.html" class="text-sm font-medium text-neutral-600 hover:text-neutral-900 no-underline py-2">Patterns</a>
+        <a href="/about.html" class="text-sm font-medium text-neutral-600 hover:text-neutral-900 no-underline py-2">About</a>
+        <a href="/agents.html" class="text-sm font-medium text-neutral-600 hover:text-neutral-900 no-underline py-2">Agents</a>
+        <a href="/behind-the-scenes.html" class="text-sm font-medium text-neutral-600 hover:text-neutral-900 no-underline py-2">Behind the Scenes</a>
+        <a href="/review.html" class="px-6 py-2.5 bg-accent-500 text-white font-semibold rounded-full text-sm hover:bg-accent-600 transition-colors text-center no-underline shadow-lg shadow-accent-500/25">Try Review Tool</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="pt-28 pb-8 md:pt-36 md:pb-10 px-6 text-center">
+    <div class="max-w-3xl mx-auto">
+      <p class="text-xs font-semibold text-accent-500 uppercase tracking-widest mb-4 opacity-0" id="hero-eyebrow">Developer Console</p>
+      <h1 class="font-display text-3xl md:text-5xl text-primary-900 leading-tight mb-4 opacity-0" id="hero-title">API 测试控制台</h1>
+      <p class="text-base md:text-lg text-neutral-500 leading-relaxed max-w-xl mx-auto opacity-0" id="hero-subtitle">
+        直接测试后端 API 端点，查看原始请求和响应
+      </p>
+    </div>
+  </section>
+
+  <!-- Test Console -->
+  <section class="max-w-3xl mx-auto px-6 pb-24 opacity-0" id="console-section">
+    <div class="section-divider mb-8"><span class="section-divider-dot"></span></div>
+
+    <!-- Endpoint Selector -->
+    <div class="mb-6">
+      <label class="block text-sm font-semibold text-primary-800 mb-2">端点选择</label>
+      <select id="endpointSelect" class="w-full px-4 py-3 rounded-xl border border-neutral-200 bg-white text-sm focus:outline-none focus:border-accent-400 transition-colors font-mono">
+        <option value="GET /api/health">GET /api/health</option>
+        <option value="GET /api/agent-system/status">GET /api/agent-system/status</option>
+        <option value="GET /api/agent-system/pipeline">GET /api/agent-system/pipeline</option>
+        <option value="GET /api/agent-system/lessons">GET /api/agent-system/lessons</option>
+        <option value="POST /api/chat">POST /api/chat</option>
+        <option value="POST /api/clarify">POST /api/clarify</option>
+        <option value="POST /api/confirm">POST /api/confirm</option>
+        <option value="POST /api/execute">POST /api/execute</option>
+      </select>
+    </div>
+
+    <!-- Request Body (for POST endpoints) -->
+    <div class="mb-6" id="bodySection" style="display:none;">
+      <label class="block text-sm font-semibold text-primary-800 mb-2">请求 Body (JSON)</label>
+      <textarea id="requestBody" class="w-full px-4 py-3 rounded-xl border border-neutral-200 bg-white text-sm font-mono focus:outline-none focus:border-accent-400 transition-colors h-32 resize-y" placeholder='{"session_id": "test", "message": "你好"}'></textarea>
+    </div>
+
+    <!-- Send Button -->
+    <div class="mb-8">
+      <button id="sendBtn" class="px-8 py-3 bg-accent-500 text-white font-semibold rounded-full text-base hover:bg-accent-600 transition-colors shadow-lg shadow-accent-500/25 border-0 cursor-pointer flex items-center gap-2">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"/></svg>
+        发送请求
+      </button>
+      <span id="sendStatus" class="text-xs text-neutral-400 ml-4"></span>
+    </div>
+
+    <!-- Response -->
+    <div id="responseSection" style="display:none;">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="font-semibold text-primary-800">响应</h3>
+        <span id="statusBadge" class="px-3 py-1 rounded-full text-xs font-semibold"></span>
+      </div>
+      <div class="bg-primary-950 rounded-xl overflow-hidden border border-primary-800">
+        <div class="flex items-center justify-between px-5 py-2.5 bg-primary-900 border-b border-primary-800">
+          <span class="text-xs font-mono text-neutral-400" id="responseMeta"></span>
+          <button id="copyBtn" class="text-xs text-neutral-400 hover:text-neutral-200 transition-colors bg-transparent border-0 cursor-pointer">复制</button>
+        </div>
+        <pre id="responseBody" class="p-5 overflow-x-auto text-sm font-mono text-neutral-200 leading-relaxed whitespace-pre-wrap max-h-96 overflow-y-auto"></pre>
+      </div>
+    </div>
+
+    <!-- Quick Tests -->
+    <div class="mt-12">
+      <h3 class="font-semibold text-primary-800 mb-4">快速测试</h3>
+      <div class="flex flex-wrap gap-3">
+        <button class="quick-test px-4 py-2 bg-white border border-neutral-200 rounded-full text-sm font-medium text-neutral-600 hover:border-accent-400 hover:text-accent-600 transition-colors cursor-pointer" data-endpoint="GET /api/health" data-body="">健康检查</button>
+        <button class="quick-test px-4 py-2 bg-white border border-neutral-200 rounded-full text-sm font-medium text-neutral-600 hover:border-accent-400 hover:text-accent-600 transition-colors cursor-pointer" data-endpoint="GET /api/agent-system/status" data-body="">Agent 状态</button>
+        <button class="quick-test px-4 py-2 bg-white border border-neutral-200 rounded-full text-sm font-medium text-neutral-600 hover:border-accent-400 hover:text-accent-600 transition-colors cursor-pointer" data-endpoint="GET /api/agent-system/pipeline" data-body="">流水线数据</button>
+        <button class="quick-test px-4 py-2 bg-white border border-neutral-200 rounded-full text-sm font-medium text-neutral-600 hover:border-accent-400 hover:text-accent-600 transition-colors cursor-pointer" data-endpoint="GET /api/agent-system/lessons" data-body="">教训数据</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer id="footer" class="bg-primary-950 text-neutral-400 px-6 py-16 opacity-0">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex flex-col md:flex-row items-center justify-between gap-6 mb-8">
+        <a href="/" class="font-display text-xl text-neutral-200 tracking-tight no-underline">AI<span class="text-accent-400">·</span>Lab</a>
+        <div class="flex flex-wrap justify-center gap-6 text-sm">
+          <a href="/patterns/streaming.html" class="text-neutral-400 hover:text-neutral-200 transition-colors no-underline">Patterns</a>
+          <a href="/about.html" class="text-neutral-400 hover:text-neutral-200 transition-colors no-underline">About</a>
+          <a href="/agents.html" class="text-neutral-400 hover:text-neutral-200 transition-colors no-underline">Agents</a>
+          <a href="/behind-the-scenes.html" class="text-neutral-400 hover:text-neutral-200 transition-colors no-underline">Behind the Scenes</a>
+          <a href="/review.html" class="text-neutral-400 hover:text-neutral-200 transition-colors no-underline">Review Tool</a>
+        </div>
+        <a href="https://github.com/qq242115512/ai-interaction-lab" target="_blank" rel="noopener" class="text-neutral-400 hover:text-neutral-200 transition-colors no-underline text-sm">
+          <svg class="w-5 h-5 inline-block mr-1.5 align-text-bottom" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.385-1.335-1.755-1.335-1.755-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.605-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12 24 5.37 18.63 0 12 0z"/></svg>GitHub</a>
+      </div>
+      <div class="border-t border-primary-800 pt-6 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-neutral-500">
+        <span>&copy; 2026 樊书洋 · AI 交互模式实验室</span>
+        <span class="font-mono">v0.5.0</span>
+      </div>
+    </div>
+  </footer>
+
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
-  <script src="js/animations.js?v=2.0.2"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/animations.js"></script>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      if (typeof gsap === "undefined") return;
+      gsap.registerPlugin(ScrollTrigger);
+      var mm = gsap.matchMedia();
+
+      var navbar = document.getElementById("navbar");
+      if (navbar) { gsap.set(navbar, { autoAlpha: 1 }); gsap.from(navbar, { y: -20, autoAlpha: 0, duration: 0.55, ease: "power3.out" }); }
+
+      var heroEyebrow = document.getElementById("hero-eyebrow");
+      if (heroEyebrow) { gsap.set(heroEyebrow, { autoAlpha: 1 }); gsap.from(heroEyebrow, { y: 16, autoAlpha: 0, duration: 0.5, ease: "power3.out", delay: 0.1 }); }
+      var heroTitle = document.getElementById("hero-title");
+      if (heroTitle) { gsap.set(heroTitle, { autoAlpha: 1 }); gsap.from(heroTitle, { y: 30, autoAlpha: 0, duration: 0.65, ease: "power3.out", delay: 0.16 }); }
+      var heroSubtitle = document.getElementById("hero-subtitle");
+      if (heroSubtitle) { gsap.set(heroSubtitle, { autoAlpha: 1 }); gsap.from(heroSubtitle, { y: 20, autoAlpha: 0, duration: 0.5, ease: "power3.out", delay: 0.3 }); }
+
+      var consoleSection = document.getElementById("console-section");
+      if (consoleSection) { gsap.set(consoleSection, { autoAlpha: 1 }); gsap.from(consoleSection, { y: 36, autoAlpha: 0, duration: 0.6, ease: "power3.out", delay: 0.15 }); }
+
+      var footer = document.getElementById("footer");
+      if (footer) { gsap.set(footer, { autoAlpha: 1 }); gsap.from(footer, { y: 30, autoAlpha: 0, duration: 0.6, ease: "power3.out", scrollTrigger: { trigger: footer, start: "top 90%", once: true } }); }
+
+      var hamburger = document.getElementById("hamburger");
+      var mobileMenu = document.getElementById("mobile-menu");
+      if (hamburger && mobileMenu) { hamburger.addEventListener("click", function () { mobileMenu.classList.toggle("open"); }); }
+
+      mm.add("(prefers-reduced-motion: reduce)", function () { gsap.globalTimeline.timeScale(0); return function () { gsap.globalTimeline.timeScale(1); }; });
+      ScrollTrigger.refresh();
+
+      // ---- API Test Console Logic ----
+      var endpointSelect = document.getElementById("endpointSelect");
+      var bodySection = document.getElementById("bodySection");
+      var requestBody = document.getElementById("requestBody");
+      var sendBtn = document.getElementById("sendBtn");
+      var sendStatus = document.getElementById("sendStatus");
+      var responseSection = document.getElementById("responseSection");
+      var statusBadge = document.getElementById("statusBadge");
+      var responseMeta = document.getElementById("responseMeta");
+      var responseBody = document.getElementById("responseBody");
+      var copyBtn = document.getElementById("copyBtn");
+
+      // Default body templates for POST endpoints
+      var bodyTemplates = {
+        "POST /api/chat": '{"session_id": "test", "message": "你好，请介绍一下你自己"}',
+        "POST /api/clarify": '{"session_id": "test", "question": "请帮我设计一个登录页面"}',
+        "POST /api/confirm": '{"session_id": "test", "action": "delete_item", "confirmed": true}',
+        "POST /api/execute": '{"session_id": "test", "command": "create_page", "params": {"page_name": "test"}}'
+      };
+
+      function updateBodySection() {
+        var val = endpointSelect.value;
+        if (val.startsWith("POST")) {
+          bodySection.style.display = "block";
+          if (bodyTemplates[val] && !requestBody.value) {
+            requestBody.value = bodyTemplates[val];
+          }
+        } else {
+          bodySection.style.display = "none";
+        }
+      }
+
+      endpointSelect.addEventListener("change", function () {
+        updateBodySection();
+        responseSection.style.display = "none";
+      });
+
+      updateBodySection();
+
+      function sendRequest() {
+        var val = endpointSelect.value;
+        var parts = val.split(" ");
+        var method = parts[0];
+        var url = parts[1];
+
+        responseSection.style.display = "none";
+        sendStatus.textContent = "发送中...";
+        sendBtn.disabled = true;
+
+        var options = { method: method };
+        if (method === "POST") {
+          options.headers = { "Content-Type": "application/json" };
+          try {
+            var parsed = JSON.parse(requestBody.value);
+            options.body = JSON.stringify(parsed);
+          } catch (e) {
+            showResponse("error", "JSON 解析失败: " + e.message, 0);
+            sendStatus.textContent = "";
+            sendBtn.disabled = false;
+            return;
+          }
+        }
+
+        var t0 = Date.now();
+        fetch(url, options)
+          .then(function (resp) {
+            var elapsed = ((Date.now() - t0) / 1000).toFixed(2);
+            var ct = resp.headers.get("content-type") || "";
+            responseMeta.textContent = method + " " + url + " · " + elapsed + "s · " + ct;
+            return resp.text().then(function (text) {
+              var formatted;
+              try {
+                formatted = JSON.stringify(JSON.parse(text), null, 2);
+              } catch (e) {
+                formatted = text;
+              }
+              showResponse(resp.status, formatted, elapsed);
+            });
+          })
+          .catch(function (err) {
+            var elapsed = ((Date.now() - t0) / 1000).toFixed(2);
+            responseMeta.textContent = method + " " + url + " · " + elapsed + "s";
+            showResponse("error", "网络错误: " + err.message, 0);
+          })
+          .finally(function () {
+            sendStatus.textContent = "";
+            sendBtn.disabled = false;
+          });
+      }
+
+      function showResponse(status, body, elapsed) {
+        responseSection.style.display = "block";
+        responseBody.textContent = body;
+
+        if (status === "error") {
+          statusBadge.textContent = "ERROR";
+          statusBadge.className = "px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700";
+        } else if (status >= 200 && status < 300) {
+          statusBadge.textContent = status + " OK";
+          statusBadge.className = "px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700";
+        } else if (status >= 400 && status < 500) {
+          statusBadge.textContent = status + " Bad Request";
+          statusBadge.className = "px-3 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-700";
+        } else if (status >= 500) {
+          statusBadge.textContent = status + " Server Error";
+          statusBadge.className = "px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700";
+        }
+      }
+
+      sendBtn.addEventListener("click", sendRequest);
+
+      requestBody.addEventListener("keydown", function (e) {
+        if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
+          e.preventDefault();
+          sendRequest();
+        }
+      });
+
+      copyBtn.addEventListener("click", function () {
+        navigator.clipboard.writeText(responseBody.textContent).then(function () {
+          copyBtn.textContent = "已复制!";
+          setTimeout(function () { copyBtn.textContent = "复制"; }, 1500);
+        });
+      });
+
+      // Quick test buttons
+      document.querySelectorAll(".quick-test").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          endpointSelect.value = btn.dataset.endpoint;
+          updateBodySection();
+          if (btn.dataset.body) {
+            requestBody.value = btn.dataset.body;
+          }
+          sendRequest();
+        });
+      });
+    });
+  </script>
 </body>
 </html>

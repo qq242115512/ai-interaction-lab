@@ -1,13 +1,15 @@
 import time
-from fastapi import FastAPI
+
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from routers import review, chat, stream, patterns, agent_system
-from services.utils import setup_logging, cleanup_old_sessions, logger
+from middleware.metrics import ACTIVE_SESSIONS, PrometheusMiddleware, metrics_endpoint
 from middleware.security import SecurityMiddleware
+from routers import agent_system, chat, patterns, review, stream
+from services.utils import logger, setup_logging
 
 setup_logging()
 
-app = FastAPI(title='设计引路人 API', version='0.5.1')
+app = FastAPI(title='设计引路人 API', version='0.5.2')
 
 app.add_middleware(
     CORSMiddleware,
@@ -19,6 +21,7 @@ app.add_middleware(
 )
 
 app.add_middleware(SecurityMiddleware)
+app.add_middleware(PrometheusMiddleware)  # Community standard: Prometheus metrics
 
 app.include_router(review.router, prefix='/api')
 app.include_router(chat.router, prefix='/api')
@@ -26,8 +29,13 @@ app.include_router(stream.router, prefix='/api')
 app.include_router(patterns.router, prefix='/api')
 app.include_router(agent_system.router, prefix='/api')
 
-chat.sessions = review.sessions
-stream.sessions = review.sessions
+# Session store: SQLite persistence replaces in-memory dict (community standard)
+from services.session_store import store
+
+review.store = store
+chat.store = store
+stream.store = store
+
 
 @app.middleware('http')
 async def log_requests(request, call_next):
@@ -38,7 +46,19 @@ async def log_requests(request, call_next):
         logger.info(f'{request.method} {request.url.path} -> {response.status_code} ({elapsed:.1f}s)')
     return response
 
+
 @app.get('/api/health')
 async def health():
-    cleaned = cleanup_old_sessions(review.sessions)
-    return {'status': 'ok', 'version': '0.5.1', 'sessions': len(review.sessions)}
+    store.cleanup()
+    return {
+        'status': 'ok',
+        'version': '0.5.2',
+        'sessions': len(store),
+    }
+
+
+@app.get('/metrics')
+async def metrics(request: Request):
+    """Prometheus metrics endpoint — community standard observability."""
+    ACTIVE_SESSIONS.set(len(store))
+    return await metrics_endpoint(request)

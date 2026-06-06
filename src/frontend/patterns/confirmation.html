@@ -5,187 +5,305 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>确认机制 — AI 交互模式实验室</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧪</text></svg>" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Serif+SC:wght@400;600;700;900&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/lxgw-wenkai-webfont/1.7.0/lxgwwenkai-regular.css" />
-  <link rel="stylesheet" href="../css/style.css?v=2.0.2" />
-  <style>
-    :root {
-      --pattern-accent: #ea580c;
-      --pattern-accent-light: #fef3eb;
-      --pattern-accent-muted: #f4c4a8;
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Noto+Sans+SC:wght@300;400;500;700&family=Noto+Serif+SC:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+  tailwind.config = { theme: { extend: {
+    colors: {
+      primary: { 50:'#f3f4fb',100:'#e4e6f6',200:'#ccd0ee',300:'#acb2e3',400:'#8b92d5',500:'#6e76c4',600:'#5b63b0',700:'#4a5194',800:'#3a3f76',900:'#292d57',950:'#1a1d3a' },
+      accent: { 50:'#fef7f4',100:'#fdebe3',200:'#fad4c2',300:'#f5b598',400:'#ee936a',500:'#e07340',600:'#c55a2e',700:'#a3461f',800:'#803515',900:'#5c250e' },
+      neutral: { 50:'#fafaf9',100:'#f5f3f1',200:'#e8e4e0',300:'#d4cec8',400:'#a89f96',500:'#7d7368',600:'#5e554c',700:'#4a423b',800:'#332d28',900:'#1f1b18',950:'#14100e' },
+    },
+    fontFamily: {
+      display: ['"DM Serif Display"','"Noto Serif SC"','serif'],
+      body: ['"Inter"','"Noto Sans SC"','sans-serif'],
+      mono: ['"JetBrains Mono"','monospace'],
     }
-    .confirm-card { background:var(--color-surface); border-radius:var(--radius-lg); padding:24px 28px; border:2px solid var(--color-warning); max-width:500px; margin:0 auto; }
-    .confirm-card.executing { border-color:var(--color-primary); animation:pulse 1.5s infinite; }
-    .confirm-card.executed { border-color:var(--color-success); }
-    .confirm-card.cancelled { border-color:var(--color-border); opacity:0.7; }
-    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.7} }
-    .flow-steps { display:flex; gap:0; margin-bottom:20px; text-align:center; }
-    .flow-step { flex:1; position:relative; padding:10px 8px; font-size:0.72rem; color:var(--color-text-muted); }
-    .flow-step .step-num { width:28px; height:28px; border-radius:50%; border:2px solid var(--color-border); display:inline-flex; align-items:center; justify-content:center; font-weight:700; font-size:0.8rem; margin-bottom:4px; }
-    .flow-step.active .step-num { border-color:var(--color-primary); background:var(--color-primary-light); color:var(--color-primary); }
-    .flow-step.done .step-num { border-color:var(--color-success); background:#ecfdf5; color:var(--color-success); }
+  } } }
+  </script>
+
+  <style>
+    :root { --pa: #3b82f6; }
+    .pattern-accent-text { color: var(--pa); }
+    .pattern-accent-bg { background: var(--pa); }
+    .pattern-accent-border { border-color: var(--pa); }
+    .section-divider { display:flex; align-items:center; gap:1rem; }
+    .section-divider::before,.section-divider::after { content:''; flex:1; height:1px; background:#e8e4e0; }
+    .section-divider-dot { width:8px; height:8px; border-radius:50%; background:var(--pa); flex-shrink:0; }
+    .mobile-menu { max-height:0; overflow:hidden; transition:max-height 0.35s cubic-bezier(0.16,1,0.3,1),opacity 0.25s ease; opacity:0; }
+    .mobile-menu.open { max-height:320px; opacity:1; }
+    body { font-family: 'Inter','Noto Sans SC',sans-serif; }
   </style>
 </head>
-<body>
-  <div class="app-shell">
-    <header class="app-header">
-      <a href="/" class="app-logo">🧪 AI 交互模式实验室</a>
-      <nav class="app-nav"><a href="/about.html">关于我</a><a href="/behind-the-scenes.html">制作幕后</a></nav>
-    </header>
+<body class="bg-neutral-100 text-neutral-700 antialiased">
 
-    <div class="pattern-hero">
-      <div class="pattern-icon">✅</div>
-      <h1>确认机制</h1>
-      <div class="pattern-tagline">AI 执行关键操作前征求用户同意——人永远在回路中</div>
+  <!-- Navigation -->
+  <nav id="navbar" class="fixed top-0 w-full z-50 bg-neutral-100/90 backdrop-blur-md border-b border-neutral-200">
+    <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+      <a href="/" class="font-display text-2xl text-primary-700 tracking-tight no-underline">AI<span class="text-accent-500">·</span>Lab</a>
+      <div class="hidden md:flex items-center gap-8">
+        <a href="/patterns/streaming.html" class="text-sm font-medium text-neutral-500 hover:text-neutral-800 transition-colors no-underline">Patterns</a>
+        <a href="/about.html" class="text-sm font-medium text-neutral-500 hover:text-neutral-800 transition-colors no-underline">About</a>
+        <a href="/agents.html" class="text-sm font-medium text-neutral-500 hover:text-neutral-800 transition-colors no-underline">Agents</a>
+        <a href="/behind-the-scenes.html" class="text-sm font-medium text-neutral-500 hover:text-neutral-800 transition-colors no-underline">Behind the Scenes</a>
+        <a href="/review.html" class="px-6 py-2.5 bg-accent-500 text-white font-semibold rounded-full text-sm hover:bg-accent-600 transition-colors shadow-lg shadow-accent-500/25 no-underline">Try Review Tool</a>
+      </div>
+      <button id="hamburger" class="md:hidden flex flex-col gap-1.5 p-2 bg-transparent border-0 cursor-pointer" aria-label="菜单">
+        <span class="block w-6 h-0.5 bg-neutral-700 rounded transition-transform duration-300"></span>
+        <span class="block w-6 h-0.5 bg-neutral-700 rounded transition-opacity duration-300"></span>
+        <span class="block w-6 h-0.5 bg-neutral-700 rounded transition-transform duration-300"></span>
+      </button>
+    </div>
+    <div id="mobile-menu" class="mobile-menu md:hidden bg-neutral-100/95 backdrop-blur-md border-b border-neutral-200">
+      <div class="px-6 py-4 flex flex-col gap-3">
+        <a href="/patterns/streaming.html" class="text-sm font-medium text-neutral-600 hover:text-neutral-900 no-underline py-2">Patterns</a>
+        <a href="/about.html" class="text-sm font-medium text-neutral-600 hover:text-neutral-900 no-underline py-2">About</a>
+        <a href="/agents.html" class="text-sm font-medium text-neutral-600 hover:text-neutral-900 no-underline py-2">Agents</a>
+        <a href="/behind-the-scenes.html" class="text-sm font-medium text-neutral-600 hover:text-neutral-900 no-underline py-2">Behind the Scenes</a>
+        <a href="/review.html" class="px-6 py-2.5 bg-accent-500 text-white font-semibold rounded-full text-sm hover:bg-accent-600 transition-colors text-center no-underline shadow-lg shadow-accent-500/25">Try Review Tool</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Pattern Hero -->
+  <section class="pt-28 pb-12 md:pt-36 md:pb-16 px-6 text-center">
+    <div class="max-w-3xl mx-auto">
+      <div class="text-5xl mb-4">✅</div>
+      <p class="text-xs font-semibold tracking-widest uppercase mb-4" style="color:var(--pa)">AI Interaction Pattern</p>
+      <h1 class="font-display text-3xl md:text-5xl text-primary-900 leading-tight mb-4">确认机制</h1>
+      <p class="text-lg md:text-xl text-neutral-500">关键操作前确认，人在回路中，防误操作</p>
+    </div>
+  </section>
+
+  <!-- Design Rationale -->
+  <section class="max-w-3xl mx-auto px-6 pb-16">
+    <div class="section-divider mb-8"><span class="section-divider-dot"></span></div>
+    <h2 class="font-display text-2xl text-primary-800 mb-6">设计思路</h2>
+    <div class="space-y-4 text-neutral-600 leading-relaxed">
+      <p><strong class="text-neutral-800">解决的问题：</strong>当 AI 被赋予执行能力时，误操作的成本很高。如果 AI 理解错了用户意图就直接执行，后果可能不可逆。引用<strong class="text-neutral-800">用户控制与自由</strong>（尼尔森第三原则）——用户需要明确的"出口"来避免不想要的状态。在 AI 交互中，"出口"就是"先确认再执行"。</p>
+      <p><strong class="text-neutral-800">设计决策：</strong>两阶段确认流——Stage 1 生成确认请求（含影响评估、是否可逆），Stage 2 用户批准后执行。10 分钟 TTL 防止过期确认。</p>
+      <p><strong class="text-neutral-800">生活类比：</strong>点外卖时下单前的那一步确认页——你一定会确认地址对不对、菜选没选错。即使再急的人也会看一眼再付款。因为你知道点错了就要重新下单、可能要等更久。AI 执行操作前让用户确认，就是那个"下单确认页"。</p>
+      <div class="flex flex-wrap gap-2 pt-2">
+        <span class="inline-block px-3 py-1 text-xs font-medium rounded-full border" style="background:#eff6ff;color:#2563eb;border-color:#bfdbfe;">用户控制与自由</span>
+        <span class="inline-block px-3 py-1 text-xs font-medium rounded-full border" style="background:#eff6ff;color:#2563eb;border-color:#bfdbfe;">预防错误</span>
+        <span class="inline-block px-3 py-1 text-xs font-medium rounded-full border" style="background:#eff6ff;color:#2563eb;border-color:#bfdbfe;">人在回路</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Live Demo -->
+  <section class="max-w-3xl mx-auto px-6 pb-20">
+    <div class="section-divider mb-8"><span class="section-divider-dot"></span></div>
+    <h2 class="font-display text-2xl text-primary-800 mb-6">交互 Demo</h2>
+
+    <!-- Flow Steps -->
+    <div class="flex mb-6" id="flowIndicator">
+      <div class="flex-1 text-center pb-2 border-b-3 transition-all text-xs font-semibold" id="fstep1" style="border-color:var(--pa);color:var(--pa);">1. 发起操作</div>
+      <div class="flex-1 text-center pb-2 border-b-3 transition-all text-xs text-neutral-400" id="fstep2" style="border-color:transparent;">2. 确认 / 取消</div>
+      <div class="flex-1 text-center pb-2 border-b-3 transition-all text-xs text-neutral-400" id="fstep3" style="border-color:transparent;">3. 执行结果</div>
     </div>
 
-    <section class="pattern-section">
-      <h2>设计思路</h2>
-      <p><strong>解决的问题：</strong>当 AI 被赋予执行能力时，误操作的成本很高。如果 AI 理解错了用户意图就直接执行，后果可能不可逆。引用 <strong>用户控制与自由</strong>（尼尔森第三原则）——用户需要明确的"出口"来避免不想要的状态。在 AI 交互中，"出口"就是"先确认再执行"。</p>
-      <p><strong>生活类比：</strong>点外卖时下单前的那一步确认页——你一定会确认地址对不对、菜选没选错。即使再急的人也会看一眼再付款。因为你知道点错了就要重新下单、可能要等更久。AI 执行操作前让用户确认，就是那个"下单确认页"。</p>
-      <div>
-        <span class="principle-badge">用户控制与自由</span>
-        <span class="principle-badge">预防错误</span>
-        <span class="principle-badge">人在回路</span>
+    <!-- Stage 1: Describe action -->
+    <div id="flowContent">
+      <p class="text-sm text-neutral-500 mb-3">试试让 AI 帮你执行一个关键操作（模拟场景）：</p>
+      <textarea id="actionInput" class="w-full p-4 border border-neutral-300 rounded-xl text-sm resize-y min-h-[60px] focus:outline-none focus:ring-2 focus:ring-offset-1" style="font-family:inherit;focus-ring-color:var(--pa);" placeholder="比如：删除我的「电商App改版」项目">删除我的「电商App改版」项目</textarea>
+      <div class="text-center mt-4">
+        <button id="goBtn" class="px-8 py-3 text-white font-semibold rounded-full text-sm hover:opacity-90 transition-opacity shadow-lg" style="background:var(--pa);">生成确认请求</button>
       </div>
-    </section>
-
-    <section class="pattern-section">
-      <h2>实现方式</h2>
-      <p>两阶段 API：<code>/api/confirm</code> 接收操作描述 → AI 生成确认请求（操作内容+影响评估+是否可逆）。<code>/api/execute</code> 接收用户决定 → 执行或取消。待确认操作 10 分钟 TTL 自动过期。</p>
-    </section>
-
-    <section class="demo-area">
-      <div class="demo-label">交互 Demo — 模拟删除一个设计项目</div>
-      <div class="flow-steps">
-        <div class="flow-step active" id="fstep1"><div class="step-num">1</div>发起操作</div>
-        <div class="flow-step" id="fstep2"><div class="step-num">2</div>确认/取消</div>
-        <div class="flow-step" id="fstep3"><div class="step-num">3</div>执行结果</div>
-      </div>
-
-      <div id="flowContent">
-        <div style="font-size:0.85rem;color:var(--color-text-secondary);margin-bottom:10px;">试试让 AI 帮你删除一个设计项目（模拟场景）：</div>
-        <textarea id="actionInput" style="width:100%;padding:12px;border:1.5px solid var(--color-border);border-radius:var(--radius-md);font-size:0.875rem;font-family:inherit;resize:vertical;min-height:50px;" placeholder="比如：删除我的「电商App改版」项目">删除我的「电商App改版」项目</textarea>
-        <div style="text-align:center;margin-top:12px;"><button id="goBtn" class="btn btn-primary">发起确认</button></div>
-      </div>
-      <div id="confirmCard" style="display:none;margin-top:20px;"></div>
-    </section>
-
-    <div class="code-ref">
-      实现位置：<code>src/backend/routers/patterns.py</code> → <code>/api/confirm</code> + <code>/api/execute</code> 端点<br>
-      前端：<code>src/frontend/patterns/confirmation.html</code> · Prompt：<code>src/backend/services/prompts.py</code>
     </div>
 
-    <div class="pattern-nav">
-      <a href="/patterns/context.html">← 多轮上下文</a>
-      <a href="/patterns/progressive.html">下一个：渐进式加载 →</a>
+    <!-- Stage 2 & 3: Confirm Card -->
+    <div id="confirmCard" class="hidden mt-6"></div>
+  </section>
+
+  <!-- How It Works -->
+  <section class="max-w-3xl mx-auto px-6 pb-16">
+    <div class="section-divider mb-8"><span class="section-divider-dot"></span></div>
+    <h2 class="font-display text-2xl text-primary-800 mb-6">实现方式</h2>
+    <div class="space-y-6">
+      <div class="flex gap-4">
+        <div class="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm" style="background:var(--pa);">1</div>
+        <div>
+          <h3 class="font-semibold text-primary-800 mb-1">用户描述操作意图</h3>
+          <p class="text-neutral-600 text-sm">用户用自然语言描述想要执行的操作。无需精确指令——AI 会自行理解和结构化。</p>
+        </div>
+      </div>
+      <div class="flex gap-4">
+        <div class="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm" style="background:var(--pa);">2</div>
+        <div>
+          <h3 class="font-semibold text-primary-800 mb-1">AI 生成确认请求</h3>
+          <p class="text-neutral-600 text-sm"><code class="text-xs font-mono bg-neutral-200 px-1.5 py-0.5 rounded">/api/confirm</code> 接收操作描述，AI 解读并生成确认卡片：proposal（理解的操作）、impact（影响范围和风险评估）、reversible（是否可逆）。10 分钟 TTL。</p>
+        </div>
+      </div>
+      <div class="flex gap-4">
+        <div class="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm" style="background:var(--pa);">3</div>
+        <div>
+          <h3 class="font-semibold text-primary-800 mb-1">用户确认或取消，AI 执行</h3>
+          <p class="text-neutral-600 text-sm"><code class="text-xs font-mono bg-neutral-200 px-1.5 py-0.5 rounded">/api/execute</code> 接收用户决定。确认则执行操作并返回结果，取消则安全退出。</p>
+        </div>
+      </div>
     </div>
-    <footer class="app-footer">AI 交互模式实验室 · <a href="/">回到首页</a></footer>
-  </div>
+  </section>
 
-  <script>
-    function setFlow(n) {
-      for (var i=1;i<=3;i++) {
-        var el = document.getElementById('fstep'+i);
-        el.classList.remove('active','done');
-        if (i<n) el.classList.add('done');
-        if (i===n) el.classList.add('active');
-      }
-    }
+  <!-- Code Reference -->
+  <section class="max-w-4xl mx-auto px-6 pb-20">
+    <div class="section-divider mb-8"><span class="section-divider-dot"></span></div>
+    <h2 class="font-display text-2xl text-primary-800 mb-6">源码参考</h2>
+    <div class="bg-primary-950 rounded-xl overflow-hidden border border-primary-800">
+      <div class="flex items-center justify-between px-5 py-2.5 bg-primary-900 border-b border-primary-800">
+        <span class="text-xs font-mono text-neutral-400">src/backend/routers/patterns.py + services/prompts.py</span>
+      </div>
+      <pre class="p-5 overflow-x-auto"><code class="text-sm font-mono text-neutral-200 leading-relaxed"># Prompts
+CONFIRM_PROMPT = """用户想让你执行一个操作。你的工作：
+1. 用清晰的语言描述你理解的操作（proposal）
+2. 评估这个操作的影响范围（impact）
+3. 判断这个操作是否可逆（reversible）
+4. 输出 JSON，让用户确认或取消"""
 
-    var currentActionId = null;
+# patterns.py
+pending_actions: Dict[str, dict] = {}  # action_id → action with TTL
 
-    document.getElementById('goBtn').addEventListener('click', async function() {
-      var action = document.getElementById('actionInput').value.trim();
-      if (!action) { alert('请输入操作描述'); return; }
+@router.post("/api/confirm")
+async def confirm_action(req: ConfirmRequest):
+    response = await deepseek_chat(CONFIRM_PROMPT, req.context)
+    action = parse_json_response(response)
+    action["action_id"] = str(uuid4())
+    action["created_at"] = time.time()
+    action["status"] = "pending"
+    pending_actions[action["action_id"]] = action
+    return action  # { proposal, impact, reversible, action_id }
 
-      var btn = this; btn.disabled = true; btn.textContent = 'AI 分析中...';
-      setFlow(1);
+@router.post("/api/execute")
+async def execute_action(req: ExecuteRequest):
+    action = pending_actions.pop(req.action_id, None)
+    if not action or time.time() - action["created_at"] > 600:
+        raise HTTPException(410, "Action expired (>10min)")
+    if not req.confirmed:
+        return {"status": "cancelled", "result": "操作已取消"}
+    result = await perform_action(action)
+    return {"status": "executed", "result": result}</code></pre>
+    </div>
+  </section>
 
-      try {
-        var resp = await fetch('/api/confirm', {
-          method: 'POST', headers: {'Content-Type':'application/json'},
-          body: JSON.stringify({action_type:'delete_project', context: action})
-        });
-        if (!resp.ok) { var e = await resp.json(); throw new Error(e.detail); }
-        var data = await resp.json();
-        currentActionId = data.action_id;
+  <!-- Footer -->
+  <footer class="bg-primary-950 text-neutral-400 py-16 px-6">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex flex-col md:flex-row justify-between items-center gap-6 mb-8">
+        <a href="/" class="font-display text-2xl text-neutral-200 no-underline">AI<span class="text-accent-500">·</span>Lab</a>
+        <div class="flex gap-6 text-sm">
+          <a href="/about.html" class="hover:text-neutral-200 transition-colors no-underline">About</a>
+          <a href="/patterns/streaming.html" class="hover:text-neutral-200 transition-colors no-underline">Patterns</a>
+          <a href="/agents.html" class="hover:text-neutral-200 transition-colors no-underline">Agents</a>
+          <a href="https://github.com/qq242115512/ai-interaction-lab" class="hover:text-neutral-200 transition-colors no-underline" target="_blank">GitHub</a>
+        </div>
+      </div>
+      <div class="border-t border-primary-800 pt-6 flex flex-col sm:flex-row justify-between items-center gap-2 text-xs">
+        <p>&copy; 2026 Fanshuyang. Built with AI, shipped with care.</p>
+      </div>
+    </div>
+  </footer>
 
-        setFlow(2);
-        var card = document.getElementById('confirmCard');
-        card.style.display = 'block';
-        card.innerHTML =
-          '<div class="confirm-card">' +
-          '<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">' +
-          '<span style="font-size:1.5rem;">⚠️</span>' +
-          '<span style="font-weight:700;font-size:0.95rem;">确认操作</span>' +
-          '</div>' +
-          '<div style="font-size:0.875rem;color:var(--color-text-secondary);margin-bottom:8px;line-height:1.7;">' +
-          '<strong>操作：</strong>'+escHtml(data.proposal)+'</div>' +
-          '<div style="font-size:0.85rem;color:var(--color-text-secondary);margin-bottom:6px;">' +
-          '<strong>影响：</strong>'+escHtml(data.impact)+(data.reversible?'（可撤销）':'<span style="color:#dc2626;">（不可逆！）</span>')+'</div>' +
-          '<div style="display:flex;gap:10px;justify-content:center;margin-top:16px;">' +
-          '<button onclick="execute(true)" class="btn btn-primary">确认执行</button>' +
-          '<button onclick="execute(false)" class="btn btn-secondary">取消</button>' +
-          '</div></div>';
-        card.scrollIntoView({behavior:'smooth'});
-
-      } catch(err) { alert('出错了：'+err.message); }
-      btn.disabled = false; btn.textContent = '发起确认';
-    });
-
-    window.execute = async function(confirmed) {
-      if (!currentActionId) return;
-      setFlow(2);
-      var card = document.getElementById('confirmCard');
-      var cardEl = card.querySelector('.confirm-card');
-      cardEl.classList.add('executing');
-      cardEl.innerHTML =
-        '<div style="text-align:center;padding:16px;">' +
-        '<div class="spinner"></div>' +
-        '<div style="font-size:0.85rem;color:var(--color-text-secondary);margin-top:8px;">' +
-        (confirmed ? '正在执行操作...' : '正在取消操作...') +
-        '</div></div>';
-
-      // Simulate brief delay for visual feedback
-      await new Promise(function(r){ setTimeout(r, 800); });
-
-      try {
-        var resp = await fetch('/api/execute', {
-          method: 'POST', headers: {'Content-Type':'application/json'},
-          body: JSON.stringify({action_id: currentActionId, confirmed: confirmed})
-        });
-        if (!resp.ok) { var e = await resp.json(); throw new Error(e.detail); }
-        var data = await resp.json();
-
-        setFlow(3);
-        var isExecuted = data.status === 'executed';
-        cardEl.classList.remove('executing');
-        cardEl.classList.add(isExecuted?'executed':'cancelled');
-        cardEl.innerHTML =
-          '<div style="text-align:center;padding:8px;">' +
-          '<div style="font-size:1.5rem;margin-bottom:6px;">'+(isExecuted?'✅':'🚫')+'</div>' +
-          '<div style="font-weight:700;font-size:0.95rem;margin-bottom:4px;">'+(isExecuted?'操作已完成':'操作已取消')+'</div>' +
-          '<div style="font-size:0.82rem;color:var(--color-text-secondary);">'+escHtml(data.result)+'</div>' +
-          '<button onclick="resetFlow()" class="btn btn-secondary" style="margin-top:14px;">重新演示</button>' +
-          '</div>';
-
-      } catch(err) { alert('出错了：'+err.message); }
-    };
-
-    window.resetFlow = function() {
-      currentActionId = null;
-      setFlow(1);
-      document.getElementById('confirmCard').style.display = 'none';
-      document.getElementById('confirmCard').innerHTML = '';
-    };
-
-    function escHtml(s) { var d=document.createElement('div');d.textContent=s||'';return d.innerHTML; }
-  </script>
+  <!-- GSAP -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
-  <script src="../js/animations.js?v=2.0.2"></script>
+  <script src="../js/animations.js"></script>
+
+  <script>
+    (function() {
+      function setFlow(n) {
+        for (var i = 1; i <= 3; i++) {
+          var el = document.getElementById('fstep' + i);
+          el.style.borderColor = 'transparent';
+          el.style.color = '#a89f96';
+        }
+        for (var i = 1; i < n; i++) {
+          var el = document.getElementById('fstep' + i);
+          el.style.borderColor = '#10b981';
+          el.style.color = '#10b981';
+        }
+        var active = document.getElementById('fstep' + n);
+        active.style.borderColor = 'var(--pa)';
+        active.style.color = 'var(--pa)';
+      }
+
+      function escHtml(s) { var d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }
+
+      document.getElementById('goBtn').addEventListener('click', function() {
+        var action = document.getElementById('actionInput').value.trim();
+        if (!action) { action = '删除我的「电商App改版」项目'; }
+
+        setFlow(2);
+
+        // Mock confirm card
+        var html = '<div class="bg-white rounded-2xl p-6 border-2 transition-all duration-500 max-w-lg mx-auto" style="border-color:#f59e0b;" id="confirmCardInner">';
+        html += '<div class="flex items-center gap-3 mb-4">';
+        html += '<span class="text-2xl">&#x26A0;&#xFE0F;</span>';
+        html += '<span class="font-bold text-base text-neutral-800">确认操作</span>';
+        html += '</div>';
+        html += '<div class="space-y-3 text-sm">';
+        html += '<div class="flex gap-2"><span class="font-semibold text-neutral-600 flex-shrink-0">操作：</span><span class="text-neutral-700">删除项目「电商App改版」及其所有的设计稿、评审记录和修改历史。</span></div>';
+        html += '<div class="flex gap-2"><span class="font-semibold text-neutral-600 flex-shrink-0">影响：</span><span class="text-neutral-700">该项目包含 12 个页面、3 次评审记录。删除后数据<strong class="text-red-500">不可恢复</strong>。关联的分享链接将失效。</span></div>';
+        html += '<div class="flex gap-2"><span class="font-semibold text-neutral-600 flex-shrink-0">可逆：</span><span class="text-red-500 font-semibold">不可逆操作</span></div>';
+        html += '</div>';
+        html += '<div class="flex gap-3 justify-center mt-6">';
+        html += '<button id="confirmExec" class="px-8 py-3 text-white font-semibold rounded-full text-sm hover:opacity-90 transition-opacity shadow-lg" style="background:var(--pa);">确认执行</button>';
+        html += '<button id="confirmCancel" class="px-8 py-3 border-2 border-neutral-300 text-neutral-600 font-semibold rounded-full text-sm hover:border-neutral-400 hover:text-neutral-700 transition-colors bg-white">取消</button>';
+        html += '</div>';
+        html += '<p class="text-xs text-neutral-400 text-center mt-4">确认请求 10 分钟后自动过期</p>';
+        html += '</div>';
+
+        document.getElementById('confirmCard').innerHTML = html;
+        document.getElementById('confirmCard').classList.remove('hidden');
+        document.getElementById('confirmCard').scrollIntoView({ behavior: 'smooth' });
+
+        // Confirm execute
+        document.getElementById('confirmExec').addEventListener('click', function() {
+          setFlow(2);
+          var card = document.getElementById('confirmCardInner');
+          card.style.borderColor = 'var(--pa)';
+          card.innerHTML = '<div class="text-center py-4"><div class="inline-block w-8 h-8 border-3 border-blue-200 border-t-blue-500 rounded-full animate-spin mb-3"></div><p class="text-sm text-neutral-500">正在执行操作...</p></div>';
+
+          setTimeout(function() {
+            setFlow(3);
+            card.style.borderColor = '#10b981';
+            card.innerHTML = '<div class="text-center py-4">' +
+              '<div class="text-3xl mb-3">&#x2705;</div>' +
+              '<p class="font-bold text-base text-neutral-800 mb-2">操作已完成</p>' +
+              '<p class="text-sm text-neutral-500 mb-4">项目「电商App改版」已成功删除，数据不可恢复。</p>' +
+              '<button onclick="location.reload()" class="px-6 py-2.5 border-2 border-neutral-300 text-neutral-600 font-semibold rounded-full text-sm hover:border-neutral-400 transition-colors bg-white">重新演示</button>' +
+              '</div>';
+          }, 1200);
+        });
+
+        // Confirm cancel
+        document.getElementById('confirmCancel').addEventListener('click', function() {
+          setFlow(2);
+          var card = document.getElementById('confirmCardInner');
+          card.style.borderColor = 'var(--pa)';
+          card.innerHTML = '<div class="text-center py-4"><div class="inline-block w-8 h-8 border-3 border-blue-200 border-t-blue-500 rounded-full animate-spin mb-3"></div><p class="text-sm text-neutral-500">正在取消操作...</p></div>';
+
+          setTimeout(function() {
+            setFlow(3);
+            card.style.borderColor = '#d4cec8';
+            card.style.opacity = '0.7';
+            card.innerHTML = '<div class="text-center py-4">' +
+              '<div class="text-3xl mb-3">&#x1F6AB;</div>' +
+              '<p class="font-bold text-base text-neutral-800 mb-2">操作已取消</p>' +
+              '<p class="text-sm text-neutral-500 mb-4">项目「电商App改版」保持不变，未执行任何操作。</p>' +
+              '<button onclick="location.reload()" class="px-6 py-2.5 border-2 border-neutral-300 text-neutral-600 font-semibold rounded-full text-sm hover:border-neutral-400 transition-colors bg-white">重新演示</button>' +
+              '</div>';
+          }, 800);
+        });
+      });
+
+      document.getElementById('hamburger').addEventListener('click', function() {
+        document.getElementById('mobile-menu').classList.toggle('open');
+      });
+    })();
+  </script>
 </body>
 </html>

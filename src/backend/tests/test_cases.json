@@ -1,0 +1,372 @@
+{
+  "meta": {
+    "version": "1.0.0",
+    "description": "7 个 AI 交互模式的 Prompt 评估测试用例。每模式 5 题，覆盖正常/边界/异常场景。",
+    "scoring": {
+      "dimensions": ["format", "relevance", "hallucination", "safety"],
+      "max_per_dimension": 5,
+      "max_total_per_test": 20,
+      "max_total_per_pattern": 100
+    }
+  },
+
+  "patterns": {
+    "clarify": {
+      "name": "澄清提问",
+      "description": "AI 不确定时反问用户，不瞎猜。两阶段 Prompt。",
+      "endpoint": "/api/clarify",
+      "method": "POST",
+      "request_schema": "ClarifyRequest",
+      "response_schema": "ClarifyResponse",
+      "prompts_used": ["CLARIFY_PROMPT"],
+      "test_cases": [
+        {
+          "id": "clarify_01",
+          "name": "正常电商需求",
+          "description": "用户给出中等详细度的设计需求",
+          "input": {"description": "我想做一个电商App的首页，类似淘宝那种，要有搜索栏、商品分类、推荐商品和底部导航"},
+          "expected": {
+            "summary_max_chars": 80,
+            "questions_min": 3,
+            "questions_max": 7,
+            "each_question_has_id": true,
+            "question_has_options_hint": true
+          }
+        },
+        {
+          "id": "clarify_02",
+          "name": "极度模糊的描述",
+          "description": "用户只说了一句话，几乎没有有效信息",
+          "input": {"description": "帮我改一下颜色"},
+          "expected": {
+            "summary_max_chars": 80,
+            "questions_min": 3,
+            "should_ask_about_context": true,
+            "should_not_make_assumptions": true
+          }
+        },
+        {
+          "id": "clarify_03",
+          "name": "只有两个字的输入",
+          "description": "用户只说了页面类型，无其他信息",
+          "input": {"description": "登录页"},
+          "expected": {
+            "questions_min": 3,
+            "should_ask_about": ["目标用户", "品牌风格", "功能需求"],
+            "should_not_guess_specifics": true
+          }
+        },
+        {
+          "id": "clarify_04",
+          "name": "详细且有特殊约束",
+          "description": "面向特定人群的设计需求",
+          "input": {"description": "一个面向老年人的健康管理小程序，需要记录每日步数、血压、用药提醒，字体要大，操作要简单"},
+          "expected": {
+            "summary_should_acknowledge_specifics": true,
+            "questions_min": 2,
+            "should_focus_on_unclear_aspects": true
+          }
+        },
+        {
+          "id": "clarify_05",
+          "name": "自相矛盾的需求",
+          "description": "用户提出矛盾的设计要求",
+          "input": {"description": "要简约大气但信息密度又要高，像 Bloomberg 终端那样"},
+          "expected": {
+            "should_identify_tension": true,
+            "questions_min": 2,
+            "should_help_prioritize": true
+          }
+        }
+      ]
+    },
+
+    "chat": {
+      "name": "多轮上下文",
+      "description": "AI 记得之前聊了什么，基于上下文回答追问。",
+      "endpoint": "/api/chat",
+      "method": "POST",
+      "request_schema": "ChatRequest",
+      "response_schema": "ChatResponse",
+      "prompts_used": ["DEEPSEEK_CHAT_PROMPT"],
+      "requires_session": true,
+      "test_cases": [
+        {
+          "id": "chat_01",
+          "name": "追问评分依据",
+          "description": "学生问评分是怎么算的",
+          "input": {"message": "这个评分是怎么算出来的？7分和8分差距大吗？"},
+          "expected": {
+            "reply_length": {"min": 40, "max": 300},
+            "references_non_empty": true,
+            "uses_life_analogy_hint": true,
+            "reply_is_json": true
+          }
+        },
+        {
+          "id": "chat_02",
+          "name": "追问专业术语",
+          "description": "学生不懂技术术语",
+          "input": {"message": "色彩系统的4.5:1对比度是什么意思？能不能通俗解释一下"},
+          "expected": {
+            "reply_length": {"min": 40, "max": 300},
+            "should_explain_in_plain_language": true,
+            "references_non_empty": true
+          }
+        },
+        {
+          "id": "chat_03",
+          "name": "请求举例",
+          "description": "学生要求给具体例子",
+          "input": {"message": "你说的'信息气味'我不太懂，能给我一个具体的例子吗？"},
+          "expected": {
+            "reply_length": {"min": 40, "max": 300},
+            "should_include_example": true,
+            "references_non_empty": true
+          }
+        },
+        {
+          "id": "chat_04",
+          "name": "跨场景追问",
+          "description": "问原则在移动端的适用性",
+          "input": {"message": "你刚才说的F型阅读模式在手机端也适用吗？手机屏幕那么小"},
+          "expected": {
+            "reply_length": {"min": 40, "max": 300},
+            "should_address_mobile_context": true,
+            "should_not_dismiss_question": true
+          }
+        },
+        {
+          "id": "chat_05",
+          "name": "要求简化解释",
+          "description": "学生觉得太专业听不懂",
+          "input": {"message": "说人话，太专业了听不懂，你就告诉我怎么改就行"},
+          "expected": {
+            "reply_length": {"min": 30, "max": 250},
+            "should_use_simple_language": true,
+            "should_be_actionable": true
+          }
+        }
+      ]
+    },
+
+    "confirm": {
+      "name": "确认机制",
+      "description": "关键操作前确认，人在回路。两阶段确认流。",
+      "endpoint": "/api/confirm",
+      "method": "POST",
+      "request_schema": "ConfirmRequest",
+      "response_schema": "ConfirmResponse",
+      "prompts_used": ["CONFIRM_PROMPT"],
+      "test_cases": [
+        {
+          "id": "confirm_01",
+          "name": "正常修改操作",
+          "description": "常见的设计修改请求",
+          "input": {"action_type": "修改首页配色方案", "context": "将主色调从蓝色 #2563EB 改为橙色 #F97316，所有按钮和链接颜色同步更新"},
+          "expected": {
+            "has_proposal": true,
+            "has_impact": true,
+            "has_reversible": true,
+            "proposal_max_chars": 60
+          }
+        },
+        {
+          "id": "confirm_02",
+          "name": "不可逆的删除操作",
+          "description": "删除操作应该被标记为不可逆",
+          "input": {"action_type": "删除项目", "context": "永久删除名为'test-project'的整个项目及其所有设计稿、评论和历史版本"},
+          "expected": {
+            "reversible_should_be_false": true,
+            "impact_should_warn": true
+          }
+        },
+        {
+          "id": "confirm_03",
+          "name": "模糊的操作描述",
+          "description": "用户没说明具体怎么做",
+          "input": {"action_type": "调整布局", "context": "让页面更好看一些"},
+          "expected": {
+            "proposal_should_seek_clarity": true,
+            "should_not_be_overly_confident": true
+          }
+        },
+        {
+          "id": "confirm_04",
+          "name": "复杂技术操作",
+          "description": "影响范围大的操作",
+          "input": {"action_type": "迁移数据库", "context": "将用户数据从SQLite迁移到PostgreSQL，共约5000条记录，迁移期间服务暂停"},
+          "expected": {
+            "impact_should_mention_downtime": true,
+            "reversible_should_be_false": true
+          }
+        },
+        {
+          "id": "confirm_05",
+          "name": "微小操作",
+          "description": "几乎无影响的操作",
+          "input": {"action_type": "修改文本", "context": "将首页标题从'你好'改为'您好'"},
+          "expected": {
+            "reversible_should_be_true": true,
+            "impact_should_be_minimal": true
+          }
+        }
+      ]
+    },
+
+    "review_format": {
+      "name": "结构化卡片（JSON输出格式）",
+      "description": "验证 Review Prompt 的 JSON 输出格式合规性。需要 mock GLM-4V 视觉分析。",
+      "endpoint": "/api/review",
+      "method": "POST",
+      "request_schema": "ReviewRequest (multipart)",
+      "response_schema": "ReviewResponse",
+      "prompts_used": ["DEEPSEEK_REVIEW_PROMPT"],
+      "requires_image": true,
+      "test_cases": [
+        {
+          "id": "review_01",
+          "name": "完整评审请求",
+          "description": "用 mock 视觉分析测试 Review Prompt JSON 格式",
+          "input": {
+            "dimensions": ["信息架构", "视觉层级", "可用性"],
+            "mock_visual_analysis": {
+              "layout": "顶部导航栏 + 中间卡片网格 + 底部Tab栏",
+              "colors": [
+                {"role": "主色", "description": "蓝色系", "usage": "导航栏背景和主要按钮"},
+                {"role": "背景", "description": "浅灰白色", "usage": "页面底色"}
+              ],
+              "typography": [
+                {"level": "标题", "size_description": "明显最大", "weight": "粗体", "usage": "页面主标题"},
+                {"level": "正文", "size_description": "中等大小", "weight": "常规", "usage": "卡片内文字"}
+              ],
+              "components": [
+                {"type": "导航", "position": "顶部", "visual_weight": "高"},
+                {"type": "卡片", "position": "中部网格", "visual_weight": "中"},
+                {"type": "按钮", "position": "卡片内和底部", "visual_weight": "中"}
+              ],
+              "visual_hierarchy": {
+                "focal_point": "顶部大图banner",
+                "reading_flow": "从上到下F型",
+                "contrast_areas": "banner与卡片区域交界"
+              },
+              "content_structure": {
+                "main_sections": ["顶部导航", "Banner区", "功能卡片区", "底部导航"],
+                "grouping": "按功能分组"
+              }
+            }
+          },
+          "expected": {
+            "json_parseable": true,
+            "has_overall_score": true,
+            "has_dimensions": true,
+            "dimensions_count": 3,
+            "each_dimension_has_findings": true,
+            "finding_types_include_both": true,
+            "each_finding_has_principle": true
+          }
+        }
+      ]
+    },
+
+    "failure_fallback": {
+      "name": "失败兜底",
+      "description": "JSON 解析的三层回退机制。不测 Prompt，测代码逻辑。",
+      "type": "unit_test",
+      "test_cases": [
+        {
+          "id": "fallback_01",
+          "name": "标准JSON直接解析",
+          "input": "{\"overall_score\": 7.5, \"dimensions\": []}",
+          "expected": {"should_parse": true, "method": "direct"}
+        },
+        {
+          "id": "fallback_02",
+          "name": "带 markdown fence 的 JSON",
+          "input": "```json\n{\"overall_score\": 7.5, \"dimensions\": []}\n```",
+          "expected": {"should_parse": true, "method": "strip_fence"}
+        },
+        {
+          "id": "fallback_03",
+          "name": "JSON 前后有废话",
+          "input": "好的，这是评审结果：\n{\"overall_score\": 7.5, \"dimensions\": []}\n希望对你有所帮助！",
+          "expected": {"should_parse": true, "method": "brace_matching"}
+        },
+        {
+          "id": "fallback_04",
+          "name": "嵌套 JSON（大JSON里有小JSON字符串）",
+          "input": "{\"overall_score\":7.5,\"dimensions\":[{\"name\":\"测试\",\"score\":8,\"summary\":\"这是包含\\\"引号\\\"的测试\",\"findings\":[]}]}",
+          "expected": {"should_parse": true}
+        },
+        {
+          "id": "fallback_05",
+          "name": "完全不合法输入",
+          "input": "抱歉，我无法分析这个设计，因为图片太模糊了。请重新上传。",
+          "expected": {"should_parse": false, "should_raise": true}
+        }
+      ]
+    },
+
+    "refine": {
+      "name": "澄清后优化（澄清第二阶段）",
+      "description": "基于用户回答给出精准分析，同时展示'如果不澄清会怎样'。",
+      "endpoint": "/api/clarify/refine",
+      "method": "POST",
+      "request_schema": "RefineRequest",
+      "response_schema": "RefineResponse",
+      "prompts_used": ["REFINE_PROMPT"],
+      "test_cases": [
+        {
+          "id": "refine_01",
+          "name": "完整的澄清反馈",
+          "description": "用户回答了所有澄清问题后",
+          "input": {
+            "original_description": "我想做一个App",
+            "qa_pairs": [
+              {"question": "这个App的目标用户是谁？", "answer": "大学生，主要用于课程表和作业管理"},
+              {"question": "你希望的设计风格是什么？", "answer": "简洁清爽，类似iOS系统应用"},
+              {"question": "有哪些核心功能？", "answer": "课表查看、作业截止日期提醒、成绩查询"}
+            ]
+          },
+          "expected": {
+            "refined_analysis_length": {"min": 100, "max": 400},
+            "without_clarify_length": {"min": 50, "max": 200},
+            "refined_should_be_specific": true,
+            "without_clarify_should_show_misunderstanding": true
+          }
+        },
+        {
+          "id": "refine_02",
+          "name": "只有一个回答",
+          "description": "只回答了部分问题",
+          "input": {
+            "original_description": "改一下首页布局",
+            "qa_pairs": [
+              {"question": "你觉得现在布局有什么问题？", "answer": "信息太密集了，看着累"}
+            ]
+          },
+          "expected": {
+            "refined_analysis_length": {"min": 60, "max": 300},
+            "should_address_specific_concern": true
+          }
+        },
+        {
+          "id": "refine_03",
+          "name": "矛盾的回答",
+          "description": "用户的回答有些自相矛盾",
+          "input": {
+            "original_description": "想要一个数据仪表盘",
+            "qa_pairs": [
+              {"question": "主要给谁看？", "answer": "高管也看，具体执行的人也看"},
+              {"question": "信息密度偏好？", "answer": "要一屏看完所有数据，但不要太拥挤"}
+            ]
+          },
+          "expected": {
+            "refined_analysis_length": {"min": 80, "max": 350},
+            "should_acknowledge_tension": true
+          }
+        }
+      ]
+    }
+  }
+}

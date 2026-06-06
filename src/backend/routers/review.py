@@ -1,16 +1,20 @@
-import uuid
 import json
 import time
-from fastapi import APIRouter, UploadFile, File, Form, HTTPException
+import uuid
+
+from config import ALLOWED_IMAGE_TYPES, MAX_IMAGE_SIZE_MB
+from fastapi import APIRouter, File, Form, HTTPException, UploadFile
 from models.schemas import ReviewResponse
-from services.glmv_client import analyze_image
 from services.deepseek_client import generate_review
-from services.utils import sanitize_error, cleanup_old_sessions, logger
-from config import MAX_IMAGE_SIZE_MB, ALLOWED_IMAGE_TYPES
+from services.glmv_client import analyze_image
+from services.utils import cleanup_old_sessions, logger
 
 router = APIRouter()
 
-sessions: dict[str, dict] = {}
+# Community standard: SQLite-backed session storage (was: dict)
+from services.session_store import store
+
+sessions = store
 
 
 @router.post("/review", response_model=ReviewResponse)
@@ -52,7 +56,7 @@ async def review_design(
         logger.info(f"Visual analysis complete, found {len(visual_analysis.get('components', []))} components")
     except Exception as e:
         logger.error(f"Visual analysis failed: {e}")
-        raise HTTPException(status_code=502, detail=f"视觉分析失败，请稍后重试。")
+        raise HTTPException(status_code=502, detail="视觉分析失败，请稍后重试。")
 
     # Step 2: DeepSeek design review
     try:
@@ -60,7 +64,7 @@ async def review_design(
         logger.info(f"Review generated, overall_score={review_data.get('overall_score')}")
     except Exception as e:
         logger.error(f"Review generation failed: {e}")
-        raise HTTPException(status_code=502, detail=f"评审生成失败，请稍后重试。")
+        raise HTTPException(status_code=502, detail="评审生成失败，请稍后重试。")
 
     # Store session with timestamp for TTL cleanup
     session_id = str(uuid.uuid4())

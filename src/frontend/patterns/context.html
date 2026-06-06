@@ -5,317 +5,364 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>多轮上下文 — AI 交互模式实验室</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧪</text></svg>" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Serif+SC:wght@400;600;700;900&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/lxgw-wenkai-webfont/1.7.0/lxgwwenkai-regular.css" />
-  <link rel="stylesheet" href="../css/style.css?v=2.0.2" />
-  <style>
-    :root {
-      --pattern-accent: #db2777;
-      --pattern-accent-light: #fdf0f5;
-      --pattern-accent-muted: #f4c4d8;
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Noto+Sans+SC:wght@300;400;500;700&family=Noto+Serif+SC:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+  tailwind.config = { theme: { extend: {
+    colors: {
+      primary: { 50:'#f3f4fb',100:'#e4e6f6',200:'#ccd0ee',300:'#acb2e3',400:'#8b92d5',500:'#6e76c4',600:'#5b63b0',700:'#4a5194',800:'#3a3f76',900:'#292d57',950:'#1a1d3a' },
+      accent: { 50:'#fef7f4',100:'#fdebe3',200:'#fad4c2',300:'#f5b598',400:'#ee936a',500:'#e07340',600:'#c55a2e',700:'#a3461f',800:'#803515',900:'#5c250e' },
+      neutral: { 50:'#fafaf9',100:'#f5f3f1',200:'#e8e4e0',300:'#d4cec8',400:'#a89f96',500:'#7d7368',600:'#5e554c',700:'#4a423b',800:'#332d28',900:'#1f1b18',950:'#14100e' },
+    },
+    fontFamily: {
+      display: ['"DM Serif Display"','"Noto Serif SC"','serif'],
+      body: ['"Inter"','"Noto Sans SC"','sans-serif'],
+      mono: ['"JetBrains Mono"','monospace'],
     }
-    .context-layout { display:grid; grid-template-columns:1fr 280px; gap:16px; }
-    .chat-panel { min-width:0; }
-    .memory-panel { background:var(--color-surface); border-radius:var(--radius-lg); border:1.5px solid var(--color-border); padding:16px; font-size:0.75rem; }
-    .memory-panel h3 { font-size:0.78rem; font-weight:700; margin-bottom:10px; padding-bottom:6px; border-bottom:1px solid var(--color-border); }
-    .memory-item { margin-bottom:8px; padding:6px 10px; background:var(--color-bg); border-radius:var(--radius-sm); }
-    .memory-item .m-label { font-size:0.65rem; color:var(--color-text-muted); text-transform:uppercase; letter-spacing:0.05em; }
-    .memory-item .m-value { font-size:0.78rem; color:var(--color-text); margin-top:2px; }
-    .chat-window-sm { background:var(--color-surface); border-radius:var(--radius-lg); border:1.5px solid var(--color-border); overflow:hidden; }
-    .chat-msgs-sm { padding:16px; max-height:380px; overflow-y:auto; min-height:100px; }
-    .chat-bubble-sm { max-width:85%; margin-bottom:12px; padding:10px 14px; border-radius:16px; font-size:0.82rem; line-height:1.6; }
-    .chat-bubble-sm.user { background:var(--color-primary); color:#fff; margin-left:auto; border-bottom-right-radius:4px; }
-    .chat-bubble-sm.ai { background:var(--color-bg); color:var(--color-text); border-bottom-left-radius:4px; }
-    .chat-input-row-sm { display:flex; gap:6px; padding:10px 14px; border-top:1px solid var(--color-border); }
-    .chat-input-sm { flex:1; padding:9px 12px; border:1.5px solid var(--color-border); border-radius:var(--radius-md); font-size:0.82rem; font-family:inherit; outline:none; }
-    .chat-input-sm:focus { border-color:var(--color-primary); }
-    .ctx-badge { display:inline-block; padding:2px 8px; border-radius:10px; font-size:0.65rem; margin-right:4px; }
-    .ctx-badge.active { background:var(--color-primary-light); color:var(--color-primary); }
-    .ctx-badge.stale { background:var(--color-bg); color:var(--color-text-muted); }
-    @media (max-width:768px) { .context-layout { grid-template-columns:1fr; } }
+  } } }
+  </script>
+
+  <style>
+    :root { --pa: #f59e0b; }
+    .pattern-accent-text { color: var(--pa); }
+    .pattern-accent-bg { background: var(--pa); }
+    .pattern-accent-border { border-color: var(--pa); }
+    .section-divider { display:flex; align-items:center; gap:1rem; }
+    .section-divider::before,.section-divider::after { content:''; flex:1; height:1px; background:#e8e4e0; }
+    .section-divider-dot { width:8px; height:8px; border-radius:50%; background:var(--pa); flex-shrink:0; }
+    .mobile-menu { max-height:0; overflow:hidden; transition:max-height 0.35s cubic-bezier(0.16,1,0.3,1),opacity 0.25s ease; opacity:0; }
+    .mobile-menu.open { max-height:320px; opacity:1; }
+    body { font-family: 'Inter','Noto Sans SC',sans-serif; }
   </style>
 </head>
-<body>
-  <div class="app-shell">
-    <header class="app-header">
-      <a href="/" class="app-logo">🧪 AI 交互模式实验室</a>
-      <nav class="app-nav"><a href="/about.html">关于我</a><a href="/behind-the-scenes.html">制作幕后</a></nav>
-    </header>
+<body class="bg-neutral-100 text-neutral-700 antialiased">
 
-    <div class="pattern-hero">
-      <div class="pattern-icon">💬</div>
-      <h1>多轮上下文</h1>
-      <div class="pattern-tagline">AI 记得之前聊了什么——好的对话不是每次都从零开始</div>
-    </div>
-
-    <section class="pattern-section">
-      <h2>设计思路</h2>
-      <p><strong>解决的问题：</strong>很多 AI 对话是"金鱼记忆"——每句话都像第一句话。用户说"之前说的那个按钮"，AI 问"什么按钮？"。这种体验让人不想再用第二次。</p>
-      <p><strong>设计决策：</strong>后端维护会话（Session），存储完整对话历史 + 评审摘要。每次新消息时把裁剪后的上下文（评审摘要 + 最近 6 轮对话）一起发给 AI。引用 <strong>识别而非回忆</strong>（尼尔森第六原则）——AI 应该"记得"上下文，而不是让用户每次重复。同时用<strong>上下文窗口管理</strong>在 token 限制内保留最重要的信息。</p>
-      <p><strong>生活类比：</strong>好的设计师跟你聊了 20 分钟后，不会问"对了，您家是几口人来着？"——因为他一开始就记住了。AI 也一样，上下文管理让 AI 变成一个"认真听你说话的人"，而不是"每次都要你重新自我介绍的陌生人"。</p>
-      <div>
-        <span class="principle-badge">识别而非回忆</span>
-        <span class="principle-badge">上下文窗口管理</span>
-        <span class="principle-badge">会话持久化</span>
-        <span class="principle-badge">一致性</span>
+  <!-- Navigation -->
+  <nav id="navbar" class="fixed top-0 w-full z-50 bg-neutral-100/90 backdrop-blur-md border-b border-neutral-200">
+    <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+      <a href="/" class="font-display text-2xl text-primary-700 tracking-tight no-underline">AI<span class="text-accent-500">·</span>Lab</a>
+      <div class="hidden md:flex items-center gap-8">
+        <a href="/patterns/streaming.html" class="text-sm font-medium text-neutral-500 hover:text-neutral-800 transition-colors no-underline">Patterns</a>
+        <a href="/about.html" class="text-sm font-medium text-neutral-500 hover:text-neutral-800 transition-colors no-underline">About</a>
+        <a href="/agents.html" class="text-sm font-medium text-neutral-500 hover:text-neutral-800 transition-colors no-underline">Agents</a>
+        <a href="/behind-the-scenes.html" class="text-sm font-medium text-neutral-500 hover:text-neutral-800 transition-colors no-underline">Behind the Scenes</a>
+        <a href="/review.html" class="px-6 py-2.5 bg-accent-500 text-white font-semibold rounded-full text-sm hover:bg-accent-600 transition-colors shadow-lg shadow-accent-500/25 no-underline">Try Review Tool</a>
       </div>
-    </section>
+      <button id="hamburger" class="md:hidden flex flex-col gap-1.5 p-2 bg-transparent border-0 cursor-pointer" aria-label="菜单">
+        <span class="block w-6 h-0.5 bg-neutral-700 rounded transition-transform duration-300"></span>
+        <span class="block w-6 h-0.5 bg-neutral-700 rounded transition-opacity duration-300"></span>
+        <span class="block w-6 h-0.5 bg-neutral-700 rounded transition-transform duration-300"></span>
+      </button>
+    </div>
+    <div id="mobile-menu" class="mobile-menu md:hidden bg-neutral-100/95 backdrop-blur-md border-b border-neutral-200">
+      <div class="px-6 py-4 flex flex-col gap-3">
+        <a href="/patterns/streaming.html" class="text-sm font-medium text-neutral-600 hover:text-neutral-900 no-underline py-2">Patterns</a>
+        <a href="/about.html" class="text-sm font-medium text-neutral-600 hover:text-neutral-900 no-underline py-2">About</a>
+        <a href="/agents.html" class="text-sm font-medium text-neutral-600 hover:text-neutral-900 no-underline py-2">Agents</a>
+        <a href="/behind-the-scenes.html" class="text-sm font-medium text-neutral-600 hover:text-neutral-900 no-underline py-2">Behind the Scenes</a>
+        <a href="/review.html" class="px-6 py-2.5 bg-accent-500 text-white font-semibold rounded-full text-sm hover:bg-accent-600 transition-colors text-center no-underline shadow-lg shadow-accent-500/25">Try Review Tool</a>
+      </div>
+    </div>
+  </nav>
 
-    <section class="pattern-section">
-      <h2>实现方式</h2>
-      <p>后端 dict 存储 session（session_id → {review, chat_history, created_at}）。chat 请求时打包评审摘要 + 最近 12 条消息。1 小时 TTL 自动清理。前端维护 session_id，同一会话内所有追问共享上下文。</p>
-    </section>
+  <!-- Pattern Hero -->
+  <section class="pt-28 pb-12 md:pt-36 md:pb-16 px-6 text-center">
+    <div class="max-w-3xl mx-auto">
+      <div class="text-5xl mb-4">💬</div>
+      <p class="text-xs font-semibold tracking-widest uppercase mb-4" style="color:var(--pa)">AI Interaction Pattern</p>
+      <h1 class="font-display text-3xl md:text-5xl text-primary-900 leading-tight mb-4">多轮上下文</h1>
+      <p class="text-lg md:text-xl text-neutral-500">AI 记得之前聊了什么，持续追问不丢失线索</p>
+    </div>
+  </section>
 
-    <section class="demo-area">
-      <div class="demo-label">交互 Demo — 先评审再连续追问，右侧看 AI 记住了什么</div>
+  <!-- Design Rationale -->
+  <section class="max-w-3xl mx-auto px-6 pb-16">
+    <div class="section-divider mb-8"><span class="section-divider-dot"></span></div>
+    <h2 class="font-display text-2xl text-primary-800 mb-6">设计思路</h2>
+    <div class="space-y-4 text-neutral-600 leading-relaxed">
+      <p><strong class="text-neutral-800">解决的问题：</strong>很多 AI 对话是"金鱼记忆"——每句话都像第一句话。用户说"之前说的那个按钮"，AI 问"什么按钮？"。这种体验让人不想再用第二次。</p>
+      <p><strong class="text-neutral-800">设计决策：</strong>后端维护 Session（会话），存储完整对话历史 + 评审摘要。每次新消息时把裁剪后的上下文（评审摘要 + 最近 12 轮对话）一起发给 AI。引用<strong class="text-neutral-800">识别而非回忆</strong>（尼尔森第六原则）——AI 应该"记得"上下文，而不是让用户每次重复。同时用<strong class="text-neutral-800">上下文窗口管理</strong>在 token 限制内保留最重要的信息。</p>
+      <p><strong class="text-neutral-800">生活类比：</strong>好的设计师跟你聊了 20 分钟后，不会问"对了，您家是几口人来着？"——因为他一开始就记住了。AI 也一样，上下文管理让 AI 变成一个"认真听你说话的人"，而不是"每次都要你重新自我介绍的陌生人"。</p>
+      <div class="flex flex-wrap gap-2 pt-2">
+        <span class="inline-block px-3 py-1 text-xs font-medium rounded-full border" style="background:#fffbeb;color:#d97706;border-color:#fde68a;">识别而非回忆</span>
+        <span class="inline-block px-3 py-1 text-xs font-medium rounded-full border" style="background:#fffbeb;color:#d97706;border-color:#fde68a;">上下文窗口管理</span>
+        <span class="inline-block px-3 py-1 text-xs font-medium rounded-full border" style="background:#fffbeb;color:#d97706;border-color:#fde68a;">会话持久化</span>
+        <span class="inline-block px-3 py-1 text-xs font-medium rounded-full border" style="background:#fffbeb;color:#d97706;border-color:#fde68a;">一致性</span>
+      </div>
+    </div>
+  </section>
 
-      <!-- Step 1: Initial review -->
-      <div id="reviewStep">
-        <div class="upload-zone" id="uploadZone" style="margin-bottom:12px;">
-          <input type="file" id="uploadInput" class="upload-input" accept="image/png,image/jpeg,image/webp" />
-          <div id="uploadPlaceholder"><span class="upload-icon">📤</span><div class="upload-title">上传设计截图开始对话</div><div class="upload-hint">评审完成后可连续追问</div></div>
-          <div id="uploadPreview" class="upload-preview" style="display:none;">
-            <img id="previewImg" src="" alt="预览" /><div class="upload-preview-info"><div id="previewName" class="upload-preview-name"></div></div>
-            <button class="upload-remove-btn" onclick="removeFile()">移除</button>
+  <!-- Live Demo -->
+  <section class="max-w-6xl mx-auto px-6 pb-20">
+    <div class="section-divider mb-8"><span class="section-divider-dot"></span></div>
+    <h2 class="font-display text-2xl text-primary-800 mb-6">交互 Demo</h2>
+    <p class="text-sm text-neutral-500 mb-6">先"创建评审"建立上下文，然后在聊天中追问 —— 右侧面板实时展示 AI 的记忆。</p>
+
+    <div class="flex flex-col lg:flex-row gap-5">
+      <!-- Left: Chat Panel -->
+      <div class="flex-1 min-w-0">
+        <div class="bg-white rounded-2xl border border-neutral-200 overflow-hidden">
+          <div id="chatMsgs" class="p-5 max-h-96 overflow-y-auto min-h-[150px]">
+            <div class="text-center text-neutral-400 py-10 text-sm">点击下方按钮，创建评审上下文，然后开始追问</div>
+          </div>
+          <div class="flex items-center gap-3 px-4 py-3 border-t border-neutral-200">
+            <button id="initBtn" class="px-5 py-2.5 text-white font-semibold rounded-full text-xs hover:opacity-90 transition-opacity shadow-lg whitespace-nowrap" style="background:var(--pa);">创建评审上下文</button>
+            <input id="chatInput" class="flex-1 p-2.5 border border-neutral-300 rounded-lg text-sm focus:outline-none focus:ring-2" style="font-family:inherit;focus-ring-color:var(--pa);" placeholder="追问 AI..." disabled />
+            <button id="chatSend" class="px-5 py-2.5 text-white font-semibold rounded-full text-xs hover:opacity-90 transition-opacity shadow-lg whitespace-nowrap" style="background:var(--pa);" disabled>发送</button>
           </div>
         </div>
-        <div style="text-align:center;margin-bottom:12px;">
-          <button id="startBtn" class="btn btn-primary" disabled>开始评审（创建会话上下文）</button>
-        </div>
-        <div id="reviewLoading" style="display:none;text-align:center;padding:16px;"><div class="spinner"></div><div style="font-size:0.82rem;color:var(--color-text-secondary);">AI 正在评审...</div></div>
+        <p class="text-xs text-neutral-400 mt-2 text-center">试试问："之前提到的第一个问题能再具体讲讲吗" 或 "把这些建议总结成三条"</p>
       </div>
 
-      <!-- Step 2: Chat + Memory panel -->
-      <div id="chatStep" style="display:none;">
-        <div class="context-layout">
-          <div class="chat-panel">
-            <div class="chat-window-sm">
-              <div class="chat-msgs-sm" id="chatMsgs">
-                <div style="text-align:center;color:var(--color-text-muted);padding:20px 0;font-size:0.8rem;">评审完成！在下方输入框追问 AI</div>
-              </div>
-              <div class="chat-input-row-sm">
-                <input id="chatInput" class="chat-input-sm" placeholder="追问 AI... 比如'之前提到的那个问题能再具体讲讲吗'" />
-                <button id="chatSend" class="btn btn-primary" style="padding:8px 16px;font-size:0.8rem;">发送</button>
-              </div>
-            </div>
-            <div style="font-size:0.72rem;color:var(--color-text-muted);margin-top:6px;text-align:center;">
-              试试问："我之前说的第一个要点是什么" 或 "把这些建议总结成三条"
-            </div>
+      <!-- Right: Memory Panel -->
+      <div class="w-full lg:w-72 flex-shrink-0">
+        <div class="bg-white rounded-2xl border border-neutral-200 p-5">
+          <h3 class="text-sm font-bold text-primary-800 mb-4 pb-2 border-b border-neutral-100">AI 的上下文记忆</h3>
+          <div id="memoryContent" class="text-xs text-neutral-400">
+            等待评审完成后显示 AI 记住了什么...
           </div>
-          <div class="memory-panel" id="memoryPanel">
-            <h3>🧠 AI 的上下文记忆</h3>
-            <div id="memoryContent">
-              <div style="color:var(--color-text-muted);font-size:0.72rem;">等待评审完成后显示...</div>
-            </div>
+          <div class="mt-4 pt-3 border-t border-neutral-100 text-[0.6rem] text-neutral-400">
+            策略：评审摘要 + 最近 12 轮对话<br>会话 1 小时自动过期
           </div>
         </div>
       </div>
-    </section>
-
-    <div class="code-ref">
-      实现位置：<code>src/backend/routers/chat.py</code> → <code>/api/chat</code> 端点 · <code>src/backend/services/deepseek_client.py</code> → <code>chat_reply()</code><br>
-      前端：<code>src/frontend/patterns/context.html</code>
     </div>
+  </section>
 
-    <div class="pattern-nav">
-      <a href="/patterns/degradation.html">← 失败兜底</a>
-      <a href="/patterns/confirmation.html">下一个：确认机制 →</a>
+  <!-- How It Works -->
+  <section class="max-w-3xl mx-auto px-6 pb-16">
+    <div class="section-divider mb-8"><span class="section-divider-dot"></span></div>
+    <h2 class="font-display text-2xl text-primary-800 mb-6">实现方式</h2>
+    <div class="space-y-6">
+      <div class="flex gap-4">
+        <div class="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm" style="background:var(--pa);">1</div>
+        <div>
+          <h3 class="font-semibold text-primary-800 mb-1">评审时创建 Session</h3>
+          <p class="text-neutral-600 text-sm">每次评审创建独立的 session_id，存储综合评分、各维度得分、视觉分析摘要。session 有 1 小时 TTL，到期自动清理。</p>
+        </div>
+      </div>
+      <div class="flex gap-4">
+        <div class="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm" style="background:var(--pa);">2</div>
+        <div>
+          <h3 class="font-semibold text-primary-800 mb-1">chat_history 累积对话</h3>
+          <p class="text-neutral-600 text-sm">每次追问追加到 chat_history，保留最近 12 条消息（6 轮对话）。超过限制时用 compact context 压缩为摘要。</p>
+        </div>
+      </div>
+      <div class="flex gap-4">
+        <div class="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm" style="background:var(--pa);">3</div>
+        <div>
+          <h3 class="font-semibold text-primary-800 mb-1">构建 compact context 发送给 AI</h3>
+          <p class="text-neutral-600 text-sm">每次 send 时打包：评审摘要（评分 + 维度）+ 最近对话历史 → 构建完整 prompt → 发送给 DeepSeek。AI 始终"记得"该 session 的全部关键信息。</p>
+        </div>
+      </div>
     </div>
-    <footer class="app-footer">AI 交互模式实验室 · <a href="/">回到首页</a></footer>
-  </div>
+  </section>
 
-  <script>
-    var selFile = null;
-    var sessionId = null;
-    var reviewSummary = {};
-    var chatHistory = [];
+  <!-- Code Reference -->
+  <section class="max-w-4xl mx-auto px-6 pb-20">
+    <div class="section-divider mb-8"><span class="section-divider-dot"></span></div>
+    <h2 class="font-display text-2xl text-primary-800 mb-6">源码参考</h2>
+    <div class="bg-primary-950 rounded-xl overflow-hidden border border-primary-800">
+      <div class="flex items-center justify-between px-5 py-2.5 bg-primary-900 border-b border-primary-800">
+        <span class="text-xs font-mono text-neutral-400">src/backend/routers/chat.py + services/prompts.py</span>
+      </div>
+      <pre class="p-5 overflow-x-auto"><code class="text-sm font-mono text-neutral-200 leading-relaxed"># In-memory session store (dict)
+sessions: Dict[str, dict] = {}
 
-    document.getElementById('uploadZone').addEventListener('click', function(e) {
-      if (e.target.tagName === 'BUTTON') return;
-      document.getElementById('uploadInput').click();
-    });
-    document.getElementById('uploadInput').addEventListener('change', function() {
-      if (this.files.length) handleFile(this.files[0]);
-    });
+@router.post("/api/chat")
+async def chat(req: ChatRequest):
+    session = sessions.get(req.session_id)
+    if not session or time.time() - session["created_at"] > 3600:
+        raise HTTPException(404, "Session expired or not found")
 
-    function handleFile(f) {
-      if (!f.type.match(/image\/(png|jpeg|webp)/)) { alert('PNG/JPG/WebP'); return; }
-      selFile = f;
-      var reader = new FileReader();
-      reader.onload = function(e) {
-        document.getElementById('previewImg').src = e.target.result;
-        document.getElementById('previewName').textContent = f.name;
-        document.getElementById('uploadPlaceholder').style.display = 'none';
-        document.getElementById('uploadPreview').style.display = 'flex';
-        document.getElementById('uploadZone').classList.add('has-image');
-        document.getElementById('startBtn').disabled = false;
-      };
-      reader.readAsDataURL(f);
+    # Build compact context for AI
+    context = {
+        "review_summary": session["review"],
+        "chat_history": session["chat_history"][-12:]  # last 6 turns
     }
 
-    window.removeFile = function() {
-      selFile = null;
-      document.getElementById('uploadInput').value = '';
-      document.getElementById('uploadPlaceholder').style.display = '';
-      document.getElementById('uploadPreview').style.display = 'none';
-      document.getElementById('uploadZone').classList.remove('has-image');
-      document.getElementById('startBtn').disabled = true;
-      document.getElementById('chatStep').style.display = 'none';
-    };
+    reply = await deepseek_client.chat_reply(
+        prompt=DEEPSEEK_CHAT_PROMPT,
+        context=context,
+        message=req.message
+    )
 
-    var memoryTimeline = [];
+    session["chat_history"].append({"role":"user","content":req.message})
+    session["chat_history"].append({"role":"assistant","content":reply})
 
-    function updateMemoryPanel() {
-      var html = '';
+    return {"reply": reply, "session_id": req.session_id}
 
-      // Timeline header
-      html += '<div class="m-label" style="margin-bottom:8px;">🧠 AI 的记忆时间线</div>';
+# Prompts
+DEEPSEEK_CHAT_PROMPT = """你是一个设计评审助手。
+以下是用户的评审记录和聊天上下文。
+请基于上下文回答用户的追问，保持回答与之前的评审一致。"""</code></pre>
+    </div>
+  </section>
 
-      var allItems = [];
+  <!-- Footer -->
+  <footer class="bg-primary-950 text-neutral-400 py-16 px-6">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex flex-col md:flex-row justify-between items-center gap-6 mb-8">
+        <a href="/" class="font-display text-2xl text-neutral-200 no-underline">AI<span class="text-accent-500">·</span>Lab</a>
+        <div class="flex gap-6 text-sm">
+          <a href="/about.html" class="hover:text-neutral-200 transition-colors no-underline">About</a>
+          <a href="/patterns/streaming.html" class="hover:text-neutral-200 transition-colors no-underline">Patterns</a>
+          <a href="/agents.html" class="hover:text-neutral-200 transition-colors no-underline">Agents</a>
+          <a href="https://github.com/qq242115512/ai-interaction-lab" class="hover:text-neutral-200 transition-colors no-underline" target="_blank">GitHub</a>
+        </div>
+      </div>
+      <div class="border-t border-primary-800 pt-6 flex flex-col sm:flex-row justify-between items-center gap-2 text-xs">
+        <p>&copy; 2026 Fanshuyang. Built with AI, shipped with care.</p>
+      </div>
+    </div>
+  </footer>
 
-      // Initial review context
-      if (reviewSummary.overall_score !== undefined) {
-        allItems.push({time:'评审创建', icon:'📋', text:'综合评分 '+reviewSummary.overall_score+'/10', type:'system'});
-        if (reviewSummary.dimensions) {
-          reviewSummary.dimensions.forEach(function(d) {
-            allItems.push({time:'', icon:'📌', text:escHtml(d.name)+'：'+d.score+'/10', type:'system'});
-          });
-        }
-      }
-
-      // Chat history as timeline
-      chatHistory.forEach(function(m, i) {
-        allItems.push({
-          time: '第'+(Math.floor(i/2)+1)+'轮',
-          icon: m.role==='user'?'👤':'🤖',
-          text: escHtml((m.content||'').substring(0,50)) + ((m.content||'').length>50?'...':''),
-          type: m.role==='user'?'user':'ai'
-        });
-      });
-
-      if (allItems.length === 0) {
-        html += '<div style="color:var(--color-text-muted);font-size:0.72rem;padding:8px 0;">等待评审完成后，这里会显示 AI 记住了什么...</div>';
-      } else {
-        html += '<div style="position:relative;padding-left:16px;">';
-        allItems.forEach(function(item, i) {
-          var dotColor = item.type==='system'?'var(--color-primary)':(item.type==='user'?'var(--color-text-muted)':'var(--color-success)');
-          html += '<div style="position:relative;padding:5px 0 5px 14px;border-left:2px solid '+(i<allItems.length-1?'var(--color-border)':'transparent')+';margin-left:4px;">';
-          if (item.time) {
-            html += '<div style="font-size:0.6rem;color:var(--color-text-muted);margin-bottom:1px;">'+item.time+'</div>';
-          }
-          html += '<div style="font-size:0.72rem;display:flex;align-items:flex-start;gap:4px;">';
-          html += '<span style="font-size:0.6rem;flex-shrink:0;">'+item.icon+'</span>';
-          html += '<span style="color:'+(item.type==='user'?'var(--color-text-secondary)':'var(--color-text)')+';">'+item.text+'</span>';
-          html += '</div></div>';
-        });
-        html += '</div>';
-      }
-
-      html += '<div style="font-size:0.6rem;color:var(--color-text-muted);margin-top:10px;padding-top:8px;border-top:1px solid var(--color-border);">上下文策略：评审摘要 + 最近 6 轮对话<br>会话 1 小时自动过期</div>';
-
-      document.getElementById('memoryContent').innerHTML = html;
-    }
-
-    function addChatBubble(role, text) {
-      var msgs = document.getElementById('chatMsgs');
-      if (msgs.querySelector('div[style]')) msgs.innerHTML = '';
-      var div = document.createElement('div');
-      div.className = 'chat-bubble-sm ' + role;
-      div.textContent = text;
-      msgs.appendChild(div);
-      msgs.scrollTop = msgs.scrollHeight;
-    }
-
-    // Start review
-    document.getElementById('startBtn').addEventListener('click', function() {
-      if (!selFile) return;
-      var btn = this; btn.disabled = true; btn.textContent = '评审中...';
-      document.getElementById('reviewLoading').style.display = 'block';
-
-      var form = new FormData();
-      form.append('image', selFile);
-      form.append('dimensions', JSON.stringify(['信息架构','视觉层级','可用性','色彩系统']));
-
-      fetch('/api/review', { method: 'POST', body: form })
-        .then(function(r) { return r.json(); })
-        .then(function(data) {
-          sessionId = data.session_id;
-          reviewSummary = { overall_score: data.overall_score, dimensions: data.dimensions.map(function(d){ return {name:d.name, score:d.score, summary:d.summary}; }) };
-          chatHistory = [];
-
-          document.getElementById('reviewLoading').style.display = 'none';
-          document.getElementById('chatStep').style.display = 'block';
-
-          // Show initial review summary in chat
-          var dims = data.dimensions.map(function(d){ return d.name+'('+d.score+'/10)'; }).join(' · ');
-          addChatBubble('ai', '评审完成！综合评分：'+data.overall_score.toFixed(1)+'/10\n主要发现：'+dims+'\n\n有疑问随时追问——我记住了这次评审的全部内容。');
-
-          updateMemoryPanel();
-          document.getElementById('chatStep').scrollIntoView({behavior:'smooth'});
-          btn.disabled = false; btn.textContent = '开始评审（创建会话上下文）';
-          btn.textContent = '评审完成 ✓';
-        })
-        .catch(function(err) {
-          document.getElementById('reviewLoading').style.display = 'none';
-          alert('出错了：' + (err.message || '网络异常'));
-          btn.disabled = false; btn.textContent = '开始评审（创建会话上下文）';
-        });
-    });
-
-    // Send chat
-    function sendChat() {
-      var input = document.getElementById('chatInput');
-      var msg = input.value.trim();
-      if (!msg || !sessionId) return;
-      if (msg.length > 500) { alert('消息过长，不超过 500 字'); return; }
-
-      addChatBubble('user', msg);
-      chatHistory.push({role:'user', content:msg});
-      input.value = '';
-      input.disabled = true;
-      document.getElementById('chatSend').disabled = true;
-      updateMemoryPanel();
-
-      var typingEl = document.createElement('div');
-      typingEl.className = 'chat-bubble-sm ai';
-      typingEl.textContent = '思考中...';
-      typingEl.style.opacity = '0.6';
-      document.getElementById('chatMsgs').appendChild(typingEl);
-
-      fetch('/api/chat', {
-        method: 'POST',
-        headers: {'Content-Type':'application/json'},
-        body: JSON.stringify({session_id: sessionId, message: msg})
-      })
-        .then(function(r) { return r.json(); })
-        .then(function(data) {
-          typingEl.remove();
-          addChatBubble('ai', data.reply);
-          chatHistory.push({role:'assistant', content:data.reply});
-          updateMemoryPanel();
-          input.disabled = false;
-          document.getElementById('chatSend').disabled = false;
-          input.focus();
-        })
-        .catch(function(err) {
-          typingEl.remove();
-          addChatBubble('ai', '出错了：'+err.message);
-          input.disabled = false;
-          document.getElementById('chatSend').disabled = false;
-        });
-    }
-
-    document.getElementById('chatSend').addEventListener('click', sendChat);
-    document.getElementById('chatInput').addEventListener('keydown', function(e) {
-      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChat(); }
-    });
-
-    function escHtml(s) { var d=document.createElement('div');d.textContent=s||'';return d.innerHTML; }
-  </script>
+  <!-- GSAP -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
-  <script src="../js/animations.js?v=2.0.2"></script>
+  <script src="../js/animations.js"></script>
+
+  <script>
+    (function() {
+      var chatMsgs = document.getElementById('chatMsgs');
+      var memoryContent = document.getElementById('memoryContent');
+      var chatInput = document.getElementById('chatInput');
+      var chatSend = document.getElementById('chatSend');
+      var initBtn = document.getElementById('initBtn');
+
+      // Mock session state
+      var reviewSummary = null;
+      var chatHistory = [];
+
+      function addBubble(role, text) {
+        if (chatMsgs.querySelector('.text-center')) chatMsgs.innerHTML = '';
+        var div = document.createElement('div');
+        if (role === 'user') {
+          div.className = 'max-w-[80%] ml-auto mb-3 px-4 py-2.5 rounded-2xl rounded-br-sm text-sm text-white';
+          div.style.background = 'var(--pa)';
+        } else {
+          div.className = 'max-w-[80%] mr-auto mb-3 px-4 py-2.5 rounded-2xl rounded-bl-sm text-sm text-neutral-700 bg-neutral-100';
+        }
+        div.textContent = text;
+        chatMsgs.appendChild(div);
+        chatMsgs.scrollTop = chatMsgs.scrollHeight;
+      }
+
+      function updateMemory() {
+        if (!reviewSummary) {
+          memoryContent.innerHTML = '<p class="text-neutral-400">等待评审完成后显示...</p>';
+          return;
+        }
+        var html = '<div class="space-y-2">';
+        html += '<div class="text-[0.6rem] uppercase tracking-wider text-neutral-400 mb-2">评审上下文</div>';
+
+        // Review summary
+        html += '<div class="flex items-start gap-2 p-2 rounded-lg bg-neutral-50">';
+        html += '<span class="text-xs">📋</span>';
+        html += '<div><div class="text-xs font-semibold text-neutral-700">综合评分 ' + reviewSummary.overall_score + '/10</div></div>';
+        html += '</div>';
+
+        reviewSummary.dimensions.forEach(function(d) {
+          html += '<div class="flex items-start gap-2 p-2 rounded-lg bg-neutral-50">';
+          html += '<span class="text-xs">📌</span>';
+          html += '<div><div class="text-xs text-neutral-600">' + escHtml(d.name) + '：' + d.score + '/10</div></div>';
+          html += '</div>';
+        });
+
+        // Chat history
+        if (chatHistory.length > 0) {
+          html += '<div class="text-[0.6rem] uppercase tracking-wider text-neutral-400 mt-3 mb-2 pt-3 border-t border-neutral-100">对话历史</div>';
+          chatHistory.forEach(function(m, i) {
+            var icon = m.role === 'user' ? '👤' : '🤖';
+            html += '<div class="flex items-start gap-2 p-1.5">';
+            html += '<span style="font-size:0.6rem;">' + icon + '</span>';
+            html += '<div class="text-xs text-neutral-500">' + escHtml((m.content || '').substring(0, 40)) + ((m.content || '').length > 40 ? '...' : '') + '</div>';
+            html += '</div>';
+          });
+        }
+
+        html += '</div>';
+        memoryContent.innerHTML = html;
+      }
+
+      function escHtml(s) { var d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }
+
+      // Initialize review session
+      initBtn.addEventListener('click', function() {
+        // Mock review result
+        reviewSummary = {
+          overall_score: 7.2,
+          dimensions: [
+            { name: '信息架构', score: 8.0 },
+            { name: '视觉层级', score: 7.0 },
+            { name: '可用性', score: 7.5 },
+            { name: '色彩系统', score: 7.5 }
+          ]
+        };
+        chatHistory = [];
+
+        addBubble('ai', '评审完成！综合评分：7.2/10\n主要发现：信息架构(8.0) · 视觉层级(7.0) · 可用性(7.5) · 色彩系统(7.5)\n\n有疑问随时追问——我记住了这次评审的全部内容。');
+        updateMemory();
+
+        chatInput.disabled = false;
+        chatSend.disabled = false;
+        initBtn.textContent = '评审已创建';
+        initBtn.style.opacity = '0.6';
+        initBtn.disabled = true;
+        chatInput.focus();
+      });
+
+      // Send chat
+      function sendChat() {
+        var msg = chatInput.value.trim();
+        if (!msg || !reviewSummary) return;
+
+        addBubble('user', msg);
+        chatHistory.push({ role: 'user', content: msg });
+        updateMemory();
+        chatInput.value = '';
+        chatInput.disabled = true;
+        chatSend.disabled = true;
+
+        // Mock AI reply based on context awareness
+        setTimeout(function() {
+          var reply = generateMockReply(msg, reviewSummary, chatHistory);
+          addBubble('ai', reply);
+          chatHistory.push({ role: 'assistant', content: reply });
+          updateMemory();
+          chatInput.disabled = false;
+          chatSend.disabled = false;
+          chatInput.focus();
+        }, 800);
+      }
+
+      function generateMockReply(msg, review, history) {
+        var lower = msg.toLowerCase();
+        if (lower.includes('第一个') || lower.includes('之前') || lower.includes('刚才')) {
+          return '根据之前的评审记录，第一个可改进的发现是"二级页面缺少面包屑导航"——这个问题在信息架构维度（8.0分）中被标记。用户进入深层页面后容易迷路，建议在页面顶部添加路径导航，让用户随时知道自己的位置。';
+        }
+        if (lower.includes('总结') || lower.includes('三条') || lower.includes('概括')) {
+          return '好的，基于刚才的评审，总结三条核心改进方向：\n\n1. 添加面包屑导航——提升深层页面的空间定位感\n2. 调整灰色文字对比度——从 #999 到 #767676，满足 WCAG AA 标准\n3. 建立状态色彩系统——统一成功/警告/错误的颜色语义\n\n这些改进的重点是"信息可及性"——让用户不用思考就能找到和理解信息。';
+        }
+        if (lower.includes('色彩') || lower.includes('颜色') || lower.includes('对比度')) {
+          return '刚才评审中提到，灰色文字在浅灰背景上的对比度仅为 3.2:1（信息架构维度，7.0分）。这个值低于 WCAG AA 标准的 4.5:1。建议将辅助文字颜色从 #999 调整为 #767676。另外品牌色系统协调（60-30-10 比例），但状态色彩需要统一——建议定义明确的语义色彩体系。';
+        }
+        return '根据你的评审记录（综合 7.2 分），这个问题可以从信息架构和视觉层级两个维度来看。你能具体说说是在哪个页面遇到这个问题的吗？';
+      }
+
+      chatSend.addEventListener('click', sendChat);
+      chatInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChat(); }
+      });
+
+      document.getElementById('hamburger').addEventListener('click', function() {
+        document.getElementById('mobile-menu').classList.toggle('open');
+      });
+    })();
+  </script>
 </body>
 </html>

@@ -1,10 +1,13 @@
 /**
- * AI 交互模式实验室 — GSAP 动画系统 v3
+ * AI 交互模式实验室 — GSAP 动画系统 v4
  *
- * 规则（经历了 CSS+GSAP 冲突的教训后）：
- *   1. 所有动效统一在 GSAP 一处控制，CSS 不定义入场动画
- *   2. 每个 gsap.from() 之前先 gsap.set({autoAlpha:1}) 保证元素永不可见
- *   3. 首屏直接播放，折叠线以下用 ScrollTrigger + once:true
+ * 设计语言：Indigo + Coral 新品牌色，Tailwind-first
+ *
+ * 规则：
+ *   1. 所有入场动画由 GSAP 统一控制，CSS 只定义静态样式
+ *   2. 每个 gsap.from() 前先 gsap.set() 确保初始可见性可控
+ *   3. 首屏直接播放，折叠线以下用 ScrollTrigger + once: true
+ *   4. 尊重 prefers-reduced-motion
  */
 document.addEventListener("DOMContentLoaded", function () {
   if (typeof gsap === "undefined") return;
@@ -13,91 +16,112 @@ document.addEventListener("DOMContentLoaded", function () {
   var mm = gsap.matchMedia();
 
   /* ================================================================
-     Hero 标题逐行淡入
+     Nav bar — fade down from top
      ================================================================ */
-  var hero = document.querySelector(".hero-statement, .pattern-hero, .lab-hero");
-  if (hero) {
-    var kids = hero.children;
-    gsap.set(kids, { autoAlpha: 1 });
-    gsap.from(kids, {
-      y: 24,
+  var navbar = document.getElementById("navbar");
+  if (navbar) {
+    gsap.set(navbar, { autoAlpha: 1 });
+    gsap.from(navbar, {
+      y: -20,
       autoAlpha: 0,
-      duration: 0.6,
+      duration: 0.55,
+      ease: "power3.out",
+    });
+  }
+
+  /* ================================================================
+     Hero eyebrow — fade up
+     ================================================================ */
+  var heroEyebrow = document.getElementById("hero-eyebrow");
+  if (heroEyebrow) {
+    gsap.set(heroEyebrow, { autoAlpha: 1 });
+    gsap.from(heroEyebrow, {
+      y: 16,
+      autoAlpha: 0,
+      duration: 0.5,
+      ease: "power3.out",
+      delay: 0.12,
+    });
+  }
+
+  /* ================================================================
+     Hero title — fade up from 30px
+     ================================================================ */
+  var heroTitle = document.getElementById("hero-title");
+  if (heroTitle) {
+    gsap.set(heroTitle, { autoAlpha: 1 });
+    gsap.from(heroTitle, {
+      y: 30,
+      autoAlpha: 0,
+      duration: 0.65,
+      ease: "power3.out",
+      delay: 0.18,
+    });
+  }
+
+  /* ================================================================
+     Hero subtitle — fade up from 20px, delay 0.15s after title
+     ================================================================ */
+  var heroSubtitle = document.getElementById("hero-subtitle");
+  if (heroSubtitle) {
+    gsap.set(heroSubtitle, { autoAlpha: 1 });
+    gsap.from(heroSubtitle, {
+      y: 20,
+      autoAlpha: 0,
+      duration: 0.5,
+      ease: "power3.out",
+      delay: 0.33,
+    });
+  }
+
+  /* ================================================================
+     CTA buttons — fade up, stagger 0.1s
+     ================================================================ */
+  var heroCtas = document.getElementById("hero-ctas");
+  if (heroCtas) {
+    var ctaButtons = heroCtas.querySelectorAll("a");
+    gsap.set(ctaButtons, { autoAlpha: 1 });
+    gsap.from(ctaButtons, {
+      y: 20,
+      autoAlpha: 0,
+      duration: 0.5,
       stagger: 0.1,
+      delay: 0.42,
       ease: "power3.out",
     });
   }
 
   /* ================================================================
-     模式卡片 staggered 入场（首屏直接播放）
+     Section title — decorative divider + heading fade up
      ================================================================ */
-  var cards = document.querySelectorAll(".pattern-card");
-  if (cards.length) {
-    gsap.set(cards, { autoAlpha: 1 });
-    gsap.from(cards, {
-      y: 40,
-      autoAlpha: 0,
-      duration: 0.5,
-      stagger: 0.06,
-      delay: 0.15,
-      ease: "power2.out",
-    });
-  }
+  var sectionDivider = document.getElementById("section-divider");
+  var sectionHeading = document.getElementById("section-heading");
 
-  /* ================================================================
-     about-card / about-compact 入场
-     ================================================================ */
-  var aboutCard = document.querySelector(".about-card");
-  if (aboutCard) {
-    gsap.set(aboutCard, { autoAlpha: 1 });
-    gsap.from(aboutCard, {
-      y: 30,
+  if (sectionDivider) {
+    gsap.set(sectionDivider, { autoAlpha: 1 });
+    gsap.from(sectionDivider, {
+      y: 20,
       autoAlpha: 0,
-      duration: 0.5,
+      duration: 0.55,
       ease: "power3.out",
-    });
-  }
-  var aboutCompact = document.querySelector(".about-compact");
-  if (aboutCompact) {
-    gsap.set(aboutCompact, { autoAlpha: 1 });
-    gsap.from(aboutCompact, {
-      y: 30,
-      autoAlpha: 0,
-      duration: 0.6,
-      delay: 0.3,
-      ease: "power3.out",
-    });
-  }
-
-  /* ================================================================
-     折叠线以下：内容区逐节淡入
-     ================================================================ */
-  var sections = document.querySelectorAll(".pattern-section, .bts-section, .category-section");
-  sections.forEach(function (sec) {
-    gsap.set(sec, { autoAlpha: 1 });
-    gsap.from(sec, {
-      y: 30,
-      autoAlpha: 0,
-      duration: 0.5,
-      ease: "power2.out",
-      scrollTrigger: { trigger: sec, start: "top 82%", once: true },
-    });
-  });
-
-  /* ================================================================
-     原则条目 staggered
-     ================================================================ */
-  var entries = document.querySelectorAll(".principle-row, .principle-entry, .iteration-card");
-  if (entries.length) {
-    gsap.set(entries, { autoAlpha: 1 });
-    gsap.from(entries, {
-      y: 40,
-      autoAlpha: 0,
-      duration: 0.5,
-      stagger: 0.06,
-      ease: "power2.out",
       scrollTrigger: {
-        trigger: entries[0].parentElement,
+        trigger: sectionDivider,
+        start: "top 85%",
+        once: true,
+      },
+    });
+  }
+
+  if (sectionHeading) {
+    gsap.set(sectionHeading, { autoAlpha: 1 });
+    gsap.from(sectionHeading, {
+      y: 20,
+      autoAlpha: 0,
+      duration: 0.55,
+      delay: 0.1,
+      ease: "power3.out",
+      scrollTrigger: {
+        trigger: sectionHeading,
         start: "top 85%",
         once: true,
       },
@@ -105,87 +129,87 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   /* ================================================================
-     principle-badge 弹性弹出
+     Pattern cards — staggered fade-up from 40px
      ================================================================ */
-  document.querySelectorAll(".pattern-section div").forEach(function (group) {
-    var badges = group.querySelectorAll(".principle-badge");
-    if (badges.length > 1) {
-      gsap.set(badges, { autoAlpha: 1 });
-      gsap.from(badges, {
-        scale: 0,
-        autoAlpha: 0,
-        duration: 0.3,
-        stagger: 0.08,
-        ease: "back.out(1.7)",
-        scrollTrigger: { trigger: group, start: "top 88%", once: true },
-      });
-    }
-  });
-
-  /* ================================================================
-     skill-tags / info-item 弹入
-     ================================================================ */
-  var tags = document.querySelectorAll(".skill-tags .skill-tag");
-  if (tags.length) {
-    gsap.set(tags, { autoAlpha: 1 });
-    gsap.from(tags, {
-      scale: 0,
-      autoAlpha: 0,
-      duration: 0.3,
-      stagger: 0.04,
-      ease: "back.out(1.7)",
-      scrollTrigger: { trigger: tags[0].parentElement, start: "top 90%", once: true },
-    });
-  }
-  var infoItems = document.querySelectorAll(".info-item");
-  if (infoItems.length) {
-    gsap.set(infoItems, { autoAlpha: 1 });
-    gsap.from(infoItems, {
+  var cards = document.querySelectorAll(".pattern-card");
+  if (cards.length) {
+    gsap.set(cards, { autoAlpha: 1 });
+    gsap.from(cards, {
       y: 40,
       autoAlpha: 0,
-      duration: 0.5,
-      stagger: 0.06,
-      ease: "power2.out",
-      scrollTrigger: { trigger: infoItems[0].parentElement, start: "top 85%", once: true },
+      duration: 0.6,
+      stagger: 0.08,
+      delay: 0.3,
+      ease: "power3.out",
     });
   }
 
   /* ================================================================
-     demo-area 淡入
+     About CTA dark panel — fade up on scroll
      ================================================================ */
-  document.querySelectorAll(".demo-area").forEach(function (area) {
-    gsap.set(area, { autoAlpha: 1 });
-    gsap.from(area, {
-      y: 20,
+  var aboutCta = document.getElementById("about-cta");
+  if (aboutCta) {
+    gsap.set(aboutCta, { autoAlpha: 1 });
+    gsap.from(aboutCta, {
+      y: 36,
       autoAlpha: 0,
-      duration: 0.4,
-      ease: "power2.out",
-      scrollTrigger: { trigger: area, start: "top 85%", once: true },
-    });
-  });
-
-  /* ================================================================
-     确认卡片弹性入场
-     ================================================================ */
-  var confirmCard = document.querySelector(".confirm-card");
-  if (confirmCard) {
-    gsap.set(confirmCard, { autoAlpha: 1 });
-    gsap.from(confirmCard, {
-      scale: 0.92,
-      autoAlpha: 0,
-      duration: 0.5,
-      ease: "back.out(1.7)",
-      scrollTrigger: { trigger: confirmCard, start: "top 85%", once: true },
+      duration: 0.6,
+      ease: "power3.out",
+      scrollTrigger: {
+        trigger: aboutCta,
+        start: "top 85%",
+        once: true,
+      },
     });
   }
 
   /* ================================================================
-     加载完成后修正位置 + reduced-motion
+     Footer — fade up on scroll
      ================================================================ */
-  ScrollTrigger.refresh();
+  var footer = document.getElementById("footer");
+  if (footer) {
+    gsap.set(footer, { autoAlpha: 1 });
+    gsap.from(footer, {
+      y: 30,
+      autoAlpha: 0,
+      duration: 0.6,
+      ease: "power3.out",
+      scrollTrigger: {
+        trigger: footer,
+        start: "top 90%",
+        once: true,
+      },
+    });
+  }
 
+  /* ================================================================
+     Mobile hamburger menu toggle
+     ================================================================ */
+  var hamburger = document.getElementById("hamburger");
+  var mobileMenu = document.getElementById("mobile-menu");
+  if (hamburger && mobileMenu) {
+    hamburger.addEventListener("click", function () {
+      var isOpen = mobileMenu.classList.contains("open");
+      if (isOpen) {
+        mobileMenu.classList.remove("open");
+      } else {
+        mobileMenu.classList.add("open");
+      }
+    });
+  }
+
+  /* ================================================================
+     Reduced-motion support
+     ================================================================ */
   mm.add("(prefers-reduced-motion: reduce)", function () {
     gsap.globalTimeline.timeScale(0);
-    return function () { gsap.globalTimeline.timeScale(1); };
+    return function () {
+      gsap.globalTimeline.timeScale(1);
+    };
   });
+
+  /* ================================================================
+     Refresh ScrollTrigger after all animations are set up
+     ================================================================ */
+  ScrollTrigger.refresh();
 });

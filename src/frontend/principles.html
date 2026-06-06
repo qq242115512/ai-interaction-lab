@@ -3,179 +3,440 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>设计原则图书馆 — 设计引路人</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎓</text></svg>" />
+  <title>AI 交互设计原则库 — AI 交互模式实验室</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧪</text></svg>" />
+
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Serif+SC:wght@400;600;700;900&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/lxgw-wenkai-webfont/1.7.0/lxgwwenkai-regular.css" />
-  <link rel="stylesheet" href="css/style.css?v=2.0.2" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Noto+Sans+SC:wght@300;400;500;700&family=Noto+Serif+SC:wght@400;600;700&display=swap" rel="stylesheet" />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: {
+              50: '#f3f4fb', 100: '#e4e6f6', 200: '#ccd0ee', 300: '#acb2e3',
+              400: '#8b92d5', 500: '#6e76c4', 600: '#5b63b0', 700: '#4a5194',
+              800: '#3a3f76', 900: '#292d57', 950: '#1a1d3a',
+            },
+            accent: {
+              50: '#fef7f4', 100: '#fdebe3', 200: '#fad4c2', 300: '#f5b598',
+              400: '#ee936a', 500: '#e07340', 600: '#c55a2e', 700: '#a3461f',
+              800: '#803515', 900: '#5c250e',
+            },
+            neutral: {
+              50: '#fafaf9', 100: '#f5f3f1', 200: '#e8e4e0', 300: '#d4cec8',
+              400: '#a89f96', 500: '#7d7368', 600: '#5e554c', 700: '#4a423b',
+              800: '#332d28', 900: '#1f1b18', 950: '#14100e',
+            },
+          },
+          fontFamily: {
+            display: ['"DM Serif Display"', '"Noto Serif SC"', 'serif'],
+            body: ['"Inter"', '"Noto Sans SC"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+        }
+      }
+    }
+  </script>
+
   <style>
-    .principles-hero { text-align: center; padding: 32px 0 24px; }
-    .principles-hero h1 { font-size: 1.5rem; margin-bottom: 8px; }
-    .principles-hero p { color: var(--color-text-secondary); font-size: 0.9rem; max-width: 600px; margin: 0 auto; }
-
-    .category-section { margin-bottom: 32px; }
-    .category-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 14px; padding-bottom: 6px; border-bottom: 2px solid var(--color-primary); display: inline-block; }
-
-    .principle-list { display: grid; gap: 14px; }
-    .principle-entry {
-      background: var(--color-surface);
-      border-radius: var(--radius-md);
-      padding: 18px 20px;
-      box-shadow: var(--shadow-sm);
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
     }
-    .principle-entry h3 { font-size: 0.95rem; font-weight: 700; margin-bottom: 4px; }
-    .principle-entry .principle-source { font-size: 0.7rem; color: var(--color-text-muted); margin-bottom: 8px; }
-    .principle-entry .principle-body { font-size: 0.85rem; color: var(--color-text-secondary); line-height: 1.7; }
-    .principle-entry .principle-example {
-      background: var(--color-bg);
-      border-radius: var(--radius-sm);
-      padding: 10px 14px;
-      margin-top: 10px;
-      font-size: 0.8rem;
-      color: var(--color-text-secondary);
-    }
-    .principle-entry .principle-example strong { color: var(--color-primary); }
+    :focus-visible { outline: 2px solid #e07340; outline-offset: 2px; border-radius: 2px; }
+    .section-divider { display: flex; align-items: center; gap: 1rem; }
+    .section-divider::before, .section-divider::after { content: ''; flex: 1; height: 1px; background: #e8e4e0; }
+    .section-divider-dot { width: 8px; height: 8px; border-radius: 50%; background: #e07340; flex-shrink: 0; }
+    .mobile-menu { max-height: 0; overflow: hidden; transition: max-height 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease; opacity: 0; }
+    .mobile-menu.open { max-height: 320px; opacity: 1; }
+    .principle-card { transition: transform 0.25s ease, box-shadow 0.25s ease; }
+    .principle-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.06); }
   </style>
 </head>
-<body>
-  <div class="app-shell">
-    <header class="app-header">
-      <a href="/" class="app-logo">🧪 AI 交互模式实验室</a>
-      <nav class="app-nav">
-        <a href="/review.html">设计评审工具</a>
-        <a href="/principles.html" style="color:var(--color-primary);">设计原则</a>
-        <a href="/behind-the-scenes.html">制作幕后</a>
-      </nav>
-    </header>
+<body class="bg-neutral-100 font-body text-neutral-700 antialiased">
 
-    <div class="principles-hero">
-      <h1>设计原则图书馆</h1>
-      <p>好的设计不是凭感觉，而是有据可依。这里整理了 AI 评审时引用的核心设计原则，帮你建立系统化的设计思维。</p>
+  <!-- Navigation -->
+  <nav id="navbar" class="fixed top-0 w-full z-50 bg-neutral-100/90 backdrop-blur-md border-b border-neutral-200">
+    <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+      <a href="/" class="font-display text-2xl text-primary-700 tracking-tight no-underline">AI<span class="text-accent-500">·</span>Lab</a>
+      <div class="hidden md:flex items-center gap-8">
+        <a href="/patterns/streaming.html" class="text-sm font-medium text-neutral-500 hover:text-neutral-800 transition-colors no-underline">Patterns</a>
+        <a href="/about.html" class="text-sm font-medium text-neutral-500 hover:text-neutral-800 transition-colors no-underline">About</a>
+        <a href="/agents.html" class="text-sm font-medium text-neutral-500 hover:text-neutral-800 transition-colors no-underline">Agents</a>
+        <a href="/behind-the-scenes.html" class="text-sm font-medium text-neutral-500 hover:text-neutral-800 transition-colors no-underline">Behind the Scenes</a>
+        <a href="/review.html" class="px-6 py-2.5 bg-accent-500 text-white font-semibold rounded-full text-sm hover:bg-accent-600 transition-colors shadow-lg shadow-accent-500/25 no-underline">Try Review Tool</a>
+      </div>
+      <button id="hamburger" class="md:hidden flex flex-col gap-1.5 p-2 bg-transparent border-0 cursor-pointer" aria-label="打开菜单">
+        <span class="block w-6 h-0.5 bg-neutral-700 rounded transition-transform duration-300"></span>
+        <span class="block w-6 h-0.5 bg-neutral-700 rounded transition-opacity duration-300"></span>
+        <span class="block w-6 h-0.5 bg-neutral-700 rounded transition-transform duration-300"></span>
+      </button>
+    </div>
+    <div id="mobile-menu" class="mobile-menu md:hidden bg-neutral-100/95 backdrop-blur-md border-b border-neutral-200">
+      <div class="px-6 py-4 flex flex-col gap-3">
+        <a href="/patterns/streaming.html" class="text-sm font-medium text-neutral-600 hover:text-neutral-900 no-underline py-2">Patterns</a>
+        <a href="/about.html" class="text-sm font-medium text-neutral-600 hover:text-neutral-900 no-underline py-2">About</a>
+        <a href="/agents.html" class="text-sm font-medium text-neutral-600 hover:text-neutral-900 no-underline py-2">Agents</a>
+        <a href="/behind-the-scenes.html" class="text-sm font-medium text-neutral-600 hover:text-neutral-900 no-underline py-2">Behind the Scenes</a>
+        <a href="/review.html" class="px-6 py-2.5 bg-accent-500 text-white font-semibold rounded-full text-sm hover:bg-accent-600 transition-colors text-center no-underline shadow-lg shadow-accent-500/25">Try Review Tool</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="pt-28 pb-12 md:pt-36 md:pb-16 px-6 text-center">
+    <div class="max-w-3xl mx-auto">
+      <p class="text-xs font-semibold text-accent-500 uppercase tracking-widest mb-4 opacity-0" id="hero-eyebrow">Design Principles Library</p>
+      <h1 class="font-display text-3xl md:text-5xl text-primary-900 leading-tight mb-4 opacity-0" id="hero-title">AI 交互设计原则库</h1>
+      <p class="text-base md:text-lg text-neutral-500 leading-relaxed max-w-xl mx-auto opacity-0" id="hero-subtitle">
+        7 种模式引用的所有设计原则，附生活类比和项目应用
+      </p>
+    </div>
+  </section>
+
+  <!-- Nielsen's 10 Heuristics -->
+  <section class="max-w-4xl mx-auto px-6 pb-16 opacity-0" id="nielsen-section">
+    <div class="section-divider mb-8"><span class="section-divider-dot"></span></div>
+    <div class="flex items-center gap-3 mb-8">
+      <span class="px-3 py-1 text-xs font-semibold bg-blue-100 text-blue-700 rounded-full">来源</span>
+      <h2 class="font-display text-2xl text-primary-800">尼尔森十大启发式原则</h2>
     </div>
 
-    <!-- 交互原则 -->
-    <section class="category-section">
-      <div class="category-title">交互原则</div>
-      <div class="principle-list">
-
-        <div class="principle-entry">
-          <h3>系统状态可见性</h3>
-          <div class="principle-source">尼尔森十大原则 #1</div>
-          <div class="principle-body">系统应当在合理的时间内，通过适当的反馈让用户了解当前状态。用户在任何一个界面上都应该能回答三个问题：我在哪里、我能做什么、我刚才做了什么。</div>
-          <div class="principle-example"><strong>生活类比：</strong>电梯里的楼层显示屏——你随时知道自己在几楼，不会焦虑。如果电梯没有任何显示，你会一直担心是不是卡住了。</div>
+    <div class="space-y-4">
+      <div class="principle-card bg-white rounded-xl border border-neutral-200 p-6">
+        <div class="flex items-start justify-between mb-3">
+          <h3 class="font-semibold text-primary-800">#1 系统状态可见性</h3>
+          <span class="text-xs text-neutral-400 flex-shrink-0 ml-4">Jakob Nielsen, 1994</span>
         </div>
-
-        <div class="principle-entry">
-          <h3>用户控制与自由</h3>
-          <div class="principle-source">尼尔森十大原则 #3</div>
-          <div class="principle-body">用户经常会误操作，需要明确的"紧急出口"来离开不想要的状态。撤销和重做功能就是最典型的实现。</div>
-          <div class="principle-example"><strong>生活类比：</strong>浏览器里的"后退"按钮——你不怕点错链接，因为随时可以回到上一页。</div>
+        <p class="text-sm text-neutral-500 mb-3 leading-relaxed">系统应当在合理的时间内，通过适当的反馈让用户了解当前状态。用户在任何一个界面上都应该能回答三个问题：我在哪里、我能做什么、我刚才做了什么。</p>
+        <div class="bg-accent-50 rounded-lg p-3 mb-3">
+          <p class="text-xs text-neutral-600"><strong class="text-accent-600">生活类比：</strong>电梯里的楼层显示屏——你随时知道自己在几楼，不会焦虑。</p>
         </div>
-
-        <div class="principle-entry">
-          <h3>一致性与标准化</h3>
-          <div class="principle-source">尼尔森十大原则 #4</div>
-          <div class="principle-body">不要让用户猜测不同的词语、情况或操作是否意味着同一件事。同一产品内，相同功能的视觉表现和交互方式应该一致。</div>
-          <div class="principle-example"><strong>生活类比：</strong>所有红绿灯都是红灯停绿灯行——换了城市也不需要重新学习交通规则。</div>
+        <div class="flex flex-wrap gap-2 items-center">
+          <span class="text-xs text-neutral-400">在项目中应用：</span>
+          <span class="px-2.5 py-0.5 text-xs font-medium bg-primary-100 text-primary-700 rounded-full">流式输出</span>
+          <span class="px-2.5 py-0.5 text-xs font-medium bg-primary-100 text-primary-700 rounded-full">渐进式加载</span>
         </div>
-
-        <div class="principle-entry">
-          <h3>预防错误</h3>
-          <div class="principle-source">尼尔森十大原则 #5</div>
-          <div class="principle-body">好的错误提示不如一开始就不让错误发生。通过约束条件（比如灰掉不可用按钮）、默认值和确认对话框来预防错误。</div>
-          <div class="principle-example"><strong>生活类比：</strong>微波炉开门就自动停止——不是贴个警告让你别在运行时开门，而是从根本上防止危险发生。</div>
-        </div>
-
-        <div class="principle-entry">
-          <h3>识别而非回忆</h3>
-          <div class="principle-source">尼尔森十大原则 #6</div>
-          <div class="principle-body">减少用户的记忆负担。让对象、操作和选项可见，用户不需要记住从对话的一个部分到另一个部分的信息。</div>
-          <div class="principle-example"><strong>生活类比：</strong>选择题比填空题容易——看到选项就能认出来，凭空回忆就困难得多。</div>
-        </div>
-
-        <div class="principle-entry">
-          <h3>灵活性与效率</h3>
-          <div class="principle-source">尼尔森十大原则 #7</div>
-          <div class="principle-body">为新手和专家用户提供不同的使用路径。快捷键、自定义工具栏、宏命令等让专家用户操作更快，但不影响新手的上手体验。</div>
-          <div class="principle-example"><strong>生活类比：</strong>电脑的 Ctrl+C/Ctrl+V 快捷键——新手用右键菜单复制粘贴，熟手用快捷键快得多，但两种方式都能完成同样的任务。</div>
-        </div>
-
-        <div class="principle-entry">
-          <h3>美学与极简主义</h3>
-          <div class="principle-source">尼尔森十大原则 #8</div>
-          <div class="principle-body">界面不应包含不相关或很少需要的信息。每个额外的信息单元都会与相关信息单元竞争，降低它们的相对可见度。</div>
-          <div class="principle-example"><strong>生活类比：</strong>Google 首页只有一个搜索框——不是因为他们做不出花哨的设计，而是知道用户来搜索的，其他都是干扰。</div>
-        </div>
-
       </div>
-    </section>
 
-    <!-- 视觉原则 -->
-    <section class="category-section">
-      <div class="category-title">视觉原则</div>
-      <div class="principle-list">
-
-        <div class="principle-entry">
-          <h3>格式塔 — 邻近性</h3>
-          <div class="principle-source">格式塔心理学原理</div>
-          <div class="principle-body">彼此靠近的物体被认为是一组。通过控制间距来暗示元素之间的分组关系，比加边框或分割线更自然。</div>
-          <div class="principle-example"><strong>生活类比：</strong>站在同一张桌子旁的人被认为是一起的，即使他们没有说话。</div>
+      <div class="principle-card bg-white rounded-xl border border-neutral-200 p-6">
+        <div class="flex items-start justify-between mb-3">
+          <h3 class="font-semibold text-primary-800">#3 用户控制与自由</h3>
+          <span class="text-xs text-neutral-400 flex-shrink-0 ml-4">Jakob Nielsen, 1994</span>
         </div>
-
-        <div class="principle-entry">
-          <h3>格式塔 — 相似性</h3>
-          <div class="principle-source">格式塔心理学原理</div>
-          <div class="principle-body">看起来相似的物体被认为具有相同的功能或属于同一类别。在 UI 设计中，相同功能的按钮应该保持一致的样式。</div>
-          <div class="principle-example"><strong>生活类比：</strong>穿同样队服的运动员被认为是一队的，即使分散在场地上也能一眼认出来。</div>
+        <p class="text-sm text-neutral-500 mb-3 leading-relaxed">用户经常会误操作，需要明确的"紧急出口"来离开不想要的状态。撤销和重做功能就是最典型的实现。</p>
+        <div class="bg-accent-50 rounded-lg p-3 mb-3">
+          <p class="text-xs text-neutral-600"><strong class="text-accent-600">生活类比：</strong>浏览器里的"后退"按钮——你不怕点错链接，因为随时可以回到上一页。</p>
         </div>
-
-        <div class="principle-entry">
-          <h3>F 型阅读模式</h3>
-          <div class="principle-source">尼尔森诺曼集团眼动研究</div>
-          <div class="principle-body">用户在浏览网页时，视线通常呈 F 型：先水平扫过顶部，然后向下移动并在中间位置水平扫过较短距离，最后沿左侧垂直向下。重要内容应放在 F 型的路径上。</div>
-          <div class="principle-example"><strong>生活类比：</strong>报纸头条放在最上面——读者第一眼看到的就是最重要的新闻。</div>
+        <div class="flex flex-wrap gap-2 items-center">
+          <span class="text-xs text-neutral-400">在项目中应用：</span>
+          <span class="px-2.5 py-0.5 text-xs font-medium bg-primary-100 text-primary-700 rounded-full">确认机制</span>
+          <span class="px-2.5 py-0.5 text-xs font-medium bg-primary-100 text-primary-700 rounded-full">多轮上下文</span>
         </div>
-
       </div>
-    </section>
 
-    <!-- 认知原则 -->
-    <section class="category-section">
-      <div class="category-title">认知原则</div>
-      <div class="principle-list">
-
-        <div class="principle-entry">
-          <h3>Fitts 定律</h3>
-          <div class="principle-source">Paul Fitts, 1954</div>
-          <div class="principle-body">到达目标的时间取决于目标的距离和大小。目标越大、越近，就越容易点击。重要的按钮应该做大一些，相关操作放在一起。</div>
-          <div class="principle-example"><strong>生活类比：</strong>篮球筐比高尔夫球洞容易进——不仅因为球大，也因为球筐本身大得多。</div>
+      <div class="principle-card bg-white rounded-xl border border-neutral-200 p-6">
+        <div class="flex items-start justify-between mb-3">
+          <h3 class="font-semibold text-primary-800">#4 一致性与标准化</h3>
+          <span class="text-xs text-neutral-400 flex-shrink-0 ml-4">Jakob Nielsen, 1994</span>
         </div>
-
-        <div class="principle-entry">
-          <h3>Hick 定律</h3>
-          <div class="principle-source">William Hick, 1952</div>
-          <div class="principle-body">决策时间随选项数量的增加而对数增加。选项越多，人的决策越慢。复杂功能可分层级逐步展示，而不是一次性抛出所有选项。</div>
-          <div class="principle-example"><strong>生活类比：</strong>菜单只有几页的餐厅，你点菜很快；菜单像字典一样厚的餐厅，你看半天也不知道点什么。</div>
+        <p class="text-sm text-neutral-500 mb-3 leading-relaxed">不要让用户猜测不同的词语、情况或操作是否意味着同一件事。同一产品内，相同功能的视觉表现和交互方式应该一致。</p>
+        <div class="bg-accent-50 rounded-lg p-3 mb-3">
+          <p class="text-xs text-neutral-600"><strong class="text-accent-600">生活类比：</strong>所有红绿灯都是红灯停绿灯行——换了城市也不需要重新学习交通规则。</p>
         </div>
-
-        <div class="principle-entry">
-          <h3>米勒定律</h3>
-          <div class="principle-source">George Miller, 1956</div>
-          <div class="principle-body">普通人的工作记忆只能同时记住 7±2 个信息单元。导航选项、表单字段等应该控制在这个范围内，必要时分组。</div>
-          <div class="principle-example"><strong>生活类比：</strong>电话号码为什么是 3-4-4 分段而不是一串 11 位数字——分组帮你记住更多信息。</div>
+        <div class="flex flex-wrap gap-2 items-center">
+          <span class="text-xs text-neutral-400">在项目中应用：</span>
+          <span class="px-2.5 py-0.5 text-xs font-medium bg-primary-100 text-primary-700 rounded-full">结构化卡片</span>
         </div>
-
       </div>
-    </section>
 
-    <footer class="app-footer">
-      设计引路人 · 用 AI 学习设计思维 · <a href="/behind-the-scenes.html">这个产品是怎么做出来的？</a>
-    </footer>
-  </div>
+      <div class="principle-card bg-white rounded-xl border border-neutral-200 p-6">
+        <div class="flex items-start justify-between mb-3">
+          <h3 class="font-semibold text-primary-800">#5 预防错误</h3>
+          <span class="text-xs text-neutral-400 flex-shrink-0 ml-4">Jakob Nielsen, 1994</span>
+        </div>
+        <p class="text-sm text-neutral-500 mb-3 leading-relaxed">好的错误提示不如一开始就不让错误发生。通过约束条件、默认值和确认对话框来预防错误。</p>
+        <div class="bg-accent-50 rounded-lg p-3 mb-3">
+          <p class="text-xs text-neutral-600"><strong class="text-accent-600">生活类比：</strong>微波炉开门就自动停止——不是贴警告让你别在运行时开门，而是从根本上防止危险。</p>
+        </div>
+        <div class="flex flex-wrap gap-2 items-center">
+          <span class="text-xs text-neutral-400">在项目中应用：</span>
+          <span class="px-2.5 py-0.5 text-xs font-medium bg-primary-100 text-primary-700 rounded-full">确认机制</span>
+          <span class="px-2.5 py-0.5 text-xs font-medium bg-primary-100 text-primary-700 rounded-full">澄清提问</span>
+        </div>
+      </div>
+
+      <div class="principle-card bg-white rounded-xl border border-neutral-200 p-6">
+        <div class="flex items-start justify-between mb-3">
+          <h3 class="font-semibold text-primary-800">#6 识别而非回忆</h3>
+          <span class="text-xs text-neutral-400 flex-shrink-0 ml-4">Jakob Nielsen, 1994</span>
+        </div>
+        <p class="text-sm text-neutral-500 mb-3 leading-relaxed">减少用户的记忆负担。让对象、操作和选项可见，用户不需要记住从对话的一个部分到另一个部分的信息。</p>
+        <div class="bg-accent-50 rounded-lg p-3 mb-3">
+          <p class="text-xs text-neutral-600"><strong class="text-accent-600">生活类比：</strong>选择题比填空题容易——看到选项就能认出来，凭空回忆就困难得多。</p>
+        </div>
+        <div class="flex flex-wrap gap-2 items-center">
+          <span class="text-xs text-neutral-400">在项目中应用：</span>
+          <span class="px-2.5 py-0.5 text-xs font-medium bg-primary-100 text-primary-700 rounded-full">多轮上下文</span>
+          <span class="px-2.5 py-0.5 text-xs font-medium bg-primary-100 text-primary-700 rounded-full">结构化卡片</span>
+        </div>
+      </div>
+
+      <div class="principle-card bg-white rounded-xl border border-neutral-200 p-6">
+        <div class="flex items-start justify-between mb-3">
+          <h3 class="font-semibold text-primary-800">#7 灵活性与效率</h3>
+          <span class="text-xs text-neutral-400 flex-shrink-0 ml-4">Jakob Nielsen, 1994</span>
+        </div>
+        <p class="text-sm text-neutral-500 mb-3 leading-relaxed">为新手和专家用户提供不同的使用路径。快捷键、自定义工具栏等让专家操作更快，但不影响新手的上手体验。</p>
+        <div class="bg-accent-50 rounded-lg p-3 mb-3">
+          <p class="text-xs text-neutral-600"><strong class="text-accent-600">生活类比：</strong>电脑的 Ctrl+C/Ctrl+V 快捷键——新手用右键菜单，熟手用快捷键，两种方式都能完成任务。</p>
+        </div>
+        <div class="flex flex-wrap gap-2 items-center">
+          <span class="text-xs text-neutral-400">在项目中应用：</span>
+          <span class="px-2.5 py-0.5 text-xs font-medium bg-primary-100 text-primary-700 rounded-full">渐进式加载</span>
+        </div>
+      </div>
+
+      <div class="principle-card bg-white rounded-xl border border-neutral-200 p-6">
+        <div class="flex items-start justify-between mb-3">
+          <h3 class="font-semibold text-primary-800">#8 美学与极简主义</h3>
+          <span class="text-xs text-neutral-400 flex-shrink-0 ml-4">Jakob Nielsen, 1994</span>
+        </div>
+        <p class="text-sm text-neutral-500 mb-3 leading-relaxed">界面不应包含不相关或很少需要的信息。每个额外的信息单元都会与相关信息单元竞争，降低它们的相对可见度。</p>
+        <div class="bg-accent-50 rounded-lg p-3 mb-3">
+          <p class="text-xs text-neutral-600"><strong class="text-accent-600">生活类比：</strong>Google 首页只有一个搜索框——不是做不出花哨设计，而是知道用户来搜索的，其他都是干扰。</p>
+        </div>
+        <div class="flex flex-wrap gap-2 items-center">
+          <span class="text-xs text-neutral-400">在项目中应用：</span>
+          <span class="px-2.5 py-0.5 text-xs font-medium bg-primary-100 text-primary-700 rounded-full">结构化卡片</span>
+          <span class="px-2.5 py-0.5 text-xs font-medium bg-primary-100 text-primary-700 rounded-full">渐进式加载</span>
+        </div>
+      </div>
+
+      <div class="principle-card bg-white rounded-xl border border-neutral-200 p-6">
+        <div class="flex items-start justify-between mb-3">
+          <h3 class="font-semibold text-primary-800">#9 帮助用户识别、诊断并恢复</h3>
+          <span class="text-xs text-neutral-400 flex-shrink-0 ml-4">Jakob Nielsen, 1994</span>
+        </div>
+        <p class="text-sm text-neutral-500 mb-3 leading-relaxed">错误信息应该用通俗语言表达（不要用错误代码），精确指出问题，并给出建设性的解决建议。</p>
+        <div class="bg-accent-50 rounded-lg p-3 mb-3">
+          <p class="text-xs text-neutral-600"><strong class="text-accent-600">生活类比：</strong>导航软件说"前方 200 米右转"而不是"坐标偏离，请修正航向"。</p>
+        </div>
+        <div class="flex flex-wrap gap-2 items-center">
+          <span class="text-xs text-neutral-400">在项目中应用：</span>
+          <span class="px-2.5 py-0.5 text-xs font-medium bg-primary-100 text-primary-700 rounded-full">失败兜底</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Gestalt Principles -->
+  <section class="max-w-4xl mx-auto px-6 pb-16 opacity-0" id="gestalt-section">
+    <div class="section-divider mb-8"><span class="section-divider-dot"></span></div>
+    <div class="flex items-center gap-3 mb-8">
+      <span class="px-3 py-1 text-xs font-semibold bg-purple-100 text-purple-700 rounded-full">来源</span>
+      <h2 class="font-display text-2xl text-primary-800">格式塔心理学原理</h2>
+    </div>
+
+    <div class="space-y-4">
+      <div class="principle-card bg-white rounded-xl border border-neutral-200 p-6">
+        <div class="flex items-start justify-between mb-3">
+          <h3 class="font-semibold text-primary-800">邻近性 (Proximity)</h3>
+          <span class="text-xs text-neutral-400 flex-shrink-0 ml-4">Max Wertheimer, 1920s</span>
+        </div>
+        <p class="text-sm text-neutral-500 mb-3 leading-relaxed">彼此靠近的物体被认为是一组。通过控制间距来暗示元素之间的分组关系，比加边框或分割线更自然。</p>
+        <div class="bg-accent-50 rounded-lg p-3 mb-3">
+          <p class="text-xs text-neutral-600"><strong class="text-accent-600">生活类比：</strong>站在同一张桌子旁的人被认为是一起的，即使他们没有说话。</p>
+        </div>
+        <div class="flex flex-wrap gap-2 items-center">
+          <span class="text-xs text-neutral-400">在项目中应用：</span>
+          <span class="px-2.5 py-0.5 text-xs font-medium bg-primary-100 text-primary-700 rounded-full">结构化卡片</span>
+        </div>
+      </div>
+
+      <div class="principle-card bg-white rounded-xl border border-neutral-200 p-6">
+        <div class="flex items-start justify-between mb-3">
+          <h3 class="font-semibold text-primary-800">相似性 (Similarity)</h3>
+          <span class="text-xs text-neutral-400 flex-shrink-0 ml-4">Max Wertheimer, 1920s</span>
+        </div>
+        <p class="text-sm text-neutral-500 mb-3 leading-relaxed">看起来相似的物体被认为具有相同的功能或属于同一类别。在 UI 设计中，相同功能的按钮应保持一致的样式。</p>
+        <div class="bg-accent-50 rounded-lg p-3 mb-3">
+          <p class="text-xs text-neutral-600"><strong class="text-accent-600">生活类比：</strong>穿同样队服的运动员被认为是一队的，即使分散在场地上也能一眼认出来。</p>
+        </div>
+        <div class="flex flex-wrap gap-2 items-center">
+          <span class="text-xs text-neutral-400">在项目中应用：</span>
+          <span class="px-2.5 py-0.5 text-xs font-medium bg-primary-100 text-primary-700 rounded-full">结构化卡片</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Interaction Design Universal -->
+  <section class="max-w-4xl mx-auto px-6 pb-16 opacity-0" id="interaction-section">
+    <div class="section-divider mb-8"><span class="section-divider-dot"></span></div>
+    <div class="flex items-center gap-3 mb-8">
+      <span class="px-3 py-1 text-xs font-semibold bg-green-100 text-green-700 rounded-full">来源</span>
+      <h2 class="font-display text-2xl text-primary-800">交互设计通用原则</h2>
+    </div>
+
+    <div class="space-y-4">
+      <div class="principle-card bg-white rounded-xl border border-neutral-200 p-6">
+        <div class="flex items-start justify-between mb-3">
+          <h3 class="font-semibold text-primary-800">F 型阅读模式</h3>
+          <span class="text-xs text-neutral-400 flex-shrink-0 ml-4">NN Group 眼动研究</span>
+        </div>
+        <p class="text-sm text-neutral-500 mb-3 leading-relaxed">用户在浏览网页时，视线通常呈 F 型：先水平扫过顶部，然后向下并在中间水平扫过较短距离，最后沿左侧垂直向下。重要内容应放在 F 型路径上。</p>
+        <div class="bg-accent-50 rounded-lg p-3 mb-3">
+          <p class="text-xs text-neutral-600"><strong class="text-accent-600">生活类比：</strong>报纸头条放在最上面——读者第一眼看到的就是最重要的新闻。</p>
+        </div>
+        <div class="flex flex-wrap gap-2 items-center">
+          <span class="text-xs text-neutral-400">在项目中应用：</span>
+          <span class="px-2.5 py-0.5 text-xs font-medium bg-primary-100 text-primary-700 rounded-full">结构化卡片</span>
+        </div>
+      </div>
+
+      <div class="principle-card bg-white rounded-xl border border-neutral-200 p-6">
+        <div class="flex items-start justify-between mb-3">
+          <h3 class="font-semibold text-primary-800">Fitts 定律</h3>
+          <span class="text-xs text-neutral-400 flex-shrink-0 ml-4">Paul Fitts, 1954</span>
+        </div>
+        <p class="text-sm text-neutral-500 mb-3 leading-relaxed">到达目标的时间取决于目标的距离和大小。目标越大、越近，就越容易点击。重要按钮应做大一些，相关操作放一起。</p>
+        <div class="bg-accent-50 rounded-lg p-3 mb-3">
+          <p class="text-xs text-neutral-600"><strong class="text-accent-600">生活类比：</strong>篮球筐比高尔夫球洞容易进——不仅因为球大，也因为球筐本身大得多。</p>
+        </div>
+        <div class="flex flex-wrap gap-2 items-center">
+          <span class="text-xs text-neutral-400">在项目中应用：</span>
+          <span class="px-2.5 py-0.5 text-xs font-medium bg-primary-100 text-primary-700 rounded-full">确认机制</span>
+          <span class="px-2.5 py-0.5 text-xs font-medium bg-primary-100 text-primary-700 rounded-full">失败兜底</span>
+        </div>
+      </div>
+
+      <div class="principle-card bg-white rounded-xl border border-neutral-200 p-6">
+        <div class="flex items-start justify-between mb-3">
+          <h3 class="font-semibold text-primary-800">Hick 定律</h3>
+          <span class="text-xs text-neutral-400 flex-shrink-0 ml-4">William Hick, 1952</span>
+        </div>
+        <p class="text-sm text-neutral-500 mb-3 leading-relaxed">决策时间随选项数量的增加而对数增加。选项越多，人的决策越慢。复杂功能可分层级逐步展示。</p>
+        <div class="bg-accent-50 rounded-lg p-3 mb-3">
+          <p class="text-xs text-neutral-600"><strong class="text-accent-600">生活类比：</strong>菜单只有几页的餐厅，你点菜很快；菜单像字典一样厚的餐厅，你看半天也不知道点什么。</p>
+        </div>
+        <div class="flex flex-wrap gap-2 items-center">
+          <span class="text-xs text-neutral-400">在项目中应用：</span>
+          <span class="px-2.5 py-0.5 text-xs font-medium bg-primary-100 text-primary-700 rounded-full">渐进式加载</span>
+          <span class="px-2.5 py-0.5 text-xs font-medium bg-primary-100 text-primary-700 rounded-full">结构化卡片</span>
+        </div>
+      </div>
+
+      <div class="principle-card bg-white rounded-xl border border-neutral-200 p-6">
+        <div class="flex items-start justify-between mb-3">
+          <h3 class="font-semibold text-primary-800">米勒定律 (7+-2)</h3>
+          <span class="text-xs text-neutral-400 flex-shrink-0 ml-4">George Miller, 1956</span>
+        </div>
+        <p class="text-sm text-neutral-500 mb-3 leading-relaxed">普通人的工作记忆只能同时记住 7+-2 个信息单元。导航选项、表单字段等应控制在这个范围内，必要时分组。</p>
+        <div class="bg-accent-50 rounded-lg p-3 mb-3">
+          <p class="text-xs text-neutral-600"><strong class="text-accent-600">生活类比：</strong>电话号码为什么是 3-4-4 分段而不是一串 11 位数字——分组帮你记住更多信息。</p>
+        </div>
+        <div class="flex flex-wrap gap-2 items-center">
+          <span class="text-xs text-neutral-400">在项目中应用：</span>
+          <span class="px-2.5 py-0.5 text-xs font-medium bg-primary-100 text-primary-700 rounded-full">渐进式加载</span>
+          <span class="px-2.5 py-0.5 text-xs font-medium bg-primary-100 text-primary-700 rounded-full">结构化卡片</span>
+        </div>
+      </div>
+
+      <div class="principle-card bg-white rounded-xl border border-neutral-200 p-6">
+        <div class="flex items-start justify-between mb-3">
+          <h3 class="font-semibold text-primary-800">Doherty Threshold</h3>
+          <span class="text-xs text-neutral-400 flex-shrink-0 ml-4">Walter Doherty, 1979</span>
+        </div>
+        <p class="text-sm text-neutral-500 mb-3 leading-relaxed">系统响应时间在 400ms 以内，用户就不会失去注意力流。对于 AI 需要 30-60 秒的场景，用流式输出让用户感知到进度。</p>
+        <div class="bg-accent-50 rounded-lg p-3 mb-3">
+          <p class="text-xs text-neutral-600"><strong class="text-accent-600">生活类比：</strong>进度条比空白等待感觉短——不是时间变短了，是焦虑减少了。</p>
+        </div>
+        <div class="flex flex-wrap gap-2 items-center">
+          <span class="text-xs text-neutral-400">在项目中应用：</span>
+          <span class="px-2.5 py-0.5 text-xs font-medium bg-primary-100 text-primary-700 rounded-full">流式输出</span>
+        </div>
+      </div>
+
+      <div class="principle-card bg-white rounded-xl border border-neutral-200 p-6">
+        <div class="flex items-start justify-between mb-3">
+          <h3 class="font-semibold text-primary-800">WCAG 色彩对比度</h3>
+          <span class="text-xs text-neutral-400 flex-shrink-0 ml-4">W3C WCAG 2.1</span>
+        </div>
+        <p class="text-sm text-neutral-500 mb-3 leading-relaxed">普通文本对比度至少 4.5:1，大文本至少 3:1。确保低视力用户也能阅读界面内容。</p>
+        <div class="bg-accent-50 rounded-lg p-3 mb-3">
+          <p class="text-xs text-neutral-600"><strong class="text-accent-600">生活类比：</strong>马路上的人行横道用白线划在黑色沥青上——因为对比度够高，司机和行人都能看清。</p>
+        </div>
+        <div class="flex flex-wrap gap-2 items-center">
+          <span class="text-xs text-neutral-400">在项目中应用：</span>
+          <span class="px-2.5 py-0.5 text-xs font-medium bg-primary-100 text-primary-700 rounded-full">失败兜底</span>
+          <span class="px-2.5 py-0.5 text-xs font-medium bg-primary-100 text-primary-700 rounded-full">结构化卡片</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer id="footer" class="bg-primary-950 text-neutral-400 px-6 py-16 opacity-0">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex flex-col md:flex-row items-center justify-between gap-6 mb-8">
+        <a href="/" class="font-display text-xl text-neutral-200 tracking-tight no-underline">AI<span class="text-accent-400">·</span>Lab</a>
+        <div class="flex flex-wrap justify-center gap-6 text-sm">
+          <a href="/patterns/streaming.html" class="text-neutral-400 hover:text-neutral-200 transition-colors no-underline">Patterns</a>
+          <a href="/about.html" class="text-neutral-400 hover:text-neutral-200 transition-colors no-underline">About</a>
+          <a href="/agents.html" class="text-neutral-400 hover:text-neutral-200 transition-colors no-underline">Agents</a>
+          <a href="/behind-the-scenes.html" class="text-neutral-400 hover:text-neutral-200 transition-colors no-underline">Behind the Scenes</a>
+          <a href="/review.html" class="text-neutral-400 hover:text-neutral-200 transition-colors no-underline">Review Tool</a>
+        </div>
+        <a href="https://github.com/qq242115512/ai-interaction-lab" target="_blank" rel="noopener" class="text-neutral-400 hover:text-neutral-200 transition-colors no-underline text-sm">
+          <svg class="w-5 h-5 inline-block mr-1.5 align-text-bottom" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.385-1.335-1.755-1.335-1.755-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.605-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12 24 5.37 18.63 0 12 0z"/></svg>GitHub</a>
+      </div>
+      <div class="border-t border-primary-800 pt-6 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-neutral-500">
+        <span>&copy; 2026 樊书洋 · AI 交互模式实验室</span>
+        <span class="font-mono">v0.5.0</span>
+      </div>
+    </div>
+  </footer>
+
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
-  <script src="js/animations.js?v=2.0.2"></script>
+  <script src="js/animations.js"></script>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      if (typeof gsap === "undefined") return;
+      gsap.registerPlugin(ScrollTrigger);
+      var mm = gsap.matchMedia();
+
+      var navbar = document.getElementById("navbar");
+      if (navbar) { gsap.set(navbar, { autoAlpha: 1 }); gsap.from(navbar, { y: -20, autoAlpha: 0, duration: 0.55, ease: "power3.out" }); }
+
+      var heroEyebrow = document.getElementById("hero-eyebrow");
+      if (heroEyebrow) { gsap.set(heroEyebrow, { autoAlpha: 1 }); gsap.from(heroEyebrow, { y: 16, autoAlpha: 0, duration: 0.5, ease: "power3.out", delay: 0.1 }); }
+      var heroTitle = document.getElementById("hero-title");
+      if (heroTitle) { gsap.set(heroTitle, { autoAlpha: 1 }); gsap.from(heroTitle, { y: 30, autoAlpha: 0, duration: 0.65, ease: "power3.out", delay: 0.16 }); }
+      var heroSubtitle = document.getElementById("hero-subtitle");
+      if (heroSubtitle) { gsap.set(heroSubtitle, { autoAlpha: 1 }); gsap.from(heroSubtitle, { y: 20, autoAlpha: 0, duration: 0.5, ease: "power3.out", delay: 0.3 }); }
+
+      var sections = ["nielsen-section", "gestalt-section", "interaction-section"];
+      sections.forEach(function (id) {
+        var el = document.getElementById(id);
+        if (el) { gsap.set(el, { autoAlpha: 1 }); gsap.from(el, { y: 36, autoAlpha: 0, duration: 0.6, ease: "power3.out", scrollTrigger: { trigger: el, start: "top 85%", once: true } }); }
+      });
+
+      var footer = document.getElementById("footer");
+      if (footer) { gsap.set(footer, { autoAlpha: 1 }); gsap.from(footer, { y: 30, autoAlpha: 0, duration: 0.6, ease: "power3.out", scrollTrigger: { trigger: footer, start: "top 90%", once: true } }); }
+
+      var hamburger = document.getElementById("hamburger");
+      var mobileMenu = document.getElementById("mobile-menu");
+      if (hamburger && mobileMenu) { hamburger.addEventListener("click", function () { mobileMenu.classList.toggle("open"); }); }
+
+      mm.add("(prefers-reduced-motion: reduce)", function () { gsap.globalTimeline.timeScale(0); return function () { gsap.globalTimeline.timeScale(1); }; });
+      ScrollTrigger.refresh();
+    });
+  </script>
 </body>
 </html>

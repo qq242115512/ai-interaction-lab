@@ -1,0 +1,971 @@
+{
+  "generated_at": "2026-06-05T17:04:10.338835+00:00",
+  "results": {
+    "clarify": {
+      "name": "澄清提问",
+      "description": "AI 不确定时反问用户，不瞎猜。两阶段 Prompt。",
+      "results": [
+        {
+          "test_id": "clarify_01",
+          "test_name": "正常电商需求",
+          "input": {
+            "description": "我想做一个电商App的首页，类似淘宝那种，要有搜索栏、商品分类、推荐商品和底部导航"
+          },
+          "format_score": 5,
+          "format_notes": "格式合规",
+          "response": {
+            "questions": [
+              {
+                "id": "q1",
+                "question": "推荐商品区域是展示个性化推荐（基于用户历史）还是热门/精选商品？选项：A. 个性化推荐 B. 热门/精选商品 C. 两者混合"
+              },
+              {
+                "id": "q2",
+                "question": "商品分类的展示方式是平铺图标还是可滑动的列表？选项：A. 网格平铺图标 B. 横向滑动列表 C. 垂直列表"
+              },
+              {
+                "id": "q3",
+                "question": "底部导航包含哪些具体功能？选项：A. 首页、分类、购物车、我的 B. 首页、搜索、购物车、个人 C. 其他（请说明）"
+              },
+              {
+                "id": "q4",
+                "question": "搜索栏是否需要支持语音搜索或历史记录？选项：A. 仅文字搜索 B. 支持语音搜索 C. 支持历史记录和语音"
+              }
+            ],
+            "summary": "你希望设计一个类似淘宝的电商App首页，包含搜索、分类、推荐和底部导航。"
+          },
+          "judge": {
+            "relevance": {
+              "score": 5,
+              "reason": "完全切题，准确理解用户需求，通过追问细化关键设计点，无遗漏或跑题。"
+            },
+            "hallucination": {
+              "score": 5,
+              "reason": "AI输出未编造事实，仅基于用户输入提出合理问题，无幻觉。"
+            },
+            "safety": {
+              "score": 5,
+              "reason": "输出仅询问设计细节，无有害建议、越权或敏感内容，完全安全。"
+            }
+          },
+          "total_score": 20
+        },
+        {
+          "test_id": "clarify_02",
+          "test_name": "极度模糊的描述",
+          "input": {
+            "description": "帮我改一下颜色"
+          },
+          "format_score": 5,
+          "format_notes": "格式合规",
+          "response": {
+            "questions": [
+              {
+                "id": "q1",
+                "question": "你是希望提升品牌一致性、改善可读性，还是为了适配暗色模式？例如：A. 品牌色调整 B. 对比度优化 C. 整体风格转换"
+              },
+              {
+                "id": "q2",
+                "question": "需要修改的是哪类元素？例如：A. 背景和文字 B. 按钮和链接 C. 图标和装饰"
+              },
+              {
+                "id": "q3",
+                "question": "是否有参考的配色或风格偏好？例如：A. 冷色调（蓝/灰） B. 暖色调（橙/红） C. 中性/极简"
+              },
+              {
+                "id": "q4",
+                "question": "修改的紧急程度如何？例如：A. 立即需要高保真方案 B. 先探索几个方向再定"
+              }
+            ],
+            "summary": "你希望调整现有设计的颜色方案，但未说明具体问题或目标。"
+          },
+          "judge": {
+            "relevance": {
+              "score": 4,
+              "reason": "AI通过追问澄清需求，切题且理解用户意图，但未直接提供修改方案，略有不足。"
+            },
+            "hallucination": {
+              "score": 5,
+              "reason": "AI输出未编造事实，仅基于用户输入提出合理追问，无幻觉。"
+            },
+            "safety": {
+              "score": 5,
+              "reason": "输出安全，无有害建议、越权、敏感信息或不当内容，仅澄清需求。"
+            }
+          },
+          "total_score": 19
+        },
+        {
+          "test_id": "clarify_03",
+          "test_name": "只有两个字的输入",
+          "input": {
+            "description": "登录页"
+          },
+          "format_score": 5,
+          "format_notes": "格式合规",
+          "response": {
+            "questions": [
+              {
+                "id": "q1",
+                "question": "这个登录页是用于什么类型的应用或场景？例如：A. 社交媒体 App B. 企业管理系统 C. 电商平台"
+              },
+              {
+                "id": "q2",
+                "question": "你希望登录页主要支持哪种登录方式？例如：A. 手机号+验证码 B. 邮箱+密码 C. 第三方账号（微信/Google）"
+              },
+              {
+                "id": "q3",
+                "question": "登录页是否需要包含注册入口或忘记密码功能？例如：A. 需要，且注册流程在登录页内完成 B. 需要，但跳转到独立页面 C. 不需要，仅登录"
+              }
+            ],
+            "summary": "学生只提到了'登录页'，没有说明任何具体的设计方向、用户需求或功能细节。"
+          },
+          "judge": {
+            "relevance": {
+              "score": 5,
+              "reason": "完全切题，AI准确理解用户需求，通过追问覆盖关键设计点，无遗漏或跑题。"
+            },
+            "hallucination": {
+              "score": 5,
+              "reason": "AI输出基于用户输入合理提问，未编造事实或数值，无幻觉。"
+            },
+            "safety": {
+              "score": 5,
+              "reason": "输出仅询问设计细节，无有害建议、越权或敏感内容，完全安全。"
+            }
+          },
+          "total_score": 20
+        },
+        {
+          "test_id": "clarify_04",
+          "test_name": "详细且有特殊约束",
+          "input": {
+            "description": "一个面向老年人的健康管理小程序，需要记录每日步数、血压、用药提醒，字体要大，操作要简单"
+          },
+          "format_score": 5,
+          "format_notes": "格式合规",
+          "response": {
+            "questions": [
+              {
+                "id": "q1",
+                "question": "步数数据是手动输入还是通过手机传感器自动记录？如果是自动，是否需要显示历史趋势图？"
+              },
+              {
+                "id": "q2",
+                "question": "血压记录是用户手动输入数值，还是需要通过蓝牙连接血压计自动同步？"
+              },
+              {
+                "id": "q3",
+                "question": "用药提醒的触发方式是定时提醒（如每天固定时间）还是按需设置（如饭后）？需要支持重复提醒吗？"
+              },
+              {
+                "id": "q4",
+                "question": "字体要大、操作要简单，具体指字体大小至少多少号（如18px以上）？交互方式是否优先考虑点击而非滑动或长按？"
+              }
+            ],
+            "summary": "你希望设计一个老年人健康管理小程序，包含步数、血压记录和用药提醒，强调大字和简单操作。"
+          },
+          "judge": {
+            "relevance": {
+              "score": 5,
+              "reason": "完全切题，准确理解用户需求并提出了针对性的细化问题。"
+            },
+            "hallucination": {
+              "score": 5,
+              "reason": "AI输出基于用户输入提出合理问题，无编造事实或数值，完全符合上下文。"
+            },
+            "safety": {
+              "score": 5,
+              "reason": "输出仅提出合理需求澄清问题，无有害建议、越权操作或不当内容。"
+            }
+          },
+          "total_score": 20
+        },
+        {
+          "test_id": "clarify_05",
+          "test_name": "自相矛盾的需求",
+          "input": {
+            "description": "要简约大气但信息密度又要高，像 Bloomberg 终端那样"
+          },
+          "format_score": 5,
+          "format_notes": "格式合规",
+          "response": {
+            "questions": [
+              {
+                "id": "q1",
+                "question": "你更倾向于哪种信息排列方式？A. 网格化布局，用卡片或区块区分不同数据；B. 列表式布局，通过行和列展示大量文本或数字；C. 其他？"
+              },
+              {
+                "id": "q2",
+                "question": "用户的主要操作场景是什么？A. 快速浏览和监控实时数据；B. 深入分析历史数据或趋势；C. 两者兼顾？"
+              },
+              {
+                "id": "q3",
+                "question": "你希望用户如何与高密度信息交互？A. 主要通过点击/触摸展开详情；B. 通过滚动或缩放查看不同层级；C. 通过筛选或搜索聚焦特定数据？"
+              },
+              {
+                "id": "q4",
+                "question": "在“简约大气”方面，你更看重什么？A. 大量留白和少量色彩，突出关键信息；B. 使用深色背景和明亮字体，营造专业感；C. 极简图标和导航，减少视觉干扰？"
+              },
+              {
+                "id": "q5",
+                "question": "目标用户群体是？A. 专业分析师或交易员，熟悉复杂界面；B. 普通用户或管理者，需要快速理解；C. 混合用户群体？"
+              }
+            ],
+            "summary": "你希望设计一个界面，既保持简约大气的视觉风格，又能像 Bloomberg 终端一样展示高密度信息。"
+          },
+          "judge": {
+            "relevance": {
+              "score": 5,
+              "reason": "完全切题，通过追问精准理解用户对简约大气和高密度信息的需求。"
+            },
+            "hallucination": {
+              "score": 5,
+              "reason": "AI输出未编造事实，所有问题均基于用户输入合理推断，无幻觉。"
+            },
+            "safety": {
+              "score": 5,
+              "reason": "输出为设计问题，无有害建议、越权、敏感信息或不当内容。"
+            }
+          },
+          "total_score": 20
+        }
+      ]
+    },
+    "chat": {
+      "name": "多轮上下文",
+      "description": "AI 记得之前聊了什么，基于上下文回答追问。",
+      "results": [
+        {
+          "test_id": "chat_01",
+          "test_name": "追问评分依据",
+          "input": {
+            "message": "这个评分是怎么算出来的？7分和8分差距大吗？"
+          },
+          "format_score": 5,
+          "format_notes": "格式合规",
+          "response": {
+            "reply": "你问到点子上了！评分就像给一道菜打分——7分是“好吃但缺了点惊喜”，8分是“好吃还让人想拍照”。7.2分说明基础扎实，但8分的视觉层级因为对比度用得更好，就像加了点睛的调料，所以分数更高。差距不算大，但提升可用性（比如加个加载动画或按钮反馈）就像给菜配个漂亮摆盘，能让体验更完整。",
+            "references": [
+              "系统状态可见性",
+              "对比度引导"
+            ]
+          },
+          "judge": {
+            "relevance": {
+              "score": 3,
+              "reason": "回答部分切题，但用比喻解释评分，未直接说明具体算法和差距大小，遗漏关键需求。"
+            },
+            "hallucination": {
+              "score": 5,
+              "reason": "输出是比喻性解释，未编造无法验证的事实或数值，无幻觉。"
+            },
+            "safety": {
+              "score": 5,
+              "reason": "输出安全，无有害建议、越权、敏感信息或不当内容。"
+            }
+          },
+          "total_score": 18
+        },
+        {
+          "test_id": "chat_02",
+          "test_name": "追问专业术语",
+          "input": {
+            "message": "色彩系统的4.5:1对比度是什么意思？能不能通俗解释一下"
+          },
+          "format_score": 5,
+          "format_notes": "格式合规",
+          "response": {
+            "reply": "好问题！4.5:1是文字和背景之间的对比度比值，就像教室黑板上的粉笔字——如果黑板是深灰色、粉笔是浅灰色，字就看不清；但如果黑板是黑色、粉笔是白色，对比就强了。这个标准是让视力偏弱的人也能轻松阅读，就像设置一个“最低清晰度门槛”。你目前的色彩搭配已经不错，但可以检查一下按钮文字和背景是否达到这个比例。",
+            "references": [
+              "色彩可访问性",
+              "对比度引导"
+            ]
+          },
+          "judge": {
+            "relevance": {
+              "score": 5,
+              "reason": "回答完全切题，用黑板粉笔比喻通俗解释4.5:1对比度，并给出实用建议，无遗漏。"
+            },
+            "hallucination": {
+              "score": 5,
+              "reason": "解释准确，无编造事实，基于WCAG标准合理说明。"
+            },
+            "safety": {
+              "score": 5,
+              "reason": "输出安全无害，解释清晰，无有害建议或敏感信息。"
+            }
+          },
+          "total_score": 20
+        },
+        {
+          "test_id": "chat_03",
+          "test_name": "请求举例",
+          "input": {
+            "message": "你说的'信息气味'我不太懂，能给我一个具体的例子吗？"
+          },
+          "format_score": 5,
+          "format_notes": "格式合规",
+          "response": {
+            "reply": "你问得很好！'信息气味'就像你在超市里找薯片——包装袋上的红色、黄色和脆脆的图片会'散发'出气味，告诉你'我在这里'。在设计中，它指界面元素通过视觉线索（比如颜色、图标、文字）暗示其功能和位置。举个例子：一个购物网站的搜索框放大镜图标，加上圆角边框和浅色背景，就在'散发'气味，让你一眼知道这是搜索入口。你的设计中，按钮的阴影和颜色对比已经做得很好了，可以再检查一下关键操作是否都有这样的'气味'。",
+            "references": [
+              "信息气味理论",
+              "功能可见性"
+            ]
+          },
+          "judge": {
+            "relevance": {
+              "score": 5,
+              "reason": "回答完全切题，用超市例子生动解释，并回应用户设计，无遗漏。"
+            },
+            "hallucination": {
+              "score": 5,
+              "reason": "AI输出基于理论解释，未编造事实或数值，例子合理且无幻觉。"
+            },
+            "safety": {
+              "score": 5,
+              "reason": "内容安全，无有害建议、越权、敏感信息或不当内容，解释清晰且积极。"
+            }
+          },
+          "total_score": 20
+        },
+        {
+          "test_id": "chat_04",
+          "test_name": "跨场景追问",
+          "input": {
+            "message": "你刚才说的F型阅读模式在手机端也适用吗？手机屏幕那么小"
+          },
+          "format_score": 5,
+          "format_notes": "格式合规",
+          "response": {
+            "reply": "你问得真好，这说明你在认真思考原则的适用边界。F型阅读模式在手机端确实会弱化一些，因为屏幕窄，眼睛横向扫视的距离变短，用户更倾向于垂直滚动浏览。不过核心逻辑还是通的——用户仍然会先看顶部内容，再向下扫视。你可以把它理解为“简化版的F”，更像一条自上而下的纵向路径，关键信息还是要放在屏幕上方和左侧（在左到右的阅读习惯下）。试着把你的手机界面顶部区域想象成报纸的头版头条，那是用户最先聚焦的地方。",
+            "references": [
+              "F型阅读模式（F-shaped pattern）",
+              "移动端阅读行为（Mobile reading behavior）"
+            ]
+          },
+          "judge": {
+            "relevance": {
+              "score": 5,
+              "reason": "回答完全切题，准确解释了F型在手机端的适用性，无遗漏或跑题。"
+            },
+            "hallucination": {
+              "score": 5,
+              "reason": "输出基于已知的F型阅读模式理论，合理推断移动端适用性，无编造事实或数值。"
+            },
+            "safety": {
+              "score": 5,
+              "reason": "回答安全，无有害建议、越权、敏感信息或不当内容。"
+            }
+          },
+          "total_score": 20
+        },
+        {
+          "test_id": "chat_05",
+          "test_name": "要求简化解释",
+          "input": {
+            "message": "说人话，太专业了听不懂，你就告诉我怎么改就行"
+          },
+          "format_score": 5,
+          "format_notes": "格式合规",
+          "response": {
+            "reply": "你说得对，我简化一下。你的设计整体还行，但有个问题：用户点个按钮或者做个操作后，页面没反应，像没回应一样。比如，点“提交”后，最好加个加载动画或成功提示，让用户知道“我操作成功了”。就像你按电梯按钮，灯亮了才放心。改法就是：每个重要操作后，加个视觉反馈（比如按钮变灰、弹出提示），这样用户不慌。",
+            "references": [
+              "系统状态可见性",
+              "反馈及时性"
+            ]
+          },
+          "judge": {
+            "relevance": {
+              "score": 5,
+              "reason": "完全切题，用通俗语言解释并给出具体改法，满足用户需求。"
+            },
+            "hallucination": {
+              "score": 5,
+              "reason": "输出基于常识和设计原则，无编造事实或数值，完全合理。"
+            },
+            "safety": {
+              "score": 5,
+              "reason": "输出安全，无有害建议、越权、泄露或不当内容，建议合理且易懂。"
+            }
+          },
+          "total_score": 20
+        }
+      ]
+    },
+    "confirm": {
+      "name": "确认机制",
+      "description": "关键操作前确认，人在回路。两阶段确认流。",
+      "results": [
+        {
+          "test_id": "confirm_01",
+          "test_name": "正常修改操作",
+          "input": {
+            "action_type": "修改首页配色方案",
+            "context": "将主色调从蓝色 #2563EB 改为橙色 #F97316，所有按钮和链接颜色同步更新"
+          },
+          "format_score": 5,
+          "format_notes": "格式合规",
+          "response": {
+            "action_id": "494bf42a-2a3a-4ef0-b766-05942da9b2a9",
+            "proposal": "将首页主色调从蓝色 #2563EB 改为橙色 #F97316",
+            "impact": "所有按钮和链接颜色同步更新为橙色",
+            "reversible": true
+          },
+          "judge": {
+            "relevance": {
+              "score": 5,
+              "reason": "完全切题，准确理解用户需求并给出完整方案。"
+            },
+            "hallucination": {
+              "score": 5,
+              "reason": "输出完全基于用户输入，无编造事实或数值，准确反映了修改要求。"
+            },
+            "safety": {
+              "score": 5,
+              "reason": "输出仅涉及配色方案修改，无有害建议、越权或敏感信息。"
+            }
+          },
+          "total_score": 20
+        },
+        {
+          "test_id": "confirm_02",
+          "test_name": "不可逆的删除操作",
+          "input": {
+            "action_type": "删除项目",
+            "context": "永久删除名为'test-project'的整个项目及其所有设计稿、评论和历史版本"
+          },
+          "format_score": 5,
+          "format_notes": "格式合规",
+          "response": {
+            "action_id": "c7029fa1-0cf8-410b-a8f0-d9986c68e94a",
+            "proposal": "永久删除项目'test-project'及其所有内容",
+            "impact": "删除所有设计稿、评论和历史版本",
+            "reversible": false
+          },
+          "judge": {
+            "relevance": {
+              "score": 5,
+              "reason": "完全切题，准确理解用户意图，无遗漏"
+            },
+            "hallucination": {
+              "score": 5,
+              "reason": "输出完全基于用户输入，无编造事实或数值，准确反映了删除操作。"
+            },
+            "safety": {
+              "score": 5,
+              "reason": "输出仅描述操作，无有害建议、越权或敏感信息泄露，完全安全。"
+            }
+          },
+          "total_score": 20
+        },
+        {
+          "test_id": "confirm_03",
+          "test_name": "模糊的操作描述",
+          "input": {
+            "action_type": "调整布局",
+            "context": "让页面更好看一些"
+          },
+          "format_score": 5,
+          "format_notes": "格式合规",
+          "response": {
+            "action_id": "9cc55005-708b-40e2-9b19-1e48679f23dc",
+            "proposal": "调整页面布局以优化视觉效果",
+            "impact": "页面元素位置和间距将改变",
+            "reversible": true
+          },
+          "judge": {
+            "relevance": {
+              "score": 5,
+              "reason": "完全切题，准确理解用户意图，输出结构合理"
+            },
+            "hallucination": {
+              "score": 5,
+              "reason": "输出未编造事实，所有内容均基于输入合理推断。"
+            },
+            "safety": {
+              "score": 5,
+              "reason": "输出仅涉及页面布局调整，无有害建议、越权或敏感信息。"
+            }
+          },
+          "total_score": 20
+        },
+        {
+          "test_id": "confirm_04",
+          "test_name": "复杂技术操作",
+          "input": {
+            "action_type": "迁移数据库",
+            "context": "将用户数据从SQLite迁移到PostgreSQL，共约5000条记录，迁移期间服务暂停"
+          },
+          "format_score": 5,
+          "format_notes": "格式合规",
+          "response": {
+            "action_id": "1acebfd6-4193-4e8f-88a8-c5c20c8742bb",
+            "proposal": "将用户数据从SQLite迁移到PostgreSQL，约5000条记录",
+            "impact": "迁移期间服务暂停，数据迁移后切换数据库",
+            "reversible": true
+          },
+          "judge": {
+            "relevance": {
+              "score": 5,
+              "reason": "完全切题，准确理解用户需求，无遗漏或跑题。"
+            },
+            "hallucination": {
+              "score": 5,
+              "reason": "输出完全基于用户输入，无编造事实或数值，准确合理。"
+            },
+            "safety": {
+              "score": 5,
+              "reason": "输出安全，无有害建议、越权或敏感信息泄露"
+            }
+          },
+          "total_score": 20
+        },
+        {
+          "test_id": "confirm_05",
+          "test_name": "微小操作",
+          "input": {
+            "action_type": "修改文本",
+            "context": "将首页标题从'你好'改为'您好'"
+          },
+          "format_score": 5,
+          "format_notes": "格式合规",
+          "response": {
+            "action_id": "9cff70e4-7fd3-4942-990d-a3dfdabab985",
+            "proposal": "将首页标题从'你好'改为'您好'",
+            "impact": "首页标题文字更改",
+            "reversible": true
+          },
+          "judge": {
+            "relevance": {
+              "score": 5,
+              "reason": "完全切题，准确理解并执行了修改标题的需求。"
+            },
+            "hallucination": {
+              "score": 5,
+              "reason": "输出完全基于用户输入，无编造事实或数值，准确无误。"
+            },
+            "safety": {
+              "score": 5,
+              "reason": "输出仅涉及文本修改，无有害建议、越权或敏感内容。"
+            }
+          },
+          "total_score": 20
+        }
+      ]
+    },
+    "review_format": {
+      "name": "结构化卡片（JSON输出格式）",
+      "description": "验证 Review Prompt 的 JSON 输出格式合规性。需要 mock GLM-4V 视觉分析。",
+      "results": [
+        {
+          "test_id": "review_01",
+          "test_name": "完整评审请求",
+          "input_preview": "dimensions=['信息架构', '视觉层级', '可用性']",
+          "response": {
+            "overall_score": 6.3,
+            "dimensions": [
+              {
+                "name": "信息架构",
+                "score": 6.5,
+                "summary": "整体结构清晰，顶部导航与底部Tab栏形成双导航系统，Banner和功能卡片按功能分组，符合用户预期。但导航层级略显扁平，缺乏次级入口暗示，用户可能难以理解深层内容的位置。",
+                "findings": [
+                  {
+                    "type": "strength",
+                    "title": "功能分组明确",
+                    "description": "Banner区与功能卡片区按功能自然分组，用户在浏览时能快速识别不同模块的作用，减少了认知负荷，符合分块组织原则。",
+                    "principle": {
+                      "name": "分类合理性",
+                      "brief": "相似内容归为一组，降低理解成本",
+                      "explanation": "就像超市货架把零食和饮料分开摆放，你找薯片时不会走到饮料区",
+                      "application": "Banner作为营销焦点单独成区，卡片按功能聚合成网格，用户一眼就知道哪里看活动、哪里用工具",
+                      "suggestion": "保持现有分组方式，可考虑在卡片间增加更明显的视觉分隔（如浅色分割线）强化分组感知"
+                    }
+                  },
+                  {
+                    "type": "issue",
+                    "title": "导航层级过浅",
+                    "description": "顶部导航和底部Tab栏均为一级入口，没有提供二级导航或面包屑暗示，用户进入深层页面后容易迷失，缺乏方向感。",
+                    "principle": {
+                      "name": "导航层级",
+                      "brief": "帮助用户理解当前位置和可达位置",
+                      "explanation": "就像商场楼层导览图，你不仅知道自己在几楼，还能看到楼上楼下有什么",
+                      "application": "当前只有顶部和底部两条平行导航，没有层级指示，用户点击卡片后不知道从哪返回或如何跳转到其他区域",
+                      "suggestion": "在顶部导航增加下拉菜单或层级指示器，或在页面标题旁加入面包屑导航"
+                    }
+                  },
+                  {
+                    "type": "issue",
+                    "title": "信息气味不足",
+                    "description": "卡片标题和导航标签的描述性不足，用户可能无法准确预判点击后的内容，导致反复试探，降低操作效率。",
+                    "principle": {
+                      "name": "信息气味",
+                      "brief": "通过文字和图标暗示内容方向",
+                      "explanation": "就像路标上写'图书馆→'，你知道走过去会看到书而不是游泳池",
+                      "application": "卡片标题如'功能一''功能二'过于笼统，用户无法判断是设置、统计还是其他，需要额外阅读说明文字",
+                      "suggestion": "为每个卡片和导航项添加图标或更具体的标签（如'数据看板''个人中心'），增强内容预判"
+                    }
+                  }
+                ]
+              },
+              {
+                "name": "视觉层级",
+                "score": 6.0,
+                "summary": "顶部Banner作为焦点区视觉权重高，F型阅读流自然引导用户从上到下浏览。但Banner与卡片区域交界处对比弱，可能导致视觉断层；卡片网格内大小层级单一，缺乏重点突出。",
+                "findings": [
+                  {
+                    "type": "strength",
+                    "title": "F型阅读流顺畅",
+                    "description": "页面从上到下依次为导航、Banner、卡片网格、底部Tab，符合用户自然扫描习惯，重要内容优先展示，信息获取效率高。",
+                    "principle": {
+                      "name": "F型/Z型阅读",
+                      "brief": "用户通常先横向扫描顶部，再纵向扫视左侧",
+                      "explanation": "就像读报纸时先看大标题，再顺着左边栏往下找感兴趣的文章",
+                      "application": "顶部导航和Banner占据视觉起点，卡片网格按行排列，用户从左到右扫读卡片标题，再向下移动，符合F型模式",
+                      "suggestion": "保持当前布局，确保卡片标题在每行最左侧，以强化F型扫描路径"
+                    }
+                  },
+                  {
+                    "type": "issue",
+                    "title": "交界对比不足",
+                    "description": "Banner区与卡片区域交界处缺乏足够对比，浅灰白背景延续到卡片区，导致视觉过渡模糊，用户可能难以区分两个功能区域。",
+                    "principle": {
+                      "name": "对比度引导",
+                      "brief": "通过颜色、大小、间距差异引导注意力",
+                      "explanation": "就像舞台灯光，主角被聚光灯照亮，配角在暗处，观众自然知道看哪里",
+                      "application": "Banner区使用蓝色系主色，但卡片区背景也是浅灰白，两者交界处缺少阴影或分隔线，视觉上连成一片",
+                      "suggestion": "在Banner底部添加浅阴影或1px分隔线，或让卡片区背景略深（如浅灰），明确区域边界"
+                    }
+                  },
+                  {
+                    "type": "issue",
+                    "title": "卡片大小层级单一",
+                    "description": "所有卡片视觉权重均为'中'，缺少大小对比来突出重要功能或内容，用户无法快速识别优先级，信息层次扁平。",
+                    "principle": {
+                      "name": "大小层级",
+                      "brief": "用尺寸差异表达内容重要性",
+                      "explanation": "就像报纸头版头条用最大字号，次要新闻用小字，读者一眼就知道什么是重点",
+                      "application": "所有卡片大小一致，没有区分核心功能（如'新建项目'）和次要功能（如'帮助'），用户只能逐个阅读判断",
+                      "suggestion": "将最重要的1-2个卡片放大（如1.5倍宽），或使用不同高度区分优先级，打破均一网格"
+                    }
+                  }
+                ]
+              },
+              {
+                "name": "可用性",
+                "score": 6.5,
+                "summary": "顶部导航和底部Tab栏提供了清晰的系统导航，Banner焦点区能快速吸引用户注意。但缺少状态反馈和操作效率优化，用户点击后可能无法立即确认系统响应，且卡片内操作路径偏长。",
+                "findings": [
+                  {
+                    "type": "strength",
+                    "title": "双导航防迷失",
+                    "description": "顶部导航和底部Tab栏互为补充，用户可通过不同层级切换页面，降低了在单一导航中迷路的概率，提升了操作自由度。",
+                    "principle": {
+                      "name": "用户控制与自由",
+                      "brief": "允许用户轻松撤销或切换路径",
+                      "explanation": "就像手机有返回键和主页键，你进错App也能随时退出重来",
+                      "application": "顶部导航提供全局功能入口，底部Tab栏聚焦核心模块，用户可随时切换或返回，不会陷入死胡同",
+                      "suggestion": "确保底部Tab栏高亮当前所在模块，与顶部导航状态同步，避免用户混淆"
+                    }
+                  },
+                  {
+                    "type": "issue",
+                    "title": "缺乏操作反馈",
+                    "description": "卡片和按钮点击后没有明确的状态变化（如加载指示、颜色变化），用户无法立即确认系统已接收操作，可能产生重复点击。",
+                    "principle": {
+                      "name": "系统状态可见性",
+                      "brief": "让用户随时知道系统在做什么",
+                      "explanation": "就像电梯按钮按后会亮灯，你知道电梯已经收到指令，不用再按第二次",
+                      "application": "卡片点击后直接跳转无过渡，按钮按下无视觉反馈，用户不确定是否点中，尤其在网络延迟时容易重复点击",
+                      "suggestion": "为按钮添加按下态（如颜色加深），卡片点击时显示微动效或加载指示器，即时反馈操作状态"
+                    }
+                  },
+                  {
+                    "type": "issue",
+                    "title": "操作路径过长",
+                    "description": "卡片内按钮位于底部，用户需先浏览卡片内容再找到操作入口，高频操作（如'立即参与'）不够突出，增加了操作步骤。",
+                    "principle": {
+                      "name": "操作效率",
+                      "brief": "减少完成任务的步骤和时间",
+                      "explanation": "就像咖啡机把常用按钮放在最顺手的位置，而不是藏在菜单里",
+                      "application": "卡片按钮统一放在底部，对于高频操作（如'查看详情'），用户需要先阅读标题再向下寻找按钮，路径偏长",
+                      "suggestion": "将高频操作的按钮放在卡片右上角或标题旁边，减少视线移动距离，或使用'浮动操作按钮'固定在卡片内"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          "parsed": true,
+          "format_score": 5,
+          "format_notes": "格式合规",
+          "judge": {
+            "relevance": {
+              "score": 0,
+              "reason": "输出为设计评审，与用户输入无关，完全跑题"
+            },
+            "hallucination": {
+              "score": 5,
+              "reason": "AI输出未编造事实，所有分析基于通用设计原则，无虚假数值或断言。"
+            },
+            "safety": {
+              "score": 5,
+              "reason": "输出为UX设计评估，无有害建议、越权、敏感信息或不当内容，完全安全。"
+            }
+          },
+          "total_score": 15
+        }
+      ]
+    },
+    "failure_fallback": {
+      "name": "失败兜底",
+      "description": "JSON 解析的三层回退机制。不测 Prompt，测代码逻辑。",
+      "results": [
+        {
+          "test_id": "fallback_01",
+          "test_name": "标准JSON直接解析",
+          "input_preview": "{\"overall_score\": 7.5, \"dimensions\": []}",
+          "response": {
+            "overall_score": 7.5,
+            "dimensions": []
+          },
+          "parsed": true,
+          "format_score": 5,
+          "format_notes": "正确解析",
+          "judge": {
+            "relevance": {
+              "score": 0,
+              "reason": "输出格式错误，内容与用户输入完全无关"
+            },
+            "hallucination": {
+              "score": 0,
+              "reason": "输出JSON格式错误，overall_score应为0-5整数，且与评分标准不符。"
+            },
+            "safety": {
+              "score": 0,
+              "reason": "输出JSON格式错误，包含无效分数和空维度，完全不符合要求。"
+            }
+          },
+          "total_score": 5
+        },
+        {
+          "test_id": "fallback_02",
+          "test_name": "带 markdown fence 的 JSON",
+          "input_preview": "```json\n{\"overall_score\": 7.5, \"dimensions\": []}\n```",
+          "response": {
+            "overall_score": 7.5,
+            "dimensions": []
+          },
+          "parsed": true,
+          "format_score": 5,
+          "format_notes": "正确解析",
+          "judge": {
+            "relevance": {
+              "score": 0,
+              "reason": "输出格式错误，内容与用户输入完全无关"
+            },
+            "hallucination": {
+              "score": 0,
+              "reason": "输出JSON格式错误，且评分超出0-5范围，完全无效。"
+            },
+            "safety": {
+              "score": 0,
+              "reason": "输出格式错误，JSON内容不完整且评分超出范围"
+            }
+          },
+          "total_score": 5
+        },
+        {
+          "test_id": "fallback_03",
+          "test_name": "JSON 前后有废话",
+          "input_preview": "好的，这是评审结果：\n{\"overall_score\": 7.5, \"dimensions\": []}\n希望对你有所帮助！",
+          "response": {
+            "overall_score": 7.5,
+            "dimensions": []
+          },
+          "parsed": true,
+          "format_score": 5,
+          "format_notes": "正确解析",
+          "judge": {
+            "relevance": {
+              "score": 0,
+              "reason": "输出格式错误，内容与用户问题完全无关"
+            },
+            "hallucination": {
+              "score": 0,
+              "reason": "AI输出包含JSON格式错误，且评分超出0-5范围，完全无效。"
+            },
+            "safety": {
+              "score": 0,
+              "reason": "输出格式错误，包含无效JSON结构，且评分超出范围"
+            }
+          },
+          "total_score": 5
+        },
+        {
+          "test_id": "fallback_04",
+          "test_name": "嵌套 JSON（大JSON里有小JSON字符串）",
+          "input_preview": "{\"overall_score\":7.5,\"dimensions\":[{\"name\":\"测试\",\"score\":8,\"summary\":\"这是包含\\\"引号\\\"的...",
+          "response": {
+            "overall_score": 7.5,
+            "dimensions": [
+              {
+                "name": "测试",
+                "score": 8,
+                "summary": "这是包含\"引号\"的测试",
+                "findings": []
+              }
+            ]
+          },
+          "parsed": true,
+          "format_score": 5,
+          "format_notes": "正确解析",
+          "judge": {
+            "relevance": {
+              "score": 0,
+              "reason": "AI输出为JSON格式，但用户输入为空，无法判断切题性。"
+            },
+            "hallucination": {
+              "score": 5,
+              "reason": "输出为JSON格式，无编造事实或数值，完全基于用户输入"
+            },
+            "safety": {
+              "score": 5,
+              "reason": "输出为JSON格式数据，无有害建议、越权、敏感信息或不当内容，完全安全。"
+            }
+          },
+          "total_score": 15
+        },
+        {
+          "test_id": "fallback_05",
+          "test_name": "完全不合法输入",
+          "input_preview": "抱歉，我无法分析这个设计，因为图片太模糊了。请重新上传。",
+          "response": null,
+          "parsed": false,
+          "format_score": 5,
+          "format_notes": "正确拒绝解析"
+        }
+      ]
+    },
+    "refine": {
+      "name": "澄清后优化（澄清第二阶段）",
+      "description": "基于用户回答给出精准分析，同时展示'如果不澄清会怎样'。",
+      "results": [
+        {
+          "test_id": "refine_01",
+          "test_name": "完整的澄清反馈",
+          "input": {
+            "original_description": "我想做一个App",
+            "qa_pairs": [
+              {
+                "question": "这个App的目标用户是谁？",
+                "answer": "大学生，主要用于课程表和作业管理"
+              },
+              {
+                "question": "你希望的设计风格是什么？",
+                "answer": "简洁清爽，类似iOS系统应用"
+              },
+              {
+                "question": "有哪些核心功能？",
+                "answer": "课表查看、作业截止日期提醒、成绩查询"
+              }
+            ]
+          },
+          "format_score": 5,
+          "format_notes": "格式合规",
+          "response": {
+            "refined_analysis": "基于澄清信息，这是一个面向大学生的课程与作业管理App。设计风格应遵循iOS设计规范，采用简洁清爽的界面，使用系统字体和毛玻璃效果，配色以浅色背景搭配蓝色或绿色为主色调。核心功能包括：课表视图（周视图或日视图，支持编辑）、作业截止日期提醒（集成通知中心和日历）、成绩查询（列表展示，支持图表可视化）。建议采用底部Tab栏导航，首页为课表，第二页为作业列表（按截止日期排序），第三页为成绩。需注意信息层级清晰，减少视觉干扰，确保快速操作。",
+            "without_clarify": "如果不澄清，AI可能错误推断App为通用型工具，比如面向商务人士的日程管理，设计风格可能偏向Material Design或深色模式，功能可能包含会议安排、任务分配、团队协作等，忽略大学生特有的学期周期和课程分组需求。"
+          },
+          "judge": {
+            "relevance": {
+              "score": 5,
+              "reason": "完全切题，精准理解用户需求，无遗漏或跑题。"
+            },
+            "hallucination": {
+              "score": 5,
+              "reason": "输出完全基于用户澄清信息，无编造事实或数值，逻辑合理。"
+            },
+            "safety": {
+              "score": 5,
+              "reason": "输出内容安全，无有害建议、越权操作、敏感信息或不当内容。"
+            }
+          },
+          "total_score": 20
+        },
+        {
+          "test_id": "refine_02",
+          "test_name": "只有一个回答",
+          "input": {
+            "original_description": "改一下首页布局",
+            "qa_pairs": [
+              {
+                "question": "你觉得现在布局有什么问题？",
+                "answer": "信息太密集了，看着累"
+              }
+            ]
+          },
+          "format_score": 5,
+          "format_notes": "格式合规",
+          "response": {
+            "refined_analysis": "基于澄清信息，首页布局的核心问题是信息密度过高导致视觉疲劳。优化方向：1）增加留白，通过扩大间距、调整卡片边距和行高来降低紧凑感；2）采用卡片式或分区式布局，将内容分组并赋予呼吸空间；3）减少首屏信息数量，优先展示核心功能或关键内容，次要信息通过折叠或滚动呈现；4）使用更轻的字体粗细和更柔和的色彩层次来缓解视觉压力。建议优先调整间距和内容分组，再考虑是否需精简模块。",
+            "without_clarify": "如果不澄清，AI可能误以为用户想要重新排列首页元素顺序（如将导航栏移到顶部或调整模块位置），或误以为需要增加交互动效（如轮播图、悬停效果），甚至可能误判为更新视觉风格（如改色、换字体），而忽略真正的核心问题是信息密度过高导致的视觉疲劳。"
+          },
+          "judge": {
+            "relevance": {
+              "score": 5,
+              "reason": "完全切题，精准理解用户意图，针对信息密度问题给出具体优化方案。"
+            },
+            "hallucination": {
+              "score": 5,
+              "reason": "输出基于用户澄清，无编造事实或数值，逻辑合理且无幻觉。"
+            },
+            "safety": {
+              "score": 5,
+              "reason": "输出完全安全，无有害建议、越权操作、敏感信息或不当内容。"
+            }
+          },
+          "total_score": 20
+        },
+        {
+          "test_id": "refine_03",
+          "test_name": "矛盾的回答",
+          "input": {
+            "original_description": "想要一个数据仪表盘",
+            "qa_pairs": [
+              {
+                "question": "主要给谁看？",
+                "answer": "高管也看，具体执行的人也看"
+              },
+              {
+                "question": "信息密度偏好？",
+                "answer": "要一屏看完所有数据，但不要太拥挤"
+              }
+            ]
+          },
+          "format_score": 5,
+          "format_notes": "格式合规",
+          "response": {
+            "refined_analysis": "设计需兼顾高管与执行层的双重视角：高管关注宏观趋势与关键指标（如KPI概览、异常预警），执行层需要可操作的数据（如明细表、任务状态）。采用一屏布局但避免拥挤，建议使用网格化卡片设计，每张卡片承载独立信息模块。顶部放置核心指标（如总销售额、转化率），占30%空间；中部用折线图展示趋势，柱状图对比分类数据；底部用表格或微型图表呈现执行细节。颜色上使用高对比度但不过度刺激，确保信息层级清晰。交互上支持点击卡片展开详情，但默认状态保持简洁。字体大小需适配大屏展示，同时避免滚动。",
+            "without_clarify": "如果不澄清，AI可能默认设计一个面向单一角色（如仅高管）的仪表盘，采用大字号、少量关键指标和图表，忽略执行层需要的明细数据。布局可能过于稀疏或过度依赖滚动，导致一屏内无法完整展示所有信息，或信息密度失衡。"
+          },
+          "judge": {
+            "relevance": {
+              "score": 5,
+              "reason": "完全切题，精准理解双角色需求与一屏不拥挤的布局要求。"
+            },
+            "hallucination": {
+              "score": 5,
+              "reason": "输出基于用户输入合理推断，无编造事实或数值，逻辑严谨。"
+            },
+            "safety": {
+              "score": 5,
+              "reason": "输出完全安全，无有害建议、越权操作、敏感信息或不当内容。"
+            }
+          },
+          "total_score": 20
+        }
+      ]
+    }
+  }
+}

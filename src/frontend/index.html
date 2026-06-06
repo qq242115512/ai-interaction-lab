@@ -5,115 +5,298 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>AI 交互模式实验室 — 樊书洋</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧪</text></svg>" />
+
+  <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Serif+SC:wght@400;600;700;900&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/lxgw-wenkai-webfont/1.7.0/lxgwwenkai-regular.css" />
-  <link rel="stylesheet" href="css/style.css?v=2.0.2" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Noto+Sans+SC:wght@300;400;500;700&family=Noto+Serif+SC:wght@400;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: {
+              50: '#f3f4fb', 100: '#e4e6f6', 200: '#ccd0ee', 300: '#acb2e3',
+              400: '#8b92d5', 500: '#6e76c4', 600: '#5b63b0', 700: '#4a5194',
+              800: '#3a3f76', 900: '#292d57', 950: '#1a1d3a',
+            },
+            accent: {
+              50: '#fef7f4', 100: '#fdebe3', 200: '#fad4c2', 300: '#f5b598',
+              400: '#ee936a', 500: '#e07340', 600: '#c55a2e', 700: '#a3461f',
+              800: '#803515', 900: '#5c250e',
+            },
+            neutral: {
+              50: '#fafaf9', 100: '#f5f3f1', 200: '#e8e4e0', 300: '#d4cec8',
+              400: '#a89f96', 500: '#7d7368', 600: '#5e554c', 700: '#4a423b',
+              800: '#332d28', 900: '#1f1b18', 950: '#14100e',
+            },
+            dark: {
+              bg: '#0f1117', surface: '#1a1d27', border: '#2a2d3a',
+            }
+          },
+          fontFamily: {
+            display: ['"DM Serif Display"', '"Noto Serif SC"', 'serif'],
+            body: ['"Inter"', '"Noto Sans SC"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* ===== Reduced motion support ===== */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
+    }
+
+    /* ===== Focus visible ===== */
+    :focus-visible {
+      outline: 2px solid #e07340;
+      outline-offset: 2px;
+      border-radius: 2px;
+    }
+
+    /* ===== Section divider decorative line ===== */
+    .section-divider {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .section-divider::before,
+    .section-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: #e8e4e0;
+    }
+    .section-divider-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #e07340;
+      flex-shrink: 0;
+    }
+
+    /* ===== Mobile menu transition ===== */
+    .mobile-menu {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease;
+      opacity: 0;
+    }
+    .mobile-menu.open {
+      max-height: 320px;
+      opacity: 1;
+    }
+  </style>
 </head>
-<body>
-  <div class="app-shell">
-    <header class="app-header">
-      <a href="/" class="app-logo">🧪 AI 交互模式实验室</a>
-      <nav class="app-nav">
-        <a href="/principles-summary.html">设计原则</a>
-        <a href="/about.html">关于我</a>
-        <a href="/behind-the-scenes.html">制作幕后</a>
-      </nav>
-    </header>
+<body class="bg-neutral-100 font-body text-neutral-700 antialiased">
 
-    <div class="hero-statement">
-      <h1>我是<span class="highlight">樊书洋</span>，我在探索<span class="highlight">人和 AI 怎么更好地对话</span>。</h1>
-      <div class="sub">
-        下面是 8 种 AI 交互模式，每一种都包含<strong>设计思路说明</strong>和<strong>可交互 Demo</strong>。
-        不会写代码的设计学生，用 AI 工具链从零构建了这个实验室。
+  <!-- ===== Navigation ===== -->
+  <nav id="navbar" class="fixed top-0 w-full z-50 bg-neutral-100/90 backdrop-blur-md border-b border-neutral-200">
+    <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+      <!-- Logo -->
+      <a href="/" class="font-display text-2xl text-primary-700 tracking-tight no-underline">
+        AI<span class="text-accent-500">·</span>Lab
+      </a>
+
+      <!-- Desktop links -->
+      <div class="hidden md:flex items-center gap-8">
+        <a href="/patterns/streaming.html" class="text-sm font-medium text-neutral-500 hover:text-neutral-800 transition-colors no-underline">Patterns</a>
+        <a href="/about.html" class="text-sm font-medium text-neutral-500 hover:text-neutral-800 transition-colors no-underline">About</a>
+        <a href="/agents.html" class="text-sm font-medium text-neutral-500 hover:text-neutral-800 transition-colors no-underline">Agents</a>
+        <a href="/behind-the-scenes.html" class="text-sm font-medium text-neutral-500 hover:text-neutral-800 transition-colors no-underline">Behind the Scenes</a>
+        <a href="/review.html" class="px-6 py-2.5 bg-accent-500 text-white font-semibold rounded-full text-sm hover:bg-accent-600 transition-colors shadow-lg shadow-accent-500/25 no-underline">
+          Try Review Tool
+        </a>
       </div>
-      <div class="quick-links">
-        <a href="/principles-summary.html" class="ql-primary">AI 交互设计原则总结</a>
-        <a href="/review.html" class="ql-outline">试试完整产品：AI 设计评审 →</a>
-      </div>
+
+      <!-- Mobile hamburger -->
+      <button id="hamburger" class="md:hidden flex flex-col gap-1.5 p-2 bg-transparent border-0 cursor-pointer" aria-label="打开菜单">
+        <span class="block w-6 h-0.5 bg-neutral-700 rounded transition-transform duration-300"></span>
+        <span class="block w-6 h-0.5 bg-neutral-700 rounded transition-opacity duration-300"></span>
+        <span class="block w-6 h-0.5 bg-neutral-700 rounded transition-transform duration-300"></span>
+      </button>
     </div>
 
-    <div class="section-label">8 种 AI 交互模式</div>
-    <div class="pattern-grid">
-      <a href="/patterns/streaming.html" class="pattern-card">
-        <div class="pattern-card-icon">📝</div>
-        <div class="pattern-card-title">流式输出</div>
-        <div class="pattern-card-desc">AI 逐字生成，让用户感知进度，减少等待焦虑</div>
-        <div class="pattern-card-source">SSE 实时推送</div>
-      </a>
-      <a href="/patterns/cards.html" class="pattern-card">
-        <div class="pattern-card-icon">🃏</div>
-        <div class="pattern-card-title">结构化卡片</div>
-        <div class="pattern-card-desc">AI 输出用卡片展示，信息可扫读可分层</div>
-        <div class="pattern-card-source">JSON→卡片渲染</div>
-      </a>
-      <a href="/patterns/clarify.html" class="pattern-card">
-        <div class="pattern-card-icon">❓</div>
-        <div class="pattern-card-title">澄清提问</div>
-        <div class="pattern-card-desc">AI 不确定时反问用户，不瞎猜，减少幻觉</div>
-        <div class="pattern-card-source">两阶段 Prompt</div>
-      </a>
-      <a href="/patterns/degradation.html" class="pattern-card">
-        <div class="pattern-card-icon">🛡️</div>
-        <div class="pattern-card-title">失败兜底</div>
-        <div class="pattern-card-desc">API 出错时优雅降级，用户看不到崩溃</div>
-        <div class="pattern-card-source">重试+回退+脱敏</div>
-      </a>
-      <a href="/patterns/context.html" class="pattern-card">
-        <div class="pattern-card-icon">💬</div>
-        <div class="pattern-card-title">多轮上下文</div>
-        <div class="pattern-card-desc">AI 记得之前聊了什么，持续追问不丢失线索</div>
-        <div class="pattern-card-source">会话管理+裁剪</div>
-      </a>
-      <a href="/patterns/confirmation.html" class="pattern-card">
-        <div class="pattern-card-icon">✅</div>
-        <div class="pattern-card-title">确认机制</div>
-        <div class="pattern-card-desc">关键操作前确认，人类在回路中，防误操作</div>
-        <div class="pattern-card-source">两阶段确认流</div>
-      </a>
-      <a href="/patterns/progressive.html" class="pattern-card">
-        <div class="pattern-card-icon">🪜</div>
-        <div class="pattern-card-title">渐进式加载</div>
-        <div class="pattern-card-desc">按认知顺序分步展开，降低信息过载</div>
-        <div class="pattern-card-source">SSE 分阶段推送</div>
-      </a>
-      <a href="/agents.html" class="pattern-card">
-        <div class="pattern-card-icon">🤖</div>
-        <div class="pattern-card-title">多 Agent 协作</div>
-        <div class="pattern-card-desc">15 个 AI 角色零出错协作的设计体系</div>
-        <div class="pattern-card-source">Agent 流水线</div>
-      </a>
-    </div>
-
-    <div class="about-compact">
-      <div class="ac-avatar">👤</div>
-      <div class="ac-info">
-        <div class="ac-name">樊书洋</div>
-        <div class="ac-detail">南京传媒学院 · 智能交互设计专业 大二 · 求职 AI 交互设计师实习<br>核心竞争力：产品判断力 × AI 协作能力 —— 不会写代码，但能用 AI 工具链从零做出完整产品</div>
+    <!-- Mobile menu -->
+    <div id="mobile-menu" class="mobile-menu md:hidden bg-neutral-100/95 backdrop-blur-md border-b border-neutral-200">
+      <div class="px-6 py-4 flex flex-col gap-3">
+        <a href="/patterns/streaming.html" class="text-sm font-medium text-neutral-600 hover:text-neutral-900 no-underline py-2">Patterns</a>
+        <a href="/about.html" class="text-sm font-medium text-neutral-600 hover:text-neutral-900 no-underline py-2">About</a>
+        <a href="/agents.html" class="text-sm font-medium text-neutral-600 hover:text-neutral-900 no-underline py-2">Agents</a>
+        <a href="/behind-the-scenes.html" class="text-sm font-medium text-neutral-600 hover:text-neutral-900 no-underline py-2">Behind the Scenes</a>
+        <a href="/review.html" class="px-6 py-2.5 bg-accent-500 text-white font-semibold rounded-full text-sm hover:bg-accent-600 transition-colors text-center no-underline shadow-lg shadow-accent-500/25">Try Review Tool</a>
       </div>
-      <a href="/about.html" class="ac-link">完整介绍 →</a>
     </div>
+  </nav>
 
-    <footer class="app-footer">
-      AI 交互模式实验室 · 樊书洋 · <a href="/about.html">关于我</a> · <a href="/behind-the-scenes.html">制作幕后</a>
-    </footer>
+  <!-- ===== Hero ===== -->
+  <section id="hero" class="pt-28 pb-16 md:pt-36 md:pb-20 px-6">
+    <div class="max-w-3xl mx-auto text-center">
+      <p class="text-xs font-semibold text-accent-500 uppercase tracking-widest mb-4 opacity-0" id="hero-eyebrow">
+        AI Interaction Design Lab
+      </p>
+      <h1 class="font-display text-3xl md:text-5xl lg:text-6xl text-primary-900 leading-tight mb-6 opacity-0" id="hero-title">
+        AI 交互的<span class="text-accent-500"> 7 种设计模式</span>
+      </h1>
+      <p class="text-base md:text-lg text-neutral-500 leading-relaxed max-w-xl mx-auto mb-8 opacity-0" id="hero-subtitle">
+        不会写代码的设计学生，用 AI 工具链从零构建的专业级产品。<br class="hidden md:block" />
+        每一种模式都包含<strong class="text-neutral-700">设计思路说明</strong>和<strong class="text-neutral-700">可交互 Demo</strong>。
+      </p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center opacity-0" id="hero-ctas">
+        <a href="#patterns" class="px-8 py-3.5 bg-accent-500 text-white font-semibold rounded-full text-lg hover:bg-accent-600 transition-colors shadow-lg shadow-accent-500/25 no-underline inline-block">
+          探索模式
+        </a>
+        <a href="/behind-the-scenes.html" class="px-8 py-3.5 border-2 border-primary-300 text-primary-700 font-semibold rounded-full text-lg hover:bg-primary-50 transition-colors no-underline inline-block">
+          了解幕后
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Section Title ===== -->
+  <div id="patterns-section-title" class="max-w-7xl mx-auto px-6 pb-6">
+    <div class="section-divider opacity-0" id="section-divider">
+      <span class="section-divider-dot"></span>
+    </div>
+    <h2 class="font-display text-2xl md:text-3xl text-primary-800 text-center mt-4 opacity-0" id="section-heading">
+      8 种 AI 交互模式
+    </h2>
   </div>
+
+  <!-- ===== Pattern Cards Grid ===== -->
+  <section id="patterns" class="max-w-7xl mx-auto px-6 pb-20">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+
+      <!-- Card 1: 流式输出 -->
+      <a href="/patterns/streaming.html" class="pattern-card group block p-6 bg-white rounded-2xl border border-neutral-200 hover:border-primary-300 hover:shadow-lg hover:shadow-primary-100/50 hover:-translate-y-1 transition-all duration-300 opacity-0 no-underline">
+        <div class="text-4xl mb-4">📝</div>
+        <h3 class="font-display text-2xl text-primary-800 mb-2 group-hover:text-accent-500 transition-colors">流式输出</h3>
+        <p class="text-sm font-medium text-accent-500 mb-3">Streaming Output</p>
+        <p class="text-neutral-600 text-sm leading-relaxed mb-4">AI 逐字生成，让用户感知"在工作"，减少等待焦虑</p>
+        <span class="inline-block px-2.5 py-0.5 text-xs font-mono text-neutral-500 bg-neutral-100 rounded-full">SSE 实时推送</span>
+      </a>
+
+      <!-- Card 2: 结构化卡片 -->
+      <a href="/patterns/cards.html" class="pattern-card group block p-6 bg-white rounded-2xl border border-neutral-200 hover:border-primary-300 hover:shadow-lg hover:shadow-primary-100/50 hover:-translate-y-1 transition-all duration-300 opacity-0 no-underline">
+        <div class="text-4xl mb-4">🃏</div>
+        <h3 class="font-display text-2xl text-primary-800 mb-2 group-hover:text-accent-500 transition-colors">结构化卡片</h3>
+        <p class="text-sm font-medium text-accent-500 mb-3">Structured Cards</p>
+        <p class="text-neutral-600 text-sm leading-relaxed mb-4">信息用卡片展示，可扫读可分层</p>
+        <span class="inline-block px-2.5 py-0.5 text-xs font-mono text-neutral-500 bg-neutral-100 rounded-full">JSON → 卡片渲染</span>
+      </a>
+
+      <!-- Card 3: 澄清提问 -->
+      <a href="/patterns/clarify.html" class="pattern-card group block p-6 bg-white rounded-2xl border border-neutral-200 hover:border-primary-300 hover:shadow-lg hover:shadow-primary-100/50 hover:-translate-y-1 transition-all duration-300 opacity-0 no-underline">
+        <div class="text-4xl mb-4">❓</div>
+        <h3 class="font-display text-2xl text-primary-800 mb-2 group-hover:text-accent-500 transition-colors">澄清提问</h3>
+        <p class="text-sm font-medium text-accent-500 mb-3">Clarification</p>
+        <p class="text-neutral-600 text-sm leading-relaxed mb-4">AI 不确定时反问用户，不瞎猜，减少幻觉</p>
+        <span class="inline-block px-2.5 py-0.5 text-xs font-mono text-neutral-500 bg-neutral-100 rounded-full">两阶段 Prompt</span>
+      </a>
+
+      <!-- Card 4: 失败兜底 -->
+      <a href="/patterns/degradation.html" class="pattern-card group block p-6 bg-white rounded-2xl border border-neutral-200 hover:border-primary-300 hover:shadow-lg hover:shadow-primary-100/50 hover:-translate-y-1 transition-all duration-300 opacity-0 no-underline">
+        <div class="text-4xl mb-4">🛡️</div>
+        <h3 class="font-display text-2xl text-primary-800 mb-2 group-hover:text-accent-500 transition-colors">失败兜底</h3>
+        <p class="text-sm font-medium text-accent-500 mb-3">Graceful Degradation</p>
+        <p class="text-neutral-600 text-sm leading-relaxed mb-4">API 出错时优雅降级，用户看不到崩溃</p>
+        <span class="inline-block px-2.5 py-0.5 text-xs font-mono text-neutral-500 bg-neutral-100 rounded-full">重试 + 回退 + 脱敏</span>
+      </a>
+
+      <!-- Card 5: 多轮上下文 -->
+      <a href="/patterns/context.html" class="pattern-card group block p-6 bg-white rounded-2xl border border-neutral-200 hover:border-primary-300 hover:shadow-lg hover:shadow-primary-100/50 hover:-translate-y-1 transition-all duration-300 opacity-0 no-underline">
+        <div class="text-4xl mb-4">💬</div>
+        <h3 class="font-display text-2xl text-primary-800 mb-2 group-hover:text-accent-500 transition-colors">多轮上下文</h3>
+        <p class="text-sm font-medium text-accent-500 mb-3">Multi-turn Context</p>
+        <p class="text-neutral-600 text-sm leading-relaxed mb-4">AI 记得之前聊了什么，持续追问不丢失线索</p>
+        <span class="inline-block px-2.5 py-0.5 text-xs font-mono text-neutral-500 bg-neutral-100 rounded-full">会话管理 + 裁剪</span>
+      </a>
+
+      <!-- Card 6: 确认机制 -->
+      <a href="/patterns/confirmation.html" class="pattern-card group block p-6 bg-white rounded-2xl border border-neutral-200 hover:border-primary-300 hover:shadow-lg hover:shadow-primary-100/50 hover:-translate-y-1 transition-all duration-300 opacity-0 no-underline">
+        <div class="text-4xl mb-4">✅</div>
+        <h3 class="font-display text-2xl text-primary-800 mb-2 group-hover:text-accent-500 transition-colors">确认机制</h3>
+        <p class="text-sm font-medium text-accent-500 mb-3">Confirmation</p>
+        <p class="text-neutral-600 text-sm leading-relaxed mb-4">关键操作前确认，人类在回路中，防误操作</p>
+        <span class="inline-block px-2.5 py-0.5 text-xs font-mono text-neutral-500 bg-neutral-100 rounded-full">两阶段确认流</span>
+      </a>
+
+      <!-- Card 7: 渐进式加载 -->
+      <a href="/patterns/progressive.html" class="pattern-card group block p-6 bg-white rounded-2xl border border-neutral-200 hover:border-primary-300 hover:shadow-lg hover:shadow-primary-100/50 hover:-translate-y-1 transition-all duration-300 opacity-0 no-underline">
+        <div class="text-4xl mb-4">🪜</div>
+        <h3 class="font-display text-2xl text-primary-800 mb-2 group-hover:text-accent-500 transition-colors">渐进式加载</h3>
+        <p class="text-sm font-medium text-accent-500 mb-3">Progressive Loading</p>
+        <p class="text-neutral-600 text-sm leading-relaxed mb-4">按认知顺序分步展开，降低信息过载</p>
+        <span class="inline-block px-2.5 py-0.5 text-xs font-mono text-neutral-500 bg-neutral-100 rounded-full">SSE 分阶段推送</span>
+      </a>
+
+      <!-- Card 8: 多 Agent 协作 -->
+      <a href="/agents.html" class="pattern-card group block p-6 bg-white rounded-2xl border border-neutral-200 hover:border-primary-300 hover:shadow-lg hover:shadow-primary-100/50 hover:-translate-y-1 transition-all duration-300 opacity-0 no-underline">
+        <div class="text-4xl mb-4">🤖</div>
+        <h3 class="font-display text-2xl text-primary-800 mb-2 group-hover:text-accent-500 transition-colors">多 Agent 协作</h3>
+        <p class="text-sm font-medium text-accent-500 mb-3">Multi-Agent Collaboration</p>
+        <p class="text-neutral-600 text-sm leading-relaxed mb-4">15 个 AI 角色零出错协作的设计体系</p>
+        <span class="inline-block px-2.5 py-0.5 text-xs font-mono text-neutral-500 bg-neutral-100 rounded-full">Agent 流水线</span>
+      </a>
+
+    </div>
+  </section>
+
+  <!-- ===== About CTA ===== -->
+  <section id="about-cta" class="bg-primary-900 text-neutral-200 py-24 px-6 opacity-0">
+    <div class="max-w-2xl mx-auto text-center">
+      <p class="font-display text-xl md:text-2xl text-neutral-100 leading-relaxed mb-6">
+        "不会写代码的设计学生，用 AI 工具链从零做出了解 AI 交互设计的产品 + 设计了让 AI 团队不出错的协作体系。"
+      </p>
+      <p class="text-sm text-neutral-300 mb-2">樊书洋</p>
+      <p class="text-xs text-neutral-400 mb-8">南京传媒学院 · 智能交互设计专业 大二 · 求职 AI 交互设计师实习</p>
+      <a href="/about.html" class="inline-flex items-center gap-2 text-accent-300 hover:text-accent-200 font-semibold text-sm no-underline transition-colors">
+        查看完整介绍
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+      </a>
+    </div>
+  </section>
+
+  <!-- ===== Footer ===== -->
+  <footer id="footer" class="bg-primary-950 text-neutral-400 px-6 py-16 opacity-0">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex flex-col md:flex-row items-center justify-between gap-6 mb-8">
+        <a href="/" class="font-display text-xl text-neutral-200 tracking-tight no-underline">
+          AI<span class="text-accent-400">·</span>Lab
+        </a>
+        <div class="flex flex-wrap justify-center gap-6 text-sm">
+          <a href="/patterns/streaming.html" class="text-neutral-400 hover:text-neutral-200 transition-colors no-underline">Patterns</a>
+          <a href="/about.html" class="text-neutral-400 hover:text-neutral-200 transition-colors no-underline">About</a>
+          <a href="/agents.html" class="text-neutral-400 hover:text-neutral-200 transition-colors no-underline">Agents</a>
+          <a href="/behind-the-scenes.html" class="text-neutral-400 hover:text-neutral-200 transition-colors no-underline">Behind the Scenes</a>
+          <a href="/review.html" class="text-neutral-400 hover:text-neutral-200 transition-colors no-underline">Review Tool</a>
+        </div>
+        <a href="https://github.com/qq242115512/ai-interaction-lab" target="_blank" rel="noopener" class="text-neutral-400 hover:text-neutral-200 transition-colors no-underline text-sm">
+          <svg class="w-5 h-5 inline-block mr-1.5 align-text-bottom" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.385-1.335-1.755-1.335-1.755-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.605-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12 24 5.37 18.63 0 12 0z"/></svg>
+          GitHub
+        </a>
+      </div>
+      <div class="border-t border-primary-800 pt-6 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-neutral-500">
+        <span>&copy; 2026 樊书洋 · AI 交互模式实验室</span>
+        <span class="font-mono">v0.5.0</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- GSAP -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
-  <script src="js/animations.js?v=2.0.2"></script>
+  <script src="js/animations.js"></script>
 </body>
 </html>
-
-
-// deploy v2
-
-# runner test
-
-
-
-
-
-
-# final
-

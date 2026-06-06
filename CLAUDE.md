@@ -8,7 +8,7 @@
 
 ## 技术栈
 
-- **前端**：纯 HTML/CSS/JS + GSAP 动画库
+- **前端**：HTML/CSS/JS + GSAP 动画库 + Tailwind CSS（新页面用 Tailwind，旧页面逐个迁移）
 - **后端**：FastAPI + Pydantic + httpx
 - **AI 管道**：GLM-4V（视觉识别）→ DeepSeek（推理+流式输出）
 - **部署**：阿里云 Ubuntu + Nginx + systemd + HTTPS
@@ -95,13 +95,18 @@ PO (用户)
 
 ## 当前项目状态
 
-- **v0.5.0** 运行在 [fanshuyang.top](https://fanshuyang.top)
-- 首页：8 张模式卡片（珊瑚色主题 + GSAP 动画）
-- 15 个 HTML 页面（about / behind-the-scenes / review / principles / 7 patterns / agents / test）
+- **v2.0.0** 运行在 [fanshuyang.top](https://fanshuyang.top)
+- 首页：8 张模式卡片 + Hero + GSAP 动画（全新 Midnight Slate × Burnt Copper 设计语言）
+- 15 个 HTML 页面全部用 Tailwind CSS CDN 重写（about / behind-the-scenes / review / principles / 7 patterns / agents / test）
+- 旧 `css/style.css`（1630 行）已备份为 `css/style.css.v1.bak`，新页面不再引用
+- 设计系统：Midnight Slate (indigo #6e76c4) 主色 + Burnt Copper (#e07340) 辅色 + DM Serif Display/Inter/JetBrains Mono 字体
+- 7 个模式页各保留独立 accent 色（cyan/emerald/violet/rose/amber/blue/teal）
 - 后端 5 个路由组：review、chat、stream、patterns、agent-system
 - 安全加固：CORS 白名单、Rate Limiting (20/min/IP)、中英文注入过滤 (12+ 变体)、CSP 安全头
-- 页面已重设计（暖珊瑚配色 + GSAP 动画 + Noto Serif SC 字体），修复了 12 个 bug
-- GitHub 已推送：47+ 个文件、10000+ 行代码
+- Prompt 评估体系：19 个测试用例 + 4 维度 LLM 自动评分
+- 可观测性：Prometheus /metrics 端点
+- 容器化：docker-compose.yml + Dockerfile
+- 数据库：SQLite + WAL 持久化 session store
 
 ## 已完成
 
@@ -118,6 +123,7 @@ PO (用户)
 - **投递实习**：博西 AI Agent 战略实习生（200-300/天，南京）
 - 学习：开源 Agent 框架对比（AutoGen/CrewAI/LangGraph）、Git branch/merge
 - agent-system 端点数据源从本地文件改为 Hindsight 知识图谱（当前 Linux 服务器读不到 Windows 文件）
+- Tailwind 迁移：旧页面逐个迁移（index.html → about.html → review.html...）
 
 ## CI/CD 自动部署
 
@@ -127,13 +133,45 @@ PO (用户)
 
 **维护**：Runner 进程在 C:\Users\qq242\runner\run.cmd 后台运行。如果掉了，开 cmd 跑 `cd C:\Users\qq242\runner && run.cmd`。
 
+**CI 检查**：push 前本地跑 `check.bat`（Ruff 代码规范 + 安全扫描 + 应用加载 + Prompt 评估）。
+
+**代码规范**：`pyproject.toml` 已配 Ruff（社区标准 = ESLint/Ruff/Prettier 自动检查）。我们本地跑而非 GitHub Actions 是因为 Windows Runner 上 WSL 嵌套命令不兼容——社区做法是 Linux Runner，我们用 Windows 自托管 Runner 所以放在本地。
+
+## 2026-06-06 基础设施升级
+
+四项社区标准缺项全部补齐：
+
+1. **Prompt 评估体系**（社区标准：测试集 + 自动评分）：`src/backend/tests/evaluate_prompts.py` + `test_cases.json`，19 个测试用例覆盖 6 个模式，4 维度评分（格式/内容/幻觉/安全），格式满分 120/120，全维度均分 19.5+/20。运行：`python -m tests.evaluate_prompts`（全维度）或 `--format-only`（秒出）。
+
+2. **可观测性**（社区标准：Prometheus + Grafana）：`middleware/metrics.py` — `PrometheusMiddleware` 记录 HTTP 请求数/延迟直方图/API 调用量/活跃 session 数。`GET /metrics` 端点输出 Prometheus 格式。下一步：Grafana 仪表盘。
+
+3. **容器化**（社区标准：Docker Compose 全栈）：`docker-compose.yml` + `src/backend/Dockerfile`，定义 backend 服务 + 健康检查 + 数据卷。前端/PostgreSQL 注释就绪，需要时取消注释。
+
+4. **数据库持久化**（社区标准：PostgreSQL/SQLite）：`services/session_store.py` — SQLite + WAL 模式的 SessionStore 替换内存 dict，session 服务重启不丢失。完全兼容原有 dict API（`sessions[sid] = data`、`sessions.get(sid)`、`del sessions[sid]`）。
+
+### 更新后的社区对照表
+
+| 领域 | 社区标准 | 我们（2026-06-06） | 差距 |
+|------|---------|-------------------|------|
+| Prompt 评估 | 测试集+自动评分 | ✅ 19 用例 + 4 维度 LLM 裁判 | 无 |
+| 代码规范 | ESLint/Ruff/Prettier | ✅ pyproject.toml + check.bat 本地跑 | 无（有意本地） |
+| 容器化 | Docker Compose 全栈 | ✅ docker-compose.yml + Dockerfile | 无 |
+| 可观测性 | Prometheus + Grafana | ⚠️ Prometheus /metrics 就绪，Grafana 未配 | 低 |
+| 数据库 | PostgreSQL/SQLite | ✅ SQLite session 持久化 | 无 |
+| CI/CD | git push→自动部署 | ✅ 自托管 Runner | 无 |
+| 前端工程化 | Tailwind CSS | ⚠️ 新页面 Tailwind，旧页面待迁移 | 低 |
+| Agent 数量 | 3-5 个 | ✅ 15 角色 × 规模裁剪 | 无 |
+| AI Safety | OWASP for LLM | ✅ 注入过滤+Rate Limit+CSP | 无 |
+| RAG | Query改写+重排序+引用溯源 | ⚠️ 预渲染 JSON + Hindsight 知识图谱 | 够用 |
+| Git 工作流 | Feature Branch + PR | ⚠️ 单人 main 分支 | 团队才需要 |
+
 **CI 检查**：push 前本地跑 `check.bat`（Ruff 代码规范 + 安全扫描 + pytest 测试）。
 
 **部署脚本**：`.github/workflows/deploy.yml` — 备份 → rsync 后端 → rsync 前端 → systemctl restart → 健康检查 × 5 → 失败自动回滚到备份。
 
 ## 设计决策
 
-- 前端不用框架（React/Vue）——但已从"纯手写 CSS"升级为 Tailwind CSS（2026年 AI 模型对 Tailwind 的训练数据远超裸 CSS，class 即样式也不需要维护多个 CSS 文件）。旧页面不改动，新页面用 Tailwind，旧页面每次改一个时顺手迁移
+- 前端不用框架（React/Vue），用 Tailwind CSS CDN + GSAP 动画。15 个页面全部 Tailwind。
 - 双模型管道（GLM-4V 看 + DeepSeek 评），各司其职
 - Prompt 风格：引导式而非说教式
 - 所有 AI 输出要求纯 JSON，三层解析回退

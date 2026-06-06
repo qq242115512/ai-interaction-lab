@@ -1,10 +1,7 @@
 """Shared utilities: JSON parsing, retry, logging."""
 import json
-import re
-import time
 import logging
-import functools
-from typing import Any
+import time
 
 logger = logging.getLogger("design-mentor")
 
@@ -106,8 +103,12 @@ def sanitize_error(e: Exception) -> str:
 SESSION_TTL_SECONDS = 3600  # 1 hour
 
 
-def cleanup_old_sessions(sessions: dict) -> int:
-    """Remove expired sessions. Returns count of removed sessions."""
+def cleanup_old_sessions(sessions: object) -> int:
+    """Remove expired sessions. Delegates to store.cleanup() if available.
+    Returns count of removed sessions."""
+    if hasattr(sessions, "cleanup"):
+        return sessions.cleanup()
+    # Fallback for plain dict sessions (legacy)
     now = time.time()
     expired = [
         sid for sid, s in sessions.items()

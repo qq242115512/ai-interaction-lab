@@ -1,17 +1,22 @@
 """Streaming SSE endpoint for real-time review progress."""
 import json
-import uuid
 import time
+import uuid
+
 import httpx
-from fastapi import APIRouter, UploadFile, File, Form, HTTPException
+
+from config import ALLOWED_IMAGE_TYPES, DEEPSEEK_API_KEY, DEEPSEEK_BASE_URL, MAX_IMAGE_SIZE_MB
+from fastapi import APIRouter, File, Form, HTTPException, UploadFile
 from fastapi.responses import StreamingResponse
 from services.glmv_client import analyze_image
-from services.utils import parse_json_response, cleanup_old_sessions, logger
-from config import DEEPSEEK_API_KEY, DEEPSEEK_BASE_URL, ALLOWED_IMAGE_TYPES, MAX_IMAGE_SIZE_MB
 from services.prompts import DEEPSEEK_REVIEW_PROMPT
+from services.utils import cleanup_old_sessions, logger, parse_json_response
 
 router = APIRouter()
-sessions: dict[str, dict] = {}
+# Community standard: SQLite-backed session storage (was: dict)
+from services.session_store import store
+
+sessions = store
 
 
 async def _sse_event(event: str, data: dict) -> str:
@@ -72,40 +77,39 @@ async def review_stream(
 
         accumulated = ""
         try:
-            async with httpx.AsyncClient(timeout=180.0) as client:
-                async with client.stream(
-                    "POST",
-                    f"{DEEPSEEK_BASE_URL}/chat/completions",
-                    headers={
-                        "Authorization": f"Bearer {DEEPSEEK_API_KEY}",
-                        "Content-Type": "application/json",
-                    },
-                    json={
-                        "model": "deepseek-chat",
-                        "messages": [
-                            {"role": "system", "content": DEEPSEEK_REVIEW_PROMPT},
-                            {"role": "user", "content": user_message},
-                        ],
-                        "temperature": 0.7,
-                        "max_tokens": 8192,
-                        "stream": True,
-                    },
-                ) as resp:
-                    resp.raise_for_status()
-                    async for line in resp.aiter_lines():
-                        if line.startswith("data: "):
-                            data_str = line[6:]
-                            if data_str.strip() == "[DONE]":
-                                break
-                            try:
-                                chunk = json.loads(data_str)
-                                delta = chunk["choices"][0].get("delta", {})
-                                content = delta.get("content", "")
-                                if content:
-                                    accumulated += content
-                                    yield await _sse_event("chunk", {"text": content})
-                            except (json.JSONDecodeError, KeyError, IndexError):
-                                continue
+            async with httpx.AsyncClient(timeout=180.0) as client, client.stream(
+                "POST",
+                f"{DEEPSEEK_BASE_URL}/chat/completions",
+                headers={
+                    "Authorization": f"Bearer {DEEPSEEK_API_KEY}",
+                    "Content-Type": "application/json",
+                },
+                json={
+                    "model": "deepseek-chat",
+                    "messages": [
+                        {"role": "system", "content": DEEPSEEK_REVIEW_PROMPT},
+                        {"role": "user", "content": user_message},
+                    ],
+                    "temperature": 0.7,
+                    "max_tokens": 8192,
+                    "stream": True,
+                },
+            ) as resp:
+                resp.raise_for_status()
+                async for line in resp.aiter_lines():
+                    if line.startswith("data: "):
+                        data_str = line[6:]
+                        if data_str.strip() == "[DONE]":
+                            break
+                        try:
+                            chunk = json.loads(data_str)
+                            delta = chunk["choices"][0].get("delta", {})
+                            content = delta.get("content", "")
+                            if content:
+                                accumulated += content
+                                yield await _sse_event("chunk", {"text": content})
+                        except (json.JSONDecodeError, KeyError, IndexError):
+                            continue
         except Exception as e:
             logger.error(f"DeepSeek streaming failed: {e}")
             yield await _sse_event("error", {"message": "评审生成失败，请稍后重试。"})

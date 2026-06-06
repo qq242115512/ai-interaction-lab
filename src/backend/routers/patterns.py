@@ -1,12 +1,21 @@
-import uuid
 import time
+import uuid
+
 from fastapi import APIRouter, HTTPException
-from models.schemas import ClarifyRequest, ClarifyResponse, ClarifyQuestion
-from models.schemas import ConfirmRequest, ConfirmResponse, ExecuteRequest, ExecuteResponse
-from models.schemas import RefineRequest, RefineResponse
+from models.schemas import (
+    ClarifyQuestion,
+    ClarifyRequest,
+    ClarifyResponse,
+    ConfirmRequest,
+    ConfirmResponse,
+    ExecuteRequest,
+    ExecuteResponse,
+    RefineRequest,
+    RefineResponse,
+)
 from services.deepseek_client import _call_deepseek
 from services.prompts import CLARIFY_PROMPT, CONFIRM_PROMPT, REFINE_PROMPT
-from services.utils import parse_json_response, logger
+from services.utils import logger, parse_json_response
 
 router = APIRouter()
 

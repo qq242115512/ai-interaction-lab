@@ -1,13 +1,13 @@
 """Security middleware: rate limiting, prompt injection filter, headers, error sanitization."""
 import re
 import time
+
 from collections import defaultdict
 
-from fastapi import Request, HTTPException
+from fastapi import HTTPException, Request
 from fastapi.responses import JSONResponse
-from starlette.middleware.base import BaseHTTPMiddleware
-
 from services.utils import logger
+from starlette.middleware.base import BaseHTTPMiddleware
 
 # ============================================================
 # Rate Limiting — per-IP sliding window, 20 req/min for AI endpoints
@@ -102,11 +102,11 @@ def check_injection(text: str) -> str | None:
     stripped = text.strip()
     for prefix in INJECTION_PREFIXES:
         if stripped.startswith(prefix):
-            return f"输入包含不被允许的内容。请使用正常的提问方式。"
+            return "输入包含不被允许的内容。请使用正常的提问方式。"
 
     for pattern, message in INJECTION_PATTERNS:
         if pattern.search(text):
-            return f"输入包含不被允许的内容。请使用正常的提问方式。"
+            return "输入包含不被允许的内容。请使用正常的提问方式。"
 
     return None
 

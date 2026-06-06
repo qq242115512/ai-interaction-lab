@@ -6,6 +6,7 @@ Output: src/backend/data/agents.json
 """
 import json
 import re
+
 from pathlib import Path
 
 AGENTS_DIR = Path.home() / ".claude" / "skills" / "agents"

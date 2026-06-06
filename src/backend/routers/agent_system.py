@@ -6,7 +6,9 @@ and generates data/agents.json, which is deployed alongside the backend.
 """
 
 import json
+
 from pathlib import Path
+
 from fastapi import APIRouter
 
 router = APIRouter()

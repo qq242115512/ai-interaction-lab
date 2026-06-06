@@ -1,11 +1,14 @@
 from fastapi import APIRouter, HTTPException
 from models.schemas import ChatRequest, ChatResponse
 from services.deepseek_client import chat_reply
-from services.utils import sanitize_error, logger
+from services.utils import logger
 
 router = APIRouter()
 
-sessions: dict[str, dict] = {}
+# Community standard: SQLite-backed session storage (was: dict)
+from services.session_store import store
+
+sessions = store
 
 MAX_MESSAGE_LENGTH = 500
 
@@ -35,7 +38,7 @@ async def chat_followup(req: ChatRequest):
         result = await chat_reply(context, req.message.strip())
     except Exception as e:
         logger.error(f"Chat reply failed: {e}")
-        raise HTTPException(status_code=502, detail=f"AI 回复失败，请稍后重试。")
+        raise HTTPException(status_code=502, detail="AI 回复失败，请稍后重试。")
 
     # Update chat history
     session["chat_history"].append({"role": "user", "content": req.message.strip()})

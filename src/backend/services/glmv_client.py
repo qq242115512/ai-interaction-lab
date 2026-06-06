@@ -1,8 +1,11 @@
 import base64
+
 import httpx
+
 from config import GLM_API_KEY, GLM_BASE_URL
+
 from services.prompts import GLMV_SYSTEM_PROMPT
-from services.utils import parse_json_response, retry_with_backoff, logger
+from services.utils import logger, parse_json_response, retry_with_backoff
 
 
 async def analyze_image(image_bytes: bytes, content_type: str) -> dict:

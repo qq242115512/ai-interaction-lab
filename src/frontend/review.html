@@ -3,149 +3,278 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>设计引路人 — AI 设计评审学习工具</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎓</text></svg>" />
+  <title>AI 设计评审工具 — AI 交互模式实验室</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧪</text></svg>" />
+
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Serif+SC:wght@400;600;700;900&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/lxgw-wenkai-webfont/1.7.0/lxgwwenkai-regular.css" />
-  <link rel="stylesheet" href="css/style.css?v=2.0.2" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Noto+Sans+SC:wght@300;400;500;700&family=Noto+Serif+SC:wght@400;600;700&display=swap" rel="stylesheet" />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: {
+              50: '#f3f4fb', 100: '#e4e6f6', 200: '#ccd0ee', 300: '#acb2e3',
+              400: '#8b92d5', 500: '#6e76c4', 600: '#5b63b0', 700: '#4a5194',
+              800: '#3a3f76', 900: '#292d57', 950: '#1a1d3a',
+            },
+            accent: {
+              50: '#fef7f4', 100: '#fdebe3', 200: '#fad4c2', 300: '#f5b598',
+              400: '#ee936a', 500: '#e07340', 600: '#c55a2e', 700: '#a3461f',
+              800: '#803515', 900: '#5c250e',
+            },
+            neutral: {
+              50: '#fafaf9', 100: '#f5f3f1', 200: '#e8e4e0', 300: '#d4cec8',
+              400: '#a89f96', 500: '#7d7368', 600: '#5e554c', 700: '#4a423b',
+              800: '#332d28', 900: '#1f1b18', 950: '#14100e',
+            },
+          },
+          fontFamily: {
+            display: ['"DM Serif Display"', '"Noto Serif SC"', 'serif'],
+            body: ['"Inter"', '"Noto Sans SC"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+        }
+      }
+    }
+  </script>
+
+  <style>
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+    }
+    :focus-visible { outline: 2px solid #e07340; outline-offset: 2px; border-radius: 2px; }
+    .section-divider { display: flex; align-items: center; gap: 1rem; }
+    .section-divider::before, .section-divider::after { content: ''; flex: 1; height: 1px; background: #e8e4e0; }
+    .section-divider-dot { width: 8px; height: 8px; border-radius: 50%; background: #e07340; flex-shrink: 0; }
+    .mobile-menu { max-height: 0; overflow: hidden; transition: max-height 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease; opacity: 0; }
+    .mobile-menu.open { max-height: 320px; opacity: 1; }
+
+    /* Upload zone */
+    .upload-zone { border: 2px dashed #d4cec8; border-radius: 16px; padding: 48px 24px; text-align: center; cursor: pointer; transition: border-color 0.25s ease, background 0.25s ease; }
+    .upload-zone:hover, .upload-zone.drag-over { border-color: #e07340; background: #fef7f4; }
+    .upload-zone.has-image { padding: 16px 24px; }
+
+    /* Dimension cards */
+    .dimension-card { border: 2px solid #e8e4e0; border-radius: 12px; padding: 16px; cursor: pointer; transition: border-color 0.25s ease, background 0.25s ease, transform 0.2s ease; display: flex; align-items: flex-start; gap: 12px; }
+    .dimension-card:hover { border-color: #f5b598; }
+    .dimension-card.selected { border-color: #e07340; background: #fef7f4; transform: translateY(-2px); }
+    .dimension-checkbox { width: 20px; height: 20px; border-radius: 6px; border: 2px solid #d4cec8; flex-shrink: 0; transition: all 0.2s ease; margin-top: 2px; }
+    .dimension-card.selected .dimension-checkbox { background: #e07340; border-color: #e07340; }
+    .dimension-card.selected .dimension-checkbox::after { content: '✓'; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 12px; font-weight: 700; height: 100%; }
+
+    /* Error banner */
+    .error-banner { background: #fef2f2; color: #991b1b; padding: 12px 20px; border-radius: 12px; font-size: 14px; display: none; margin-bottom: 16px; }
+    .error-banner.active { display: block; }
+
+    /* Loading */
+    .loading-overlay { display: none; text-align: center; padding: 32px; }
+    .loading-overlay.active { display: block; }
+
+    /* Review results */
+    .review-results { display: none; }
+    .review-results.active { display: block; }
+
+    /* Chat */
+    .chat-msg { margin-bottom: 12px; max-width: 85%; }
+    .chat-msg-user { margin-left: auto; }
+    .chat-msg-ai { margin-right: auto; }
+    .chat-bubble { padding: 10px 16px; border-radius: 16px; font-size: 14px; line-height: 1.6; }
+    .chat-msg-user .chat-bubble { background: #e07340; color: #fff; border-bottom-right-radius: 4px; }
+    .chat-msg-ai .chat-bubble { background: #f5f3f1; color: #4a423b; border-bottom-left-radius: 4px; }
+
+    /* Spinner */
+    .spinner { width: 36px; height: 36px; border: 3px solid #e8e4e0; border-top-color: #e07340; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 16px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
 </head>
-<body>
-  <div class="app-shell">
-    <header class="app-header">
-      <a href="/" class="app-logo">🧪 AI 交互模式实验室</a>
-      <nav class="app-nav">
-        <a href="/review.html">设计评审工具</a>
-        <a href="/principles.html">设计原则</a>
-        <a href="/behind-the-scenes.html">制作幕后</a>
-      </nav>
-    </header>
+<body class="bg-neutral-100 font-body text-neutral-700 antialiased">
 
-    <!-- Error Banner -->
+  <!-- Navigation -->
+  <nav id="navbar" class="fixed top-0 w-full z-50 bg-neutral-100/90 backdrop-blur-md border-b border-neutral-200">
+    <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+      <a href="/" class="font-display text-2xl text-primary-700 tracking-tight no-underline">AI<span class="text-accent-500">·</span>Lab</a>
+      <div class="hidden md:flex items-center gap-8">
+        <a href="/patterns/streaming.html" class="text-sm font-medium text-neutral-500 hover:text-neutral-800 transition-colors no-underline">Patterns</a>
+        <a href="/about.html" class="text-sm font-medium text-neutral-500 hover:text-neutral-800 transition-colors no-underline">About</a>
+        <a href="/agents.html" class="text-sm font-medium text-neutral-500 hover:text-neutral-800 transition-colors no-underline">Agents</a>
+        <a href="/behind-the-scenes.html" class="text-sm font-medium text-neutral-500 hover:text-neutral-800 transition-colors no-underline">Behind the Scenes</a>
+        <a href="/review.html" class="px-6 py-2.5 bg-accent-500 text-white font-semibold rounded-full text-sm hover:bg-accent-600 transition-colors shadow-lg shadow-accent-500/25 no-underline">Try Review Tool</a>
+      </div>
+      <button id="hamburger" class="md:hidden flex flex-col gap-1.5 p-2 bg-transparent border-0 cursor-pointer" aria-label="打开菜单">
+        <span class="block w-6 h-0.5 bg-neutral-700 rounded transition-transform duration-300"></span>
+        <span class="block w-6 h-0.5 bg-neutral-700 rounded transition-opacity duration-300"></span>
+        <span class="block w-6 h-0.5 bg-neutral-700 rounded transition-transform duration-300"></span>
+      </button>
+    </div>
+    <div id="mobile-menu" class="mobile-menu md:hidden bg-neutral-100/95 backdrop-blur-md border-b border-neutral-200">
+      <div class="px-6 py-4 flex flex-col gap-3">
+        <a href="/patterns/streaming.html" class="text-sm font-medium text-neutral-600 hover:text-neutral-900 no-underline py-2">Patterns</a>
+        <a href="/about.html" class="text-sm font-medium text-neutral-600 hover:text-neutral-900 no-underline py-2">About</a>
+        <a href="/agents.html" class="text-sm font-medium text-neutral-600 hover:text-neutral-900 no-underline py-2">Agents</a>
+        <a href="/behind-the-scenes.html" class="text-sm font-medium text-neutral-600 hover:text-neutral-900 no-underline py-2">Behind the Scenes</a>
+        <a href="/review.html" class="px-6 py-2.5 bg-accent-500 text-white font-semibold rounded-full text-sm hover:bg-accent-600 transition-colors text-center no-underline shadow-lg shadow-accent-500/25">Try Review Tool</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="pt-28 pb-8 md:pt-36 md:pb-10 px-6 text-center">
+    <div class="max-w-3xl mx-auto">
+      <p class="text-xs font-semibold text-accent-500 uppercase tracking-widest mb-4 opacity-0" id="hero-eyebrow">Interactive Tool</p>
+      <h1 class="font-display text-3xl md:text-5xl text-primary-900 leading-tight mb-4 opacity-0" id="hero-title">AI 设计评审工具</h1>
+      <p class="text-base md:text-lg text-neutral-500 leading-relaxed max-w-xl mx-auto opacity-0" id="hero-subtitle">
+        上传 UI 截图，选择评审维度，获取结构化设计建议
+      </p>
+    </div>
+  </section>
+
+  <!-- Error Banner -->
+  <div class="max-w-3xl mx-auto px-6">
     <div id="errorBanner" class="error-banner"></div>
-
-    <!-- Upload Section -->
-    <section class="upload-section">
-      <div id="uploadZone" class="upload-zone">
-        <input type="file" id="uploadInput" class="upload-input" accept="image/png,image/jpeg,image/webp" />
-        <div id="uploadPlaceholder">
-          <span class="upload-icon">📤</span>
-          <div class="upload-title">上传你的设计截图</div>
-          <div class="upload-hint">支持 PNG / JPG / WebP，不超过 10MB。拖拽也可以。</div>
-        </div>
-        <div id="uploadPreview" class="upload-preview" style="display:none;">
-          <img id="previewImg" src="" alt="预览" />
-          <div class="upload-preview-info">
-            <div id="previewName" class="upload-preview-name"></div>
-            <div id="previewSize" class="upload-preview-size"></div>
-          </div>
-          <button class="upload-remove-btn" onclick="removeFile()">移除</button>
-        </div>
-      </div>
-    </section>
-
-    <!-- Dimension Selection -->
-    <section class="dimension-section">
-      <div class="dimension-title">选择你想评审的维度（可多选）</div>
-      <div class="dimension-grid">
-        <div class="dimension-card" data-dimension="信息架构">
-          <div class="dimension-checkbox"></div>
-          <div>
-            <div class="dimension-label">信息架构</div>
-            <div class="dimension-desc">导航是否清晰、分类是否合理、信息层级是否明确</div>
-          </div>
-        </div>
-        <div class="dimension-card" data-dimension="视觉层级">
-          <div class="dimension-checkbox"></div>
-          <div>
-            <div class="dimension-label">视觉层级</div>
-            <div class="dimension-desc">重要信息是否突出、视觉流是否顺畅、对比是否得当</div>
-          </div>
-        </div>
-        <div class="dimension-card" data-dimension="可用性">
-          <div class="dimension-checkbox"></div>
-          <div>
-            <div class="dimension-label">可用性</div>
-            <div class="dimension-desc">操作是否便捷、反馈是否及时、是否有预防错误的设计</div>
-          </div>
-        </div>
-        <div class="dimension-card" data-dimension="色彩系统">
-          <div class="dimension-checkbox"></div>
-          <div>
-            <div class="dimension-label">色彩系统</div>
-            <div class="dimension-desc">颜色搭配是否和谐、情感表达是否匹配、对比度是否达标</div>
-          </div>
-        </div>
-        <div class="dimension-card" data-dimension="版式设计">
-          <div class="dimension-checkbox"></div>
-          <div>
-            <div class="dimension-label">版式设计</div>
-            <div class="dimension-desc">字体层级是否清晰、间距节奏是否舒适、对齐是否规整</div>
-          </div>
-        </div>
-        <div class="dimension-card" data-dimension="无障碍">
-          <div class="dimension-checkbox"></div>
-          <div>
-            <div class="dimension-label">无障碍</div>
-            <div class="dimension-desc">文字大小是否可读、色彩对比度是否足够、触控区域是否友好</div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Submit -->
-    <div class="submit-row">
-      <button id="submitBtn" class="btn btn-primary" disabled>开始评审</button>
-    </div>
-
-    <!-- Loading -->
-    <div id="loadingOverlay" class="loading-overlay">
-      <div class="spinner"></div>
-      <div id="loadingStepVisual" class="loading-step">AI 正在识别设计元素...</div>
-      <div id="loadingStepReview" class="loading-step"></div>
-      <div id="streamTextContainer" class="stream-text-container" style="display:none;">
-        <div class="stream-text-label">AI 实时输出：</div>
-        <pre id="streamText" class="stream-text"></pre>
-      </div>
-    </div>
-
-    <!-- Review Results -->
-    <section id="reviewResults" class="review-results">
-      <div class="overall-score-card">
-        <div id="overallNumber" class="overall-number">—</div>
-        <div class="overall-label">综合评分</div>
-      </div>
-      <div id="dimensionsContainer"></div>
-      <div class="submit-row" style="margin-top: 24px;">
-        <button class="btn btn-secondary" onclick="resetAll()">重新开始新的评审</button>
-      </div>
-    </section>
-
-    <!-- Chat -->
-    <section id="chatSection" class="chat-section" style="display:none;">
-      <div class="chat-title">追问 AI 导师</div>
-      <div id="chatMessages" class="chat-messages"></div>
-      <div class="chat-input-row">
-        <input id="chatInput" class="chat-input" placeholder="对评审内容有任何疑问？在这里追问..." />
-        <button id="chatSendBtn" class="btn btn-primary" style="padding:10px 20px;">发送</button>
-      </div>
-    </section>
-
-    <!-- Footer -->
-    <footer class="app-footer">
-      设计引路人 · 用 AI 学习设计思维 · <a href="/behind-the-scenes.html">这个产品是怎么做出来的？</a> · <a href="/about.html">关于我</a>
-    </footer>
   </div>
 
-  <script src="js/utils.js?v=1.2.0"></script>
-  <script src="js/api.js?v=1.2.0"></script>
-  <script src="js/upload.js?v=1.2.0"></script>
-  <script src="js/review.js?v=1.2.0"></script>
-  <script src="js/chat.js?v=1.2.0"></script>
-  <script src="js/main.js?v=1.2.0"></script>
+  <!-- Upload Section -->
+  <section class="max-w-3xl mx-auto px-6 pb-8">
+    <div id="uploadZone" class="upload-zone">
+      <input type="file" id="uploadInput" class="hidden" accept="image/png,image/jpeg,image/webp" />
+      <div id="uploadPlaceholder">
+        <span class="text-4xl mb-3 block">📤</span>
+        <div class="font-semibold text-primary-800 mb-1">上传你的设计截图</div>
+        <div class="text-sm text-neutral-400">支持 PNG / JPG / WebP，不超过 10MB。拖拽也可以。</div>
+      </div>
+      <div id="uploadPreview" class="hidden items-center gap-4">
+        <img id="previewImg" src="" alt="预览" class="w-16 h-16 rounded-lg object-cover border border-neutral-200" />
+        <div class="flex-1 text-left">
+          <div id="previewName" class="text-sm font-semibold text-primary-800"></div>
+          <div id="previewSize" class="text-xs text-neutral-400"></div>
+        </div>
+        <button class="px-4 py-2 text-sm font-semibold text-red-500 hover:bg-red-50 rounded-lg transition-colors border-0 bg-transparent cursor-pointer" onclick="removeFile()">移除</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Dimension Selection -->
+  <section class="max-w-3xl mx-auto px-6 pb-8">
+    <div class="text-sm font-semibold text-primary-800 mb-4">选择评审维度（可多选）</div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      <div class="dimension-card" data-dimension="信息架构">
+        <div class="dimension-checkbox"></div>
+        <div>
+          <div class="font-semibold text-primary-800 text-sm">信息架构</div>
+          <div class="text-xs text-neutral-400 mt-0.5">导航是否清晰、分类是否合理、信息层级是否明确</div>
+        </div>
+      </div>
+      <div class="dimension-card" data-dimension="视觉层级">
+        <div class="dimension-checkbox"></div>
+        <div>
+          <div class="font-semibold text-primary-800 text-sm">视觉层级</div>
+          <div class="text-xs text-neutral-400 mt-0.5">重要信息是否突出、视觉流是否顺畅、对比是否得当</div>
+        </div>
+      </div>
+      <div class="dimension-card" data-dimension="可用性">
+        <div class="dimension-checkbox"></div>
+        <div>
+          <div class="font-semibold text-primary-800 text-sm">可用性</div>
+          <div class="text-xs text-neutral-400 mt-0.5">操作是否便捷、反馈是否及时、是否有预防错误的设计</div>
+        </div>
+      </div>
+      <div class="dimension-card" data-dimension="色彩系统">
+        <div class="dimension-checkbox"></div>
+        <div>
+          <div class="font-semibold text-primary-800 text-sm">色彩系统</div>
+          <div class="text-xs text-neutral-400 mt-0.5">颜色搭配是否和谐、情感表达是否匹配、对比度是否达标</div>
+        </div>
+      </div>
+      <div class="dimension-card" data-dimension="版式设计">
+        <div class="dimension-checkbox"></div>
+        <div>
+          <div class="font-semibold text-primary-800 text-sm">版式设计</div>
+          <div class="text-xs text-neutral-400 mt-0.5">字体层级是否清晰、间距节奏是否舒适、对齐是否规整</div>
+        </div>
+      </div>
+      <div class="dimension-card" data-dimension="无障碍">
+        <div class="dimension-checkbox"></div>
+        <div>
+          <div class="font-semibold text-primary-800 text-sm">无障碍</div>
+          <div class="text-xs text-neutral-400 mt-0.5">文字大小是否可读、色彩对比度是否足够、触控区域是否友好</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Submit -->
+  <div class="max-w-3xl mx-auto px-6 pb-8 text-center">
+    <button id="submitBtn" class="px-10 py-3.5 bg-accent-500 text-white font-semibold rounded-full text-lg hover:bg-accent-600 transition-colors shadow-lg shadow-accent-500/25 disabled:opacity-50 disabled:cursor-not-allowed border-0 cursor-pointer" disabled>开始评审</button>
+  </div>
+
+  <!-- Loading -->
+  <div id="loadingOverlay" class="loading-overlay max-w-3xl mx-auto px-6">
+    <div class="spinner"></div>
+    <div id="loadingStepVisual" class="text-sm text-neutral-500 mb-2">AI 正在识别设计元素...</div>
+    <div id="loadingStepReview" class="text-sm text-neutral-500 mb-4"></div>
+    <div id="streamTextContainer" class="hidden bg-primary-950 rounded-xl p-5 text-left max-h-64 overflow-y-auto">
+      <div class="text-xs text-neutral-400 mb-1">AI 实时输出：</div>
+      <pre id="streamText" class="text-sm font-mono text-neutral-200 whitespace-pre-wrap"></pre>
+    </div>
+  </div>
+
+  <!-- Review Results -->
+  <section id="reviewResults" class="review-results max-w-3xl mx-auto px-6 pb-8">
+    <div class="text-center mb-8">
+      <div id="overallNumber" class="font-display text-6xl md:text-7xl text-accent-500">—</div>
+      <div class="text-sm text-neutral-400 mt-2">综合评分</div>
+    </div>
+    <div id="dimensionsContainer" class="space-y-4"></div>
+    <div class="text-center mt-8">
+      <button class="px-8 py-3 border-2 border-primary-300 text-primary-700 font-semibold rounded-full hover:bg-primary-50 transition-colors bg-white cursor-pointer" onclick="resetAll()">重新开始新的评审</button>
+    </div>
+  </section>
+
+  <!-- Chat -->
+  <section id="chatSection" class="max-w-3xl mx-auto px-6 pb-20" style="display:none;">
+    <div class="section-divider mb-8"><span class="section-divider-dot"></span></div>
+    <div class="font-semibold text-primary-800 mb-4">追问 AI 导师</div>
+    <div id="chatMessages" class="space-y-3 mb-4 min-h-[100px]"></div>
+    <div class="flex gap-3">
+      <input id="chatInput" class="flex-1 px-5 py-3 rounded-full border border-neutral-200 text-sm focus:outline-none focus:border-accent-400 transition-colors" placeholder="对评审内容有任何疑问？在这里追问..." />
+      <button id="chatSendBtn" class="px-8 py-3 bg-accent-500 text-white font-semibold rounded-full text-sm hover:bg-accent-600 transition-colors shadow-lg shadow-accent-500/25 border-0 cursor-pointer">发送</button>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer id="footer" class="bg-primary-950 text-neutral-400 px-6 py-16 opacity-0">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex flex-col md:flex-row items-center justify-between gap-6 mb-8">
+        <a href="/" class="font-display text-xl text-neutral-200 tracking-tight no-underline">AI<span class="text-accent-400">·</span>Lab</a>
+        <div class="flex flex-wrap justify-center gap-6 text-sm">
+          <a href="/patterns/streaming.html" class="text-neutral-400 hover:text-neutral-200 transition-colors no-underline">Patterns</a>
+          <a href="/about.html" class="text-neutral-400 hover:text-neutral-200 transition-colors no-underline">About</a>
+          <a href="/agents.html" class="text-neutral-400 hover:text-neutral-200 transition-colors no-underline">Agents</a>
+          <a href="/behind-the-scenes.html" class="text-neutral-400 hover:text-neutral-200 transition-colors no-underline">Behind the Scenes</a>
+          <a href="/review.html" class="text-neutral-400 hover:text-neutral-200 transition-colors no-underline">Review Tool</a>
+        </div>
+        <a href="https://github.com/qq242115512/ai-interaction-lab" target="_blank" rel="noopener" class="text-neutral-400 hover:text-neutral-200 transition-colors no-underline text-sm">
+          <svg class="w-5 h-5 inline-block mr-1.5 align-text-bottom" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.385-1.335-1.755-1.335-1.755-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.605-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12 24 5.37 18.63 0 12 0z"/></svg>GitHub</a>
+      </div>
+      <div class="border-t border-primary-800 pt-6 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-neutral-500">
+        <span>&copy; 2026 樊书洋 · AI 交互模式实验室</span>
+        <span class="font-mono">v0.5.0</span>
+      </div>
+    </div>
+  </footer>
+
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
-  <script src="js/animations.js?v=2.0.2"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/upload.js"></script>
+  <script src="js/review.js"></script>
+  <script src="js/chat.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/animations.js"></script>
 </body>
 </html>

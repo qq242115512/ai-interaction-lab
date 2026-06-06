@@ -1,8 +1,11 @@
 import json
+
 import httpx
+
 from config import DEEPSEEK_API_KEY, DEEPSEEK_BASE_URL
-from services.prompts import DEEPSEEK_REVIEW_PROMPT, DEEPSEEK_CHAT_PROMPT
-from services.utils import parse_json_response, retry_with_backoff, logger
+
+from services.prompts import DEEPSEEK_CHAT_PROMPT, DEEPSEEK_REVIEW_PROMPT
+from services.utils import logger, parse_json_response, retry_with_backoff
 
 
 async def _call_deepseek(messages, max_tokens, temperature=0.7, timeout=120.0):
