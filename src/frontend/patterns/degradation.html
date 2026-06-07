@@ -349,7 +349,7 @@ def sanitize_error(msg: str) -> str:
     reported.add(key);
     try {
       var x = new XMLHttpRequest();
-      x.open('POST', '/api/log', true);
+      x.open('POST', '/api/health', true);
       x.setRequestHeader('Content-Type', 'application/json');
       x.send(JSON.stringify({message:String(msg||'').substring(0,500), url:String(url||'').substring(0,200), line:line, col:col, page:location.href, ts:Date.now()}));
     } catch(e) {}
@@ -360,7 +360,7 @@ def sanitize_error(msg: str) -> str:
     reported.add(key);
     try {
       var x = new XMLHttpRequest();
-      x.open('POST', '/api/log', true);
+      x.open('POST', '/api/health', true);
       x.setRequestHeader('Content-Type', 'application/json');
       x.send(JSON.stringify({message:'Promise rejection: '+String(e.reason||'').substring(0,500), page:location.href, ts:Date.now()}));
     } catch(e) {}
