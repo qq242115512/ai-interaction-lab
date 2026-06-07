@@ -4,6 +4,7 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from middleware.metrics import ACTIVE_SESSIONS, PrometheusMiddleware, metrics_endpoint
 from middleware.security import SecurityMiddleware
+from pydantic import BaseModel
 from routers import agent_system, chat, patterns, review, stream
 from services.utils import logger, setup_logging
 
@@ -62,3 +63,22 @@ async def metrics(request: Request):
     """Prometheus metrics endpoint — community standard observability."""
     ACTIVE_SESSIONS.set(len(store))
     return await metrics_endpoint(request)
+
+
+class ErrorReport(BaseModel):
+    message: str = ""
+    url: str = ""
+    line: int | None = None
+    col: int | None = None
+    page: str = ""
+    ts: float | None = None
+
+
+@app.post('/api/log')
+async def log_frontend_error(report: ErrorReport):
+    """Collect frontend JS errors — community standard: Sentry/error monitoring."""
+    logger.warning(
+        f'[CLIENT ERROR] {report.message} '
+        f'| page={report.page} | line={report.line}:{report.col}'
+    )
+    return {'status': 'logged'}

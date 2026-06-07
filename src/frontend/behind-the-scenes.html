@@ -10,37 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Noto+Sans+SC:wght@300;400;500;700&family=Noto+Serif+SC:wght@400;600;700&display=swap" rel="stylesheet" />
 
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            primary: {
-              50: '#f3f4fb', 100: '#e4e6f6', 200: '#ccd0ee', 300: '#acb2e3',
-              400: '#8b92d5', 500: '#6e76c4', 600: '#5b63b0', 700: '#4a5194',
-              800: '#3a3f76', 900: '#292d57', 950: '#1a1d3a',
-            },
-            accent: {
-              50: '#fef7f4', 100: '#fdebe3', 200: '#fad4c2', 300: '#f5b598',
-              400: '#ee936a', 500: '#e07340', 600: '#c55a2e', 700: '#a3461f',
-              800: '#803515', 900: '#5c250e',
-            },
-            neutral: {
-              50: '#fafaf9', 100: '#f5f3f1', 200: '#e8e4e0', 300: '#d4cec8',
-              400: '#a89f96', 500: '#7d7368', 600: '#5e554c', 700: '#4a423b',
-              800: '#332d28', 900: '#1f1b18', 950: '#14100e',
-            },
-          },
-          fontFamily: {
-            display: ['"DM Serif Display"', '"Noto Serif SC"', 'serif'],
-            body: ['"Inter"', '"Noto Sans SC"', 'sans-serif'],
-            mono: ['"JetBrains Mono"', 'monospace'],
-          },
-        }
-      }
-    }
-  </script>
+  <link rel="stylesheet" href="css/tailwind.min.css?v=2.1">
 
   <style>
     @media (prefers-reduced-motion: reduce) {
@@ -392,7 +362,7 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
-  <script src="js/animations.js"></script>
+  <script src="js/animations.js?v=2.1"></script>
 
   <script>
     document.addEventListener("DOMContentLoaded", function () {
@@ -497,5 +467,33 @@
       ScrollTrigger.refresh();
     });
   </script>
+<script>
+(function(){
+  var reported = new Set();
+  window.onerror = function(msg, url, line, col, err) {
+    var key = (msg||'') + '|' + (url||'') + '|' + line;
+    if (reported.has(key) || reported.size > 10) return;
+    reported.add(key);
+    try {
+      var x = new XMLHttpRequest();
+      x.open('POST', '/api/log', true);
+      x.setRequestHeader('Content-Type', 'application/json');
+      x.send(JSON.stringify({message:String(msg||'').substring(0,500), url:String(url||'').substring(0,200), line:line, col:col, page:location.href, ts:Date.now()}));
+    } catch(e) {}
+  };
+  window.addEventListener('unhandledrejection', function(e) {
+    var key = 'rejection|' + String(e.reason||'').substring(0,100);
+    if (reported.has(key) || reported.size > 10) return;
+    reported.add(key);
+    try {
+      var x = new XMLHttpRequest();
+      x.open('POST', '/api/log', true);
+      x.setRequestHeader('Content-Type', 'application/json');
+      x.send(JSON.stringify({message:'Promise rejection: '+String(e.reason||'').substring(0,500), page:location.href, ts:Date.now()}));
+    } catch(e) {}
+  });
+  console.log('[monitor] Error tracking active');
+})();
+</script>
 </body>
 </html>

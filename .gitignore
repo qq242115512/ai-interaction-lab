@@ -19,3 +19,4 @@ src/deploy/test_*.py
 
 # 大文件
 assets/
+test_results/
