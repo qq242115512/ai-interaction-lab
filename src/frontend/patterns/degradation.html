@@ -42,6 +42,7 @@
     .log-success { color: #86efac; }
     .log-warn { color: #fde68a; }
     .log-step { color: #c4b5fd; }
+    .tab-btn.active { border-bottom: 3px solid var(--pa) !important; color: var(--pa) !important; font-weight: 700 !important; }
   </style>
 </head>
 <body class="bg-neutral-100 text-neutral-700 antialiased">
@@ -109,20 +110,21 @@
 
     <!-- Tab Buttons -->
     <div class="flex border-b-2 border-neutral-200 mb-4">
-      <button class="tab-btn flex-1 py-3 text-xs font-bold border-b-3 transition-all" data-tab="retry" style="border-color:var(--pa);color:var(--pa);margin-bottom:-2px;background:none;border-top:none;border-left:none;border-right:none;cursor:pointer;">网络断开</button>
-      <button class="tab-btn flex-1 py-3 text-xs font-semibold border-b-3 transition-all text-neutral-400" data-tab="badjson" style="border-color:transparent;margin-bottom:-2px;background:none;border-top:none;border-left:none;border-right:none;cursor:pointer;">返回乱码</button>
-      <button class="tab-btn flex-1 py-3 text-xs font-semibold border-b-3 transition-all text-neutral-400" data-tab="timeout" style="border-color:transparent;margin-bottom:-2px;background:none;border-top:none;border-left:none;border-right:none;cursor:pointer;">请求超时</button>
+      <button class="tab-btn active flex-1 py-3 text-xs font-bold transition-all" data-tab="retry" style="border-bottom:3px solid var(--pa);color:var(--pa);margin-bottom:-2px;background:none;border-top:none;border-left:none;border-right:none;cursor:pointer;">网络断开</button>
+      <button class="tab-btn flex-1 py-3 text-xs font-semibold transition-all text-neutral-400" data-tab="badjson" style="border-bottom:3px solid transparent;margin-bottom:-2px;background:none;border-top:none;border-left:none;border-right:none;cursor:pointer;">返回乱码</button>
+      <button class="tab-btn flex-1 py-3 text-xs font-semibold transition-all text-neutral-400" data-tab="timeout" style="border-bottom:3px solid transparent;margin-bottom:-2px;background:none;border-top:none;border-left:none;border-right:none;cursor:pointer;">请求超时</button>
     </div>
 
-    <p class="text-xs text-neutral-400 mb-3" id="tabDesc">自动重试 3 次，失败后给出友好提示 + 手动重试按钮</p>
+    <!-- Scene Description -->
+    <p class="text-sm text-neutral-600 mb-4" id="tabDesc">模拟网络中断场景：API 调用失败后自动重试，用户只看到最终成功或友好提示</p>
 
     <div class="text-center mb-3">
       <button id="runBtn" class="px-6 py-2.5 text-white font-semibold rounded-full text-sm hover:opacity-90 transition-opacity shadow-lg" style="background:var(--pa);">运行演示</button>
     </div>
 
     <!-- Log Terminal -->
-    <div id="logArea" class="rounded-xl p-5 font-mono text-sm leading-relaxed min-h-[100px] max-h-[400px] overflow-y-auto" style="background:#1c1917;color:#d6d3d1;">
-      <span style="color:#78716c;">蓝色 = 信息，黄色 = 警告，红色 = 错误，绿色 = 恢复成功。点击 [运行演示] 开始。</span>
+    <div id="logArea" class="rounded-xl p-5 font-mono text-sm leading-relaxed min-h-[200px] max-h-[400px] overflow-y-auto" style="background:#1c1917;color:#d6d3d1;">
+      <span style="color:#78716c;">蓝色 = 信息，黄色 = 警告，红色 = 错误，绿色 = 恢复成功，紫色 = 处理步骤。点击 [运行演示] 开始。</span>
     </div>
   </section>
 
@@ -231,7 +233,8 @@ def sanitize_error(msg: str) -> str:
 
       function logLine(msg, cls) {
         var time = new Date().toLocaleTimeString();
-        log.innerHTML += '<span class="' + (cls || '') + '">[' + time + '] ' + msg + '</span>\n';
+        var line = '<div><span class="' + (cls || '') + '">[' + time + '] ' + msg + '</span></div>';
+        log.innerHTML += line;
         log.scrollTop = log.scrollHeight;
       }
 
@@ -240,9 +243,9 @@ def sanitize_error(msg: str) -> str:
       function sleep(ms) { return new Promise(function(r) { setTimeout(r, ms); }); }
 
       var tabDescs = {
-        retry: '自动重试 3 次（指数退避），失败后给出友好提示 + 手动重试按钮',
-        badjson: '三层 JSON 解析回退：直接解析 → 去 fences → 括号匹配。用户全程无感知',
-        timeout: '10 秒后主动提示"任务比预期复杂"，而非无限旋转让用户干等'
+        retry: '模拟网络中断场景：API 调用失败后自动重试，用户只看到最终成功或友好提示',
+        badjson: '模拟 AI 返回格式异常：三层 JSON 解析回退，逐层尝试直到成功提取有效数据',
+        timeout: '模拟请求超时场景：超时后自动切换非流式备用方案，确保用户拿到结果'
       };
 
       // Tab switching
@@ -250,16 +253,18 @@ def sanitize_error(msg: str) -> str:
         btn.addEventListener('click', function() {
           currentTab = this.dataset.tab;
           document.querySelectorAll('.tab-btn').forEach(function(b) {
-            b.style.borderColor = 'transparent';
+            b.classList.remove('active');
+            b.style.borderBottomColor = 'transparent';
             b.style.color = '#a89f96';
             b.style.fontWeight = '600';
           });
-          this.style.borderColor = 'var(--pa)';
+          this.classList.add('active');
+          this.style.borderBottomColor = 'var(--pa)';
           this.style.color = 'var(--pa)';
           this.style.fontWeight = '700';
           document.getElementById('tabDesc').textContent = tabDescs[currentTab];
           clearLog();
-          log.innerHTML = '<span style="color:#78716c;">已切换到当前场景。点击 [运行演示] 查看效果。</span>';
+          log.innerHTML = '<span style="color:#78716c;">已切换到「' + this.textContent + '」场景。点击 [运行演示] 查看效果。</span>';
         });
       });
 
@@ -271,72 +276,62 @@ def sanitize_error(msg: str) -> str:
 
       async function simulateRetry() {
         clearLog();
-        logLine('用户点击：上传设计稿开始评审', 'log-info');
-        await sleep(400);
-        logLine('发送请求到 /api/review ...', 'log-info');
+        logLine('正在连接 DeepSeek API...', 'log-info');
         await sleep(500);
-
-        for (var i = 1; i <= 3; i++) {
-          logLine('Attempt ' + i + ' → 连接超时 (模拟网络中断)', 'log-error');
-          logLine('等待 ' + Math.pow(2, i - 1) + ' 秒后重试 (指数退避)...', 'log-warn');
-          await sleep(600 * Math.pow(2, i - 1));
-        }
-        logLine('3 次重试均失败', 'log-error');
+        logLine('连接失败: Connection refused', 'log-error');
+        await sleep(400);
+        logLine('第 1 次重试 (1s)...', 'log-warn');
+        await sleep(800);
+        logLine('连接失败: Connection refused', 'log-error');
         await sleep(300);
-        logLine('[用户侧] 看到提示："网络不稳定，评审暂时无法完成。请检查网络后重试。"', 'log-info');
-        logLine('[用户侧] 显示 [手动重试] 按钮', 'log-info');
+        logLine('第 2 次重试 (2s)...', 'log-warn');
+        await sleep(1200);
+        logLine('连接成功，正在发送请求...', 'log-info');
+        await sleep(400);
+        logLine('重试成功，继续执行', 'log-success');
+        await sleep(300);
         logLine('');
-        logLine('兜底策略生效：用户看到的不是白屏/堆栈，而是友好提示 + 可操作的手动重试按钮。', 'log-success');
+        logLine('用户侧：评审正常完成，对刚才的网络波动完全无感知。', 'log-success');
       }
 
       async function simulateBadJson() {
         clearLog();
-        logLine('用户点击：上传设计稿开始评审', 'log-info');
-        await sleep(300);
-        logLine('AI 返回内容：', 'log-info');
-        logLine('  ```json\\n  {"overall_score": 7.5,\\n  "dimensions": [{"name": "信息架构"...', 'log-warn');
-        logLine('  (JSON 结尾缺少 }} —— 不完整!)', 'log-error');
+        logLine('正在连接 DeepSeek API...', 'log-info');
         await sleep(400);
-        logLine('');
-        logLine('Step 1: 尝试 json.loads() 直接解析', 'log-step');
+        logLine('收到响应 (200 OK)', 'log-step');
         await sleep(300);
-        logLine('  → JSONDecodeError: Unterminated string', 'log-error');
-        await sleep(200);
-        logLine('Step 2: 去掉 Markdown fences (```json ... ```)', 'log-step');
+        logLine('JSON 解析失败: 第 1 层回退 — json.loads() 直接解析', 'log-warn');
+        await sleep(500);
+        logLine('  → JSONDecodeError: 响应含 Markdown fences', 'log-error');
         await sleep(300);
-        logLine('  → 依然失败：结尾缺少 }', 'log-error');
-        await sleep(200);
-        logLine('Step 3: 括号匹配 —— 从 { 到 } 提取完整 JSON 对象', 'log-step');
-        await sleep(400);
-        logLine('  → 成功！提取到完整 JSON', 'log-success');
+        logLine('JSON 解析失败: 第 2 层回退 — 去掉 ```json ... ``` fences 后重试', 'log-warn');
+        await sleep(500);
+        logLine('第 2 层回退成功，提取到有效 JSON', 'log-success');
         await sleep(200);
         logLine('');
-        logLine('[用户侧] 看到完整的评审报告，完全不知道 AI 返回的 JSON 差点翻车。', 'log-info');
-        logLine('');
-        logLine('兜底策略生效：三层 JSON 解析回退，用户无感知。如果三层全失败，展示友好降级信息。', 'log-success');
+        logLine('用户侧：看到完整评审报告，完全不知道 AI 返回的 JSON 差点翻车。', 'log-success');
       }
 
       async function simulateTimeout() {
         clearLog();
-        logLine('用户点击：上传一张复杂首页截图开始评审', 'log-info');
+        logLine('正在连接 DeepSeek API...', 'log-info');
         await sleep(400);
-        logLine('发送请求到 /api/review ...', 'log-info');
-        await sleep(600);
-        logLine('DeepSeek API 正在处理中...', 'log-info');
-
-        for (var t = 2; t <= 10; t += 2) {
-          await sleep(1000);
-          logLine(t + ' 秒过去了，仍在等待响应...', 'log-warn');
-        }
-
-        logLine('达到 10 秒超时阈值', 'log-error');
+        logLine('流式请求已发送，等待首个 token...', 'log-info');
+        await sleep(1500);
+        logLine('已等待 5 秒，仍未收到响应...', 'log-warn');
+        await sleep(1500);
+        logLine('已等待 10 秒，仍未收到响应...', 'log-warn');
+        await sleep(500);
+        logLine('请求超时', 'log-error');
         await sleep(300);
-        logLine('[用户侧] 不再无限旋转，看到主动提示：', 'log-info');
-        logLine('  "这个任务比预期更复杂，AI 需要更多时间。"', 'log-info');
-        logLine('  "建议：缩小分析范围（减少评审维度），或换一张更简洁的截图。"', 'log-info');
-        logLine('  [继续等待] [缩小范围]', 'log-info');
+        logLine('切换到非流式备用方案', 'log-warn');
+        await sleep(600);
+        logLine('非流式请求已发送...', 'log-info');
+        await sleep(800);
+        logLine('备用方案完成', 'log-success');
+        await sleep(200);
         logLine('');
-        logLine('兜底策略生效：不是无限等待（用户会以为死机了），而是主动在 10 秒后给出建议和选项。', 'log-success');
+        logLine('用户侧：看到完整结果。不知道中间切换过方案，只知道"AI 回应了"。', 'log-success');
       }
 
       document.getElementById('hamburger').addEventListener('click', function() {

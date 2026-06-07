@@ -106,27 +106,29 @@
       <!-- Left: Chat Panel -->
       <div class="flex-1 min-w-0">
         <div class="bg-white rounded-2xl border border-neutral-200 overflow-hidden">
-          <div id="chatMsgs" class="p-5 max-h-96 overflow-y-auto min-h-[150px]">
-            <div class="text-center text-neutral-400 py-10 text-sm">点击下方按钮，创建评审上下文，然后开始追问</div>
+          <div id="chatMsgs" class="p-5 overflow-y-auto min-h-[400px]" style="max-height:400px;">
+            <div class="text-center text-neutral-400 py-16 text-sm">点击下方按钮，创建评审上下文，然后开始追问</div>
           </div>
-          <div class="flex items-center gap-3 px-4 py-3 border-t border-neutral-200">
+          <div class="flex items-center gap-3 px-4 py-3 border-t border-neutral-200 bg-neutral-50">
             <button id="initBtn" class="px-5 py-2.5 text-white font-semibold rounded-full text-xs hover:opacity-90 transition-opacity shadow-lg whitespace-nowrap" style="background:var(--pa);">创建评审上下文</button>
-            <input id="chatInput" class="flex-1 p-2.5 border border-neutral-300 rounded-lg text-sm focus:outline-none focus:ring-2" style="font-family:inherit;focus-ring-color:var(--pa);" placeholder="追问 AI..." disabled />
-            <button id="chatSend" class="px-5 py-2.5 text-white font-semibold rounded-full text-xs hover:opacity-90 transition-opacity shadow-lg whitespace-nowrap" style="background:var(--pa);" disabled>发送</button>
+            <input id="chatInput" class="flex-1 p-2.5 border border-neutral-300 rounded-lg text-sm focus:outline-none focus:ring-2" style="font-family:inherit;--tw-ring-color:var(--pa);" placeholder="追问 AI..." disabled />
+            <button id="chatSend" class="px-5 py-2.5 text-white font-semibold rounded-full text-xs hover:opacity-90 transition-opacity shadow-lg whitespace-nowrap disabled:opacity-40" style="background:var(--pa);" disabled>发送</button>
           </div>
         </div>
-        <p class="text-xs text-neutral-400 mt-2 text-center">试试问："之前提到的第一个问题能再具体讲讲吗" 或 "把这些建议总结成三条"</p>
+        <p class="text-xs text-neutral-400 mt-2 text-center">试试问："之前提到的第一个问题能具体讲讲吗？" 或 "把建议总结成三条"</p>
       </div>
 
       <!-- Right: Memory Panel -->
-      <div class="w-full lg:w-72 flex-shrink-0">
+      <div class="w-full lg:w-80 flex-shrink-0">
         <div class="bg-white rounded-2xl border border-neutral-200 p-5">
           <h3 class="text-sm font-bold text-primary-800 mb-4 pb-2 border-b border-neutral-100">AI 的上下文记忆</h3>
-          <div id="memoryContent" class="text-xs text-neutral-400">
-            等待评审完成后显示 AI 记住了什么...
+          <div id="memoryContent" class="text-xs">
+            <div class="text-neutral-400">等待评审完成后显示 AI 记住了什么...</div>
           </div>
-          <div class="mt-4 pt-3 border-t border-neutral-100 text-[0.6rem] text-neutral-400">
-            策略：评审摘要 + 最近 12 轮对话<br>会话 1 小时自动过期
+          <div class="mt-4 pt-3 border-t border-neutral-100">
+            <div class="text-[0.6rem] text-neutral-400">策略：评审摘要 + 最近 12 轮对话</div>
+            <div class="text-[0.6rem] text-neutral-400">会话 1 小时自动过期</div>
+            <div id="turnCount" class="text-[0.6rem] text-neutral-400 mt-1 hidden">最近对话轮数：0</div>
           </div>
         </div>
       </div>
@@ -230,82 +232,99 @@ DEEPSEEK_CHAT_PROMPT = """你是一个设计评审助手。
     (function() {
       var chatMsgs = document.getElementById('chatMsgs');
       var memoryContent = document.getElementById('memoryContent');
+      var turnCount = document.getElementById('turnCount');
       var chatInput = document.getElementById('chatInput');
       var chatSend = document.getElementById('chatSend');
       var initBtn = document.getElementById('initBtn');
 
-      // Mock session state
       var reviewSummary = null;
       var chatHistory = [];
 
-      function addBubble(role, text) {
+      function addBubble(role, text, refs) {
         if (chatMsgs.querySelector('.text-center')) chatMsgs.innerHTML = '';
+        var wrapper = document.createElement('div');
+        wrapper.className = 'mb-3';
+
         var div = document.createElement('div');
         if (role === 'user') {
-          div.className = 'max-w-[80%] ml-auto mb-3 px-4 py-2.5 rounded-2xl rounded-br-sm text-sm text-white';
-          div.style.background = 'var(--pa)';
+          wrapper.className += ' flex justify-end';
+          div.className = 'max-w-[80%] px-4 py-2.5 rounded-2xl rounded-br-sm text-sm text-white';
+          div.style.background = '#f59e0b';
         } else {
-          div.className = 'max-w-[80%] mr-auto mb-3 px-4 py-2.5 rounded-2xl rounded-bl-sm text-sm text-neutral-700 bg-neutral-100';
+          wrapper.className += ' flex justify-start';
+          div.className = 'max-w-[85%] px-4 py-2.5 rounded-2xl rounded-bl-sm text-sm';
+          div.style.background = '#ffffff';
+          div.style.color = '#4a423b';
+          div.style.border = '1px solid #e8e4e0';
         }
         div.textContent = text;
-        chatMsgs.appendChild(div);
+        wrapper.appendChild(div);
+
+        if (refs) {
+          var refDiv = document.createElement('div');
+          refDiv.className = 'mt-1 ml-1 text-[0.65rem] text-neutral-400';
+          refDiv.textContent = '相关原则：' + refs;
+          wrapper.appendChild(refDiv);
+        }
+
+        chatMsgs.appendChild(wrapper);
         chatMsgs.scrollTop = chatMsgs.scrollHeight;
       }
 
       function updateMemory() {
         if (!reviewSummary) {
-          memoryContent.innerHTML = '<p class="text-neutral-400">等待评审完成后显示...</p>';
+          memoryContent.innerHTML = '<div class="text-neutral-400">等待评审完成后显示...</div>';
+          turnCount.classList.add('hidden');
           return;
         }
-        var html = '<div class="space-y-2">';
-        html += '<div class="text-[0.6rem] uppercase tracking-wider text-neutral-400 mb-2">评审上下文</div>';
 
-        // Review summary
-        html += '<div class="flex items-start gap-2 p-2 rounded-lg bg-neutral-50">';
-        html += '<span class="text-xs">📋</span>';
-        html += '<div><div class="text-xs font-semibold text-neutral-700">综合评分 ' + reviewSummary.overall_score + '/10</div></div>';
+        var turns = Math.floor(chatHistory.length / 2);
+        turnCount.classList.remove('hidden');
+        turnCount.textContent = '最近对话轮数：' + turns;
+
+        var html = '<div class="bg-neutral-50 rounded-lg p-3 mb-3 font-mono text-[0.65rem] leading-relaxed">';
+        html += '<div class="text-[0.6rem] uppercase tracking-wider text-neutral-400 mb-2">Session Data (JSON)</div>';
+        html += '{<br>';
+        html += '&nbsp;&nbsp;<span class="text-amber-600">"overall_score"</span>: <span class="text-emerald-600">' + reviewSummary.overall_score + '</span>,<br>';
+        html += '&nbsp;&nbsp;<span class="text-amber-600">"dimensions"</span>: [<br>';
+        reviewSummary.dimensions.forEach(function(d, i) {
+          html += '&nbsp;&nbsp;&nbsp;&nbsp;{ <span class="text-amber-600">"name"</span>: <span class="text-emerald-600">"' + escHtml(d.name) + '"</span>, <span class="text-amber-600">"score"</span>: <span class="text-emerald-600">' + d.score + '</span>, <span class="text-amber-600">"summary"</span>: <span class="text-emerald-600">"' + escHtml(d.summary) + '"</span> }';
+          if (i < reviewSummary.dimensions.length - 1) html += ',';
+          html += '<br>';
+        });
+        html += '&nbsp;&nbsp;]<br>';
+        html += '}';
         html += '</div>';
 
-        reviewSummary.dimensions.forEach(function(d) {
-          html += '<div class="flex items-start gap-2 p-2 rounded-lg bg-neutral-50">';
-          html += '<span class="text-xs">📌</span>';
-          html += '<div><div class="text-xs text-neutral-600">' + escHtml(d.name) + '：' + d.score + '/10</div></div>';
-          html += '</div>';
-        });
-
-        // Chat history
         if (chatHistory.length > 0) {
-          html += '<div class="text-[0.6rem] uppercase tracking-wider text-neutral-400 mt-3 mb-2 pt-3 border-t border-neutral-100">对话历史</div>';
-          chatHistory.forEach(function(m, i) {
+          html += '<div class="text-[0.6rem] uppercase tracking-wider text-neutral-400 mt-3 mb-2 pt-3 border-t border-neutral-100">对话日志</div>';
+          chatHistory.forEach(function(m) {
             var icon = m.role === 'user' ? '👤' : '🤖';
-            html += '<div class="flex items-start gap-2 p-1.5">';
+            var preview = (m.content || '').substring(0, 30) + ((m.content || '').length > 30 ? '...' : '');
+            html += '<div class="flex items-start gap-2 p-1">';
             html += '<span style="font-size:0.6rem;">' + icon + '</span>';
-            html += '<div class="text-xs text-neutral-500">' + escHtml((m.content || '').substring(0, 40)) + ((m.content || '').length > 40 ? '...' : '') + '</div>';
+            html += '<div class="text-[0.65rem] text-neutral-500">' + escHtml(preview) + '</div>';
             html += '</div>';
           });
         }
 
-        html += '</div>';
         memoryContent.innerHTML = html;
       }
 
       function escHtml(s) { var d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }
 
-      // Initialize review session
       initBtn.addEventListener('click', function() {
-        // Mock review result
         reviewSummary = {
           overall_score: 7.2,
           dimensions: [
-            { name: '信息架构', score: 8.0 },
-            { name: '视觉层级', score: 7.0 },
-            { name: '可用性', score: 7.5 },
-            { name: '色彩系统', score: 7.5 }
+            { name: '信息架构', score: 8.0, summary: '导航结构清晰，符合F型浏览' },
+            { name: '视觉层级', score: 7.0, summary: '色彩统一但对比度不足' },
+            { name: '可用性', score: 7.5, summary: '按钮尺寸达标，缺实时验证' }
           ]
         };
         chatHistory = [];
 
-        addBubble('ai', '评审完成！综合评分：7.2/10\n主要发现：信息架构(8.0) · 视觉层级(7.0) · 可用性(7.5) · 色彩系统(7.5)\n\n有疑问随时追问——我记住了这次评审的全部内容。');
+        addBubble('ai', '评审完成！有什么想问的随时问我。');
         updateMemory();
 
         chatInput.disabled = false;
@@ -316,7 +335,6 @@ DEEPSEEK_CHAT_PROMPT = """你是一个设计评审助手。
         chatInput.focus();
       });
 
-      // Send chat
       function sendChat() {
         var msg = chatInput.value.trim();
         if (!msg || !reviewSummary) return;
@@ -328,30 +346,47 @@ DEEPSEEK_CHAT_PROMPT = """你是一个设计评审助手。
         chatInput.disabled = true;
         chatSend.disabled = true;
 
-        // Mock AI reply based on context awareness
         setTimeout(function() {
-          var reply = generateMockReply(msg, reviewSummary, chatHistory);
-          addBubble('ai', reply);
-          chatHistory.push({ role: 'assistant', content: reply });
+          var result = generateMockReply(msg, reviewSummary, chatHistory);
+          addBubble('ai', result.text, result.refs);
+          chatHistory.push({ role: 'assistant', content: result.text });
           updateMemory();
           chatInput.disabled = false;
           chatSend.disabled = false;
           chatInput.focus();
-        }, 800);
+        }, 1000);
       }
 
       function generateMockReply(msg, review, history) {
         var lower = msg.toLowerCase();
         if (lower.includes('第一个') || lower.includes('之前') || lower.includes('刚才')) {
-          return '根据之前的评审记录，第一个可改进的发现是"二级页面缺少面包屑导航"——这个问题在信息架构维度（8.0分）中被标记。用户进入深层页面后容易迷路，建议在页面顶部添加路径导航，让用户随时知道自己的位置。';
+          return {
+            text: '根据之前的评审记录，第一个可改进的维度是「视觉层级」（7.0/10）。具体来说，页面中灰色文字（#999）在浅灰背景上的对比度仅为 3.2:1，低于 WCAG AA 标准的 4.5:1。建议将辅助文字颜色调整为 #767676。另外二级页面缺少面包屑导航——用户在深层页面容易迷路。',
+            refs: '尼尔森第六原则（识别而非回忆）、WCAG 2.1 AA 对比度标准'
+          };
         }
         if (lower.includes('总结') || lower.includes('三条') || lower.includes('概括')) {
-          return '好的，基于刚才的评审，总结三条核心改进方向：\n\n1. 添加面包屑导航——提升深层页面的空间定位感\n2. 调整灰色文字对比度——从 #999 到 #767676，满足 WCAG AA 标准\n3. 建立状态色彩系统——统一成功/警告/错误的颜色语义\n\n这些改进的重点是"信息可及性"——让用户不用思考就能找到和理解信息。';
+          return {
+            text: '好的，基于刚才的评审，总结三条核心改进方向：
+
+1. 添加面包屑导航——提升深层页面的空间定位感
+2. 调整灰色文字对比度——从 #999 到 #767676，满足 WCAG AA 标准
+3. 建立统一的状态色彩体系——成功/警告/错误各用专属颜色
+
+这三条的核心目标是「信息可及性」——让用户不用思考就能找到和理解信息。',
+            refs: '尼尔森第一原则（系统状态可见性）、格式塔相似性原则'
+          };
         }
         if (lower.includes('色彩') || lower.includes('颜色') || lower.includes('对比度')) {
-          return '刚才评审中提到，灰色文字在浅灰背景上的对比度仅为 3.2:1（信息架构维度，7.0分）。这个值低于 WCAG AA 标准的 4.5:1。建议将辅助文字颜色从 #999 调整为 #767676。另外品牌色系统协调（60-30-10 比例），但状态色彩需要统一——建议定义明确的语义色彩体系。';
+          return {
+            text: '刚才评审中提到，色彩系统得分 7.5/10。品牌色协调（符合 60-30-10 比例），但存在两个问题：一是辅助文字对比度不足（3.2:1 vs 标准 4.5:1），二是状态色彩缺乏统一语义——成功、警告、错误分别用了三种不同风格的颜色，用户需要额外学习成本。建议建立一套语义色彩 Token，全局统一使用。',
+            refs: 'WCAG 2.1 AA 标准、格式塔相似性原则'
+          };
         }
-        return '根据你的评审记录（综合 7.2 分），这个问题可以从信息架构和视觉层级两个维度来看。你能具体说说是在哪个页面遇到这个问题的吗？';
+        return {
+          text: '根据你的评审记录（综合 7.2 分），这个问题可以从信息架构和视觉层级两个维度来看。你能具体说说是在哪个页面遇到这个问题的吗？这样我可以给出更有针对性的建议。',
+          refs: '尼尔森第三原则（用户控制与自由）'
+        };
       }
 
       chatSend.addEventListener('click', sendChat);

@@ -37,6 +37,12 @@
     .mobile-menu { max-height:0; overflow:hidden; transition:max-height 0.35s cubic-bezier(0.16,1,0.3,1),opacity 0.25s ease; opacity:0; }
     .mobile-menu.open { max-height:320px; opacity:1; }
     body { font-family: 'Inter','Noto Sans SC',sans-serif; }
+    .step-num { transition: all 0.35s ease; }
+    .fade-in { animation: fadeIn 0.4s ease-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    .radio-option { cursor: pointer; transition: all 0.2s ease; }
+    .radio-option:hover { border-color: var(--pa); }
+    .radio-option input[type="radio"] { accent-color: var(--pa); }
   </style>
 </head>
 <body class="bg-neutral-100 text-neutral-700 antialiased">
@@ -102,25 +108,39 @@
     <h2 class="font-display text-2xl text-primary-800 mb-6">交互 Demo</h2>
 
     <!-- Stage Indicator -->
-    <div class="flex mb-6" id="stageIndicator">
-      <div class="flex-1 text-center pb-2 border-b-3 transition-all text-xs font-semibold" id="stg1" style="border-color:var(--pa);color:var(--pa);">1. 输入模糊需求</div>
-      <div class="flex-1 text-center pb-2 border-b-3 transition-all text-xs text-neutral-400" id="stg2" style="border-color:transparent;">2. AI 追问</div>
-      <div class="flex-1 text-center pb-2 border-b-3 transition-all text-xs text-neutral-400" id="stg3" style="border-color:transparent;">3. 查看对比</div>
+    <div class="flex items-center mb-8" id="stageIndicator">
+      <div class="flex items-center gap-2 flex-1">
+        <span class="step-num flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold text-white" id="stepNum1" style="background:var(--pa);">1</span>
+        <span class="text-xs font-semibold hidden sm:inline" id="stepLabel1" style="color:var(--pa);">输入需求</span>
+      </div>
+      <div class="w-8 h-px bg-neutral-300 mx-1" id="line1"></div>
+      <div class="flex items-center gap-2 flex-1">
+        <span class="step-num flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold bg-neutral-300 text-neutral-500" id="stepNum2">2</span>
+        <span class="text-xs font-semibold hidden sm:inline text-neutral-400" id="stepLabel2">AI 提问</span>
+      </div>
+      <div class="w-8 h-px bg-neutral-300 mx-1" id="line2"></div>
+      <div class="flex items-center gap-2 flex-1">
+        <span class="step-num flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold bg-neutral-300 text-neutral-500" id="stepNum3">3</span>
+        <span class="text-xs font-semibold hidden sm:inline text-neutral-400" id="stepLabel3">生成分析</span>
+      </div>
     </div>
 
     <!-- Stage 1: Input -->
     <div id="stage1Content">
-      <textarea id="descInput" class="w-full p-4 border border-neutral-300 rounded-xl text-sm resize-y min-h-[80px] focus:outline-none focus:ring-2 focus:ring-offset-1" style="font-family:inherit;focus-ring-color:var(--pa);" placeholder="越模糊越好。比如'帮我改一下颜色'、'这个页面不好看'"></textarea>
-      <div class="text-center mt-4">
-        <button id="clarifyBtn" class="px-8 py-3 text-white font-semibold rounded-full text-sm hover:opacity-90 transition-opacity shadow-lg" style="background:var(--pa);">让 AI 追问</button>
+      <div class="bg-white rounded-xl border border-neutral-200 p-5">
+        <label class="text-sm font-semibold text-primary-800 block mb-2">描述你的设计需求（越模糊越好）</label>
+        <textarea id="descInput" class="w-full p-4 border border-neutral-300 rounded-xl text-sm resize-y min-h-[80px] focus:outline-none focus:ring-2" style="font-family:inherit;" placeholder="比如：'帮我改一下颜色'、'这个页面不好看'、'加个按钮'">帮我改一下颜色</textarea>
+      </div>
+      <div class="text-center mt-5">
+        <button id="clarifyBtn" class="px-8 py-3 text-white font-semibold rounded-full text-sm hover:opacity-90 transition-all shadow-lg" style="background:var(--pa);">开始澄清</button>
       </div>
     </div>
 
     <!-- Stage 2: Questions -->
-    <div id="stage2Content" class="hidden"></div>
+    <div id="stage2Content" style="display:none;"></div>
 
     <!-- Stage 3: Comparison -->
-    <div id="stage3Content" class="hidden"></div>
+    <div id="stage3Content" style="display:none;"></div>
   </section>
 
   <!-- How It Works -->
@@ -209,88 +229,180 @@ async def clarify_refine(req: ClarifyRefineRequest):
 
   <script>
     (function() {
-      function setStage(n) {
+      // ---- Step indicator UI ----
+      function setActiveStep(n) {
         for (var i = 1; i <= 3; i++) {
-          var el = document.getElementById('stg' + i);
-          el.style.borderColor = 'transparent';
-          el.style.color = '#a89f96';
+          var num = document.getElementById('stepNum' + i);
+          var label = document.getElementById('stepLabel' + i);
+          if (i < n) {
+            num.style.background = '#10b981'; num.style.color = '#fff';
+            label.style.color = '#10b981';
+          } else if (i === n) {
+            num.style.background = 'var(--pa)'; num.style.color = '#fff';
+            label.style.color = 'var(--pa)';
+          } else {
+            num.style.background = '#e8e4e0'; num.style.color = '#7d7368';
+            label.style.color = '#a89f96';
+          }
         }
-        for (var i = 1; i < n; i++) {
-          var el = document.getElementById('stg' + i);
-          el.style.borderColor = '#10b981';
-          el.style.color = '#10b981';
+        // Update connector lines
+        for (var j = 1; j <= 2; j++) {
+          var line = document.getElementById('line' + j);
+          line.style.background = j < n ? '#10b981' : '#e8e4e0';
         }
-        var active = document.getElementById('stg' + n);
-        active.style.borderColor = 'var(--pa)';
-        active.style.color = 'var(--pa)';
       }
 
-      function escHtml(s) { var d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }
+      function showStage(n) {
+        var s1 = document.getElementById('stage1Content');
+        var s2 = document.getElementById('stage2Content');
+        var s3 = document.getElementById('stage3Content');
+        s1.style.display = n === 1 ? 'block' : 'none';
+        s2.style.display = n === 2 ? 'block' : 'none';
+        s3.style.display = n === 3 ? 'block' : 'none';
+        if (n === 2) {
+          s2.classList.add('fade-in');
+          s2.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        if (n === 3) {
+          s3.classList.add('fade-in');
+          s3.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        setActiveStep(n);
+      }
 
+      // ---- Mock questions data ----
+      var questionsData = [
+        {
+          id: 'q1',
+          question: '你想改哪个元素的颜色？',
+          options: [
+            { value: 'nav_text', label: '导航栏的文字颜色' },
+            { value: 'bg_color', label: '整个页面的背景色' },
+            { value: 'btn_color', label: '按钮的配色方案' }
+          ]
+        },
+        {
+          id: 'q2',
+          question: '你希望改成什么样的风格？',
+          options: [
+            { value: 'dark_gray', label: '深灰色系，更沉稳、提升可读性' },
+            { value: 'warm', label: '暖色系，更活泼有亲和力' },
+            { value: 'brand', label: '和品牌 Logo 颜色保持一致' }
+          ]
+        },
+        {
+          id: 'q3',
+          question: '改色的目的是什么？',
+          options: [
+            { value: 'readability', label: '提升内容可读性和对比度' },
+            { value: 'aesthetic', label: '纯粹觉得现在不好看，想换个风格' },
+            { value: 'unify', label: '让多个页面的配色统一起来' }
+          ]
+        }
+      ];
+
+      function escHtml(s) {
+        var d = document.createElement('div');
+        d.textContent = s || '';
+        return d.innerHTML;
+      }
+
+      // ---- Step 1 → Step 2 ----
       document.getElementById('clarifyBtn').addEventListener('click', function() {
-        var desc = document.getElementById('descInput').value.trim();
-        if (!desc) { desc = '帮我改一下颜色'; }
+        showStage(2);
 
-        setStage(2);
-
-        // Mock AI clarification questions
-        var questions = [
-          { id: 'q1', question: '你想改哪个元素的颜色？', hint: '比如：按钮、背景、文字、导航栏...' },
-          { id: 'q2', question: '改成什么风格或色调？', hint: '比如：暖色系、冷色系、品牌色、对比更强...' },
-          { id: 'q3', question: '改色的目的是什么？', hint: '比如：提升可读性、更符合品牌、视觉更统一...' }
-        ];
-
-        var html = '<div class="bg-white rounded-xl border p-5 mb-4" style="border-color:var(--pa);background:#f5f3ff;">';
-        html += '<p class="text-sm font-semibold mb-1" style="color:var(--pa);">AI 的理解：</p>';
-        html += '<p class="text-sm text-neutral-600">你希望对当前设计的颜色进行调整，但我需要更多信息才能给出精准建议。</p>';
+        var html = '';
+        // AI understanding box
+        html += '<div class="rounded-xl border p-5 mb-5 fade-in" style="border-color:var(--pa);background:#f5f3ff;">';
+        html += '<p class="text-sm font-semibold mb-1 flex items-center gap-1.5" style="color:var(--pa);"><span style="font-size:1.1em;">🤖</span> AI 的初步理解</p>';
+        html += '<p class="text-sm text-neutral-600">你希望对当前设计的颜色进行调整。但"改颜色"这个描述比较模糊——我需要确认几个关键信息才能给出精准建议，而不是瞎猜。</p>';
         html += '</div>';
-        html += '<p class="text-sm font-semibold text-primary-800 mb-3">AI 需要确认以下问题：</p>';
 
-        questions.forEach(function(q, i) {
-          html += '<div class="bg-white rounded-xl border border-neutral-200 p-4 mb-3">';
-          html += '<p class="text-sm font-semibold text-neutral-700 mb-2">' + (i + 1) + '. ' + escHtml(q.question) + '</p>';
-          html += '<input type="text" id="a_' + q.id + '" class="w-full p-2.5 border border-neutral-300 rounded-lg text-sm focus:outline-none focus:ring-2" style="font-family:inherit;focus-ring-color:var(--pa);" placeholder="' + escHtml(q.hint) + '" />';
+        html += '<p class="text-sm font-semibold text-primary-800 mb-4">请在以下问题中选择你的答案：</p>';
+
+        // Questions with radio buttons
+        questionsData.forEach(function(q, qi) {
+          html += '<div class="bg-white rounded-xl border border-neutral-200 p-5 mb-4 fade-in" style="animation-delay:' + (qi * 0.1) + 's;">';
+          html += '<p class="text-sm font-semibold text-neutral-800 mb-3"><span class="inline-block w-6 h-6 rounded-full text-xs text-white text-center leading-6 mr-1.5" style="background:var(--pa);">' + (qi + 1) + '</span>' + escHtml(q.question) + '</p>';
+          q.options.forEach(function(opt, oi) {
+            html += '<label class="radio-option flex items-center gap-2.5 p-2.5 -mx-1 rounded-lg mb-1.5 text-sm text-neutral-600 hover:bg-neutral-50">';
+            html += '<input type="radio" name="' + q.id + '" value="' + escHtml(opt.value) + '" class="w-4 h-4"' + (oi === 0 ? ' checked' : '') + ' style="accent-color:var(--pa);">';
+            html += '<span>' + escHtml(opt.label) + '</span>';
+            html += '</label>';
+          });
           html += '</div>';
         });
 
-        html += '<div class="text-center mt-5"><button id="refineBtn" class="px-8 py-3 text-white font-semibold rounded-full text-sm hover:opacity-90 transition-opacity shadow-lg" style="background:var(--pa);">提交回答，看对比结果</button></div>';
+        html += '<div class="text-center mt-6 fade-in">';
+        html += '<button id="refineBtn" class="px-8 py-3 text-white font-semibold rounded-full text-sm hover:opacity-90 transition-all shadow-lg" style="background:var(--pa);">提交回答，看对比结果</button>';
+        html += '</div>';
 
         document.getElementById('stage2Content').innerHTML = html;
-        document.getElementById('stage2Content').classList.remove('hidden');
-        document.getElementById('stage2Content').scrollIntoView({ behavior: 'smooth' });
+        document.getElementById('stage2Content').style.display = 'block';
 
         // Bind refine button
         document.getElementById('refineBtn').addEventListener('click', function() {
-          setStage(3);
-
-          var answers = questions.map(function(q) {
-            return document.getElementById('a_' + q.id).value || '(未回答)';
-          });
-
-          var html = '<div class="grid grid-cols-1 md:grid-cols-2 gap-4">';
-          // Without clarify
-          html += '<div class="rounded-xl p-5 border-l-4" style="background:#fef2f2;border-color:#ef4444;">';
-          html += '<p class="text-sm font-bold text-red-600 mb-2">如果不澄清，AI 可能会说：</p>';
-          html += '<p class="text-sm text-neutral-600 leading-relaxed">把页面的主色调从蓝色换成绿色，所有按钮、链接、强调文字都用 #00C853。这会让你的设计看起来更有活力！</p>';
-          html += '<p class="text-xs text-neutral-400 mt-2">（但你可能只是想调暗文字颜色提升可读性——AI 完全理解错了）</p>';
-          html += '</div>';
-          // With clarify
-          html += '<div class="rounded-xl p-5 border-l-4" style="background:#ecfdf5;border-color:#10b981;">';
-          html += '<p class="text-sm font-bold text-emerald-600 mb-2">澄清后的精准回答：</p>';
-          html += '<p class="text-sm text-neutral-600 leading-relaxed">根据你的回答——想改的是导航栏文字颜色，偏好深灰色以提升可读性，目标是让内容层级更清晰——建议将导航文字从 #6B7280 调至 #374151，对比度从 3.8:1 提升至 5.2:1，满足 WCAG AA 标准。</p>';
-          html += '</div>';
-          html += '</div>';
-
-          html += '<div class="mt-6 p-5 rounded-xl text-center text-sm" style="background:#f5f3ff;color:var(--pa);">';
-          html += '看到差异了吗？就多问了 3 个问题，AI 的输出从"答非所问"变成了"精准有用"。这就是澄清提问的价值。';
-          html += '</div>';
-
-          document.getElementById('stage3Content').innerHTML = html;
-          document.getElementById('stage3Content').classList.remove('hidden');
-          document.getElementById('stage3Content').scrollIntoView({ behavior: 'smooth' });
+          showStage(3);
+          renderStage3();
         });
       });
 
+      // ---- Step 3: Comparison ----
+      function renderStage3() {
+        var html = '';
+
+        // Refined analysis header
+        html += '<div class="rounded-xl border p-5 mb-5 fade-in" style="border-color:#10b981;background:#ecfdf5;">';
+        html += '<p class="text-sm font-semibold mb-2 flex items-center gap-1.5" style="color:#059669;"><span style="font-size:1.1em;">✅</span> 澄清完成：AI 现在有了足够的上下文</p>';
+        html += '<p class="text-xs text-neutral-500">基于你的 3 个回答，AI 理解了你的真实需求，现在可以给出精准建议。</p>';
+        html += '</div>';
+
+        // Side-by-side comparison
+        html += '<div class="grid grid-cols-1 md:grid-cols-2 gap-5">';
+
+        // Left: refined analysis
+        html += '<div class="rounded-xl p-5 border-t-4 fade-in" style="border-top-color:#10b981;background:#f0fdf4;">';
+        html += '<p class="text-sm font-bold mb-3 flex items-center gap-1.5" style="color:#059669;"><span>🎯</span> 基于澄清的精准分析</p>';
+        html += '<div class="text-sm text-neutral-700 leading-relaxed space-y-3">';
+        html += '<p>根据你的需求——<strong>想调整导航栏文字颜色</strong>，偏好<strong>深灰色系</strong>以<strong>提升可读性</strong>——我建议：</p>';
+        html += '<ul class="list-disc pl-4 space-y-1.5 text-neutral-600">';
+        html += '<li>将导航文字颜色从 <code class="text-xs bg-neutral-200 px-1 rounded">#6B7280</code> 调整为 <code class="text-xs bg-neutral-200 px-1 rounded">#374151</code></li>';
+        html += '<li>对比度从 <strong>3.8:1</strong> 提升至 <strong>5.2:1</strong>，满足 WCAG AA 标准</li>';
+        html += '<li>保持与页面其他元素的视觉平衡，不会显得突兀</li>';
+        html += '<li>建议同时检查页脚文字，确保全站一致性</li>';
+        html += '</ul>';
+        html += '<p class="text-xs text-neutral-400 pt-1">此方案在提升可读性的同时保持了设计的克制感，符合你的"沉稳"偏好。</p>';
+        html += '</div>';
+        html += '</div>';
+
+        // Right: without clarification
+        html += '<div class="rounded-xl p-5 border-t-4 fade-in" style="border-top-color:#ef4444;background:#fef2f2;">';
+        html += '<p class="text-sm font-bold mb-3 flex items-center gap-1.5" style="color:#dc2626;"><span>⚠️</span> 如果不澄清，AI 可能会误解成</p>';
+        html += '<div class="text-sm text-neutral-700 leading-relaxed space-y-3">';
+        html += '<p>如果不问清楚，AI 可能会把你的"帮我改一下颜色"理解成：</p>';
+        html += '<ul class="list-disc pl-4 space-y-1.5 text-neutral-600">';
+        html += '<li>把整个页面的主色系从蓝调换成绿调</li>';
+        html += '<li>所有按钮和链接都用 <code class="text-xs bg-neutral-200 px-1 rounded">#00C853</code> 绿色</li>';
+        html += '<li>背景改成浅绿色，营造"清新活力"的感觉</li>';
+        html += '<li>完全偏离了你"只想调暗文字提升可读性"的本意</li>';
+        html += '</ul>';
+        html += '<p class="text-xs text-neutral-400 pt-1">这就是<strong>"瞎猜"的代价</strong>——不做澄清，AI 有 80% 的概率答非所问。</p>';
+        html += '</div>';
+        html += '</div>';
+
+        html += '</div>';
+
+        // Bottom insight
+        html += '<div class="mt-6 p-5 rounded-xl text-center text-sm fade-in" style="background:#f5f3ff;">';
+        html += '<p style="color:var(--pa);"><strong>核心洞察：</strong>就多问了 <span style="font-weight:700;">3 个问题</span>，AI 的输出从<strong>"答非所问"变成了"精准有用"</strong>。</p>';
+        html += '<p class="text-xs text-neutral-500 mt-1">这就是"澄清提问"模式的价值——它对应的设计原则是<strong>尼尔森的"预防错误"</strong>：好的设计不让错误发生，而不是等发生了再纠正。</p>';
+        html += '</div>';
+
+        document.getElementById('stage3Content').innerHTML = html;
+        document.getElementById('stage3Content').style.display = 'block';
+      }
+
+      // Mobile menu toggle
       document.getElementById('hamburger').addEventListener('click', function() {
         document.getElementById('mobile-menu').classList.toggle('open');
       });

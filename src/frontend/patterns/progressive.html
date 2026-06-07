@@ -144,26 +144,35 @@
     <h2 class="font-display text-2xl text-primary-800 mb-6">交互 Demo</h2>
     <p class="text-sm text-neutral-500 mb-6">点击"开始渐进式加载"，观察信息按认知顺序逐层展开——每一步完成才展示下一步。</p>
 
-    <div class="text-center mb-6">
+    <div class="text-center mb-8">
       <button id="startBtn" class="px-8 py-3 text-white font-semibold rounded-full text-sm hover:opacity-90 transition-opacity shadow-lg" style="background:var(--pa);">开始渐进式加载</button>
     </div>
 
     <!-- Step Cards -->
-    <div id="steps" class="hidden">
-      <div class="step-card" id="sc1">
-        <span class="step-num">1</span>
-        <strong class="text-sm text-primary-800">视觉分析</strong>
-        <div class="text-xs text-neutral-500 mt-2 step-placeholder">等待中...</div>
+    <div id="steps" class="hidden relative">
+      <!-- Connecting line -->
+      <div class="absolute left-[23px] top-12 bottom-12 w-0.5 bg-neutral-200 transition-colors duration-500" id="connector"></div>
+
+      <div class="step-card relative z-10" id="sc1">
+        <div class="flex items-center gap-3">
+          <span class="step-num">1</span>
+          <strong class="text-sm text-primary-800">视觉分析</strong>
+        </div>
+        <div class="text-xs text-neutral-500 mt-2 ml-[36px] step-placeholder">等待中...</div>
       </div>
-      <div class="step-card" id="sc2">
-        <span class="step-num">2</span>
-        <strong class="text-sm text-primary-800">综合评分</strong>
-        <div class="text-xs text-neutral-500 mt-2 step-placeholder">等待第 1 步完成...</div>
+      <div class="step-card relative z-10" id="sc2">
+        <div class="flex items-center gap-3">
+          <span class="step-num">2</span>
+          <strong class="text-sm text-primary-800">流式生成</strong>
+        </div>
+        <div class="text-xs text-neutral-500 mt-2 ml-[36px] step-placeholder">等待第 1 步完成...</div>
       </div>
-      <div class="step-card" id="sc3">
-        <span class="step-num">3</span>
-        <strong class="text-sm text-primary-800">详细评审报告</strong>
-        <div class="text-xs text-neutral-500 mt-2 step-placeholder">等待第 2 步完成...</div>
+      <div class="step-card relative z-10" id="sc3">
+        <div class="flex items-center gap-3">
+          <span class="step-num">3</span>
+          <strong class="text-sm text-primary-800">整理展示</strong>
+        </div>
+        <div class="text-xs text-neutral-500 mt-2 ml-[36px] step-placeholder">等待第 2 步完成...</div>
       </div>
     </div>
   </section>
@@ -258,21 +267,36 @@
 
   <script>
     (function() {
-      function revealStep(num, content) {
+      var running = false;
+
+      function revealStep(num) {
         var card = document.getElementById('sc' + num);
         card.classList.add('revealed');
-        card.querySelector('.step-placeholder').innerHTML = content;
+        card.style.background = '#fff';
       }
 
       function completeStep(num) {
         var card = document.getElementById('sc' + num);
         card.classList.remove('revealed');
         card.classList.add('completed');
+        card.style.background = '#f0fdfa';
       }
 
-      function escHtml(s) { var d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }
+      function sleep(ms) { return new Promise(function(r) { setTimeout(r, ms); }); }
+
+      function resetSteps() {
+        ['sc1', 'sc2', 'sc3'].forEach(function(id, idx) {
+          var c = document.getElementById(id);
+          c.classList.remove('revealed', 'completed');
+          c.style.background = '#fff';
+          c.querySelector('.step-placeholder').innerHTML = idx === 0 ? '等待中...' : ('等待第 ' + idx + ' 步完成...');
+        });
+        document.getElementById('connector').style.background = '#e8e4e0';
+      }
 
       document.getElementById('startBtn').addEventListener('click', async function() {
+        if (running) return;
+        running = true;
         var btn = this;
         btn.disabled = true;
         btn.textContent = '加载中...';
@@ -280,56 +304,62 @@
 
         var stepsEl = document.getElementById('steps');
         stepsEl.classList.remove('hidden');
+        resetSteps();
         stepsEl.scrollIntoView({ behavior: 'smooth' });
+        await sleep(300);
 
-        // Reset all steps
-        ['sc1', 'sc2', 'sc3'].forEach(function(id) {
-          var c = document.getElementById(id);
-          c.classList.remove('revealed', 'completed');
-          c.querySelector('.step-placeholder').innerHTML = '等待中...';
-        });
-
-        // Step 1: Visual analysis
-        await sleep(400);
-        revealStep(1, '正在使用 GLM-4V 分析设计截图，识别布局结构、色彩方案、组件层级...');
-
-        await sleep(1500);
-        completeStep(1);
+        // Step 1: Visual Analysis
+        revealStep(1);
         document.getElementById('sc1').querySelector('.step-placeholder').innerHTML =
-          '识别完成：4 个主要区域、12 个交互组件、品牌色系为蓝色调。';
+          '<div class="flex items-center gap-2"><span class="inline-block w-4 h-4 border-2 border-teal-300 border-t-teal-500 rounded-full animate-spin"></span> 正在识别设计元素...</div>';
+        await sleep(2000);
+        completeStep(1);
+        document.getElementById('sc1').style.background = '#f0fdfa';
+        document.getElementById('sc1').querySelector('.step-placeholder').innerHTML =
+          '<span style="color:#10b981;">&#10003; 设计元素识别完成</span>';
 
-        // Step 2: Scoring
-        revealStep(2, '正在综合各维度生成评分...');
+        // Step 2: Streaming Generation
+        revealStep(2);
+        var step2Placeholder = document.getElementById('sc2').querySelector('.step-placeholder');
+        step2Placeholder.innerHTML = '<div class="flex items-center gap-2 mb-2"><span class="inline-block w-4 h-4 border-2 border-teal-300 border-t-teal-500 rounded-full animate-spin"></span> 正在生成评审报告...</div>';
+        await sleep(600);
 
-        await sleep(1200);
+        var lines = [
+          '分析截图布局结构...',
+          '识别 4 个主要功能区域',
+          '提取色彩方案（蓝灰色系为主）',
+          '检测 12 个交互组件',
+          '计算信息架构评分...',
+          '评估视觉层级关系...',
+          '生成详细改进建议...'
+        ];
+        for (var i = 0; i < lines.length; i++) {
+          await sleep(350);
+          step2Placeholder.innerHTML += '<div class="text-neutral-500 ml-5">' + lines[i] + '</div>';
+        }
+        await sleep(400);
         completeStep(2);
+        document.getElementById('sc2').style.background = '#f0fdfa';
         document.getElementById('sc2').querySelector('.step-placeholder').innerHTML =
-          '<span class="text-lg font-bold" style="color:var(--pa);">7.2 / 10</span><br>共 4 个维度分析完毕：信息架构(8.0) · 视觉层级(7.0) · 可用性(7.5) · 色彩系统(7.5)';
+          '<span style="color:#10b981;">&#10003; 流式生成完成 — 共生成 7 条分析结果</span>';
 
-        // Step 3: Full report
-        revealStep(3, '正在生成详细评审报告...');
-
-        await sleep(1500);
-        completeStep(3);
+        // Step 3: Organize & Display
+        revealStep(3);
         document.getElementById('sc3').querySelector('.step-placeholder').innerHTML =
-          '<strong style="color:#10b981;">评审报告已生成</strong><br>' +
-          '<strong>信息架构</strong>：8.0/10 · 导航结构清晰，符合 F 型浏览习惯<br>' +
-          '<strong>视觉层级</strong>：7.0/10 · 色彩系统统一，但部分区域对比度不足<br>' +
-          '<strong>可用性</strong>：7.5/10 · 按钮尺寸达标，建议添加实时表单验证<br>' +
-          '<strong>色彩系统</strong>：7.5/10 · 品牌色协调，状态色彩需统一';
+          '<div class="flex items-center gap-2"><span class="inline-block w-4 h-4 border-2 border-teal-300 border-t-teal-500 rounded-full animate-spin"></span> 正在整理评审报告...</div>';
+        await sleep(1000);
+        completeStep(3);
+        document.getElementById('sc3').style.background = '#f0fdfa';
+        document.getElementById('sc3').querySelector('.step-placeholder').innerHTML =
+          '<span style="color:#10b981;">&#10003; 评审完成 - 耗时 6.2 秒</span>';
+
+        document.getElementById('connector').style.background = '#10b981';
 
         btn.disabled = false;
         btn.textContent = '重新演示';
         btn.style.opacity = '1';
-
-        // Allow re-run
-        btn.addEventListener('click', function rerun() {
-          btn.removeEventListener('click', rerun);
-          location.reload();
-        }, { once: true });
+        running = false;
       });
-
-      function sleep(ms) { return new Promise(function(r) { setTimeout(r, ms); }); }
 
       document.getElementById('hamburger').addEventListener('click', function() {
         document.getElementById('mobile-menu').classList.toggle('open');

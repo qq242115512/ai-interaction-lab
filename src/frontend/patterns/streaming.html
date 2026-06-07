@@ -43,6 +43,12 @@
     .typing-dot:nth-child(2) { animation-delay:0.2s; }
     .typing-dot:nth-child(3) { animation-delay:0.4s; }
     @keyframes bounce { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-8px)} }
+    .chat-bubble-user { margin-left:auto; max-width:82%; margin-bottom:0.75rem; padding:0.625rem 1rem; border-radius:1rem 1rem 0.25rem 1rem; font-size:0.875rem; line-height:1.625; color:#fff; background:var(--pa); }
+    .chat-bubble-ai { margin-right:auto; max-width:82%; margin-bottom:0.75rem; padding:0.625rem 1rem; border-radius:1rem 1rem 1rem 0.25rem; font-size:0.875rem; line-height:1.625; color:#332d28; background:#ffffff; border:1px solid #e8e4e0; }
+    .chat-bubble-ai strong { color:#1f1b18; }
+    .chat-bubble-ai p { margin:0.25rem 0; }
+    .fade-in { animation:fadeIn 0.35s ease-out; }
+    @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
   </style>
 </head>
 <body class="bg-neutral-100 text-neutral-700 antialiased">
@@ -103,27 +109,33 @@
   </section>
 
   <!-- Live Demo -->
-  <section class="max-w-4xl mx-auto px-6 pb-20">
+  <section class="max-w-3xl mx-auto px-6 pb-20">
     <div class="section-divider mb-8"><span class="section-divider-dot"></span></div>
     <h2 class="font-display text-2xl text-primary-800 mb-6">交互 Demo</h2>
 
     <!-- Speed controls -->
     <div class="flex items-center gap-2 mb-4 flex-wrap">
       <span class="text-xs font-semibold text-neutral-500 mr-2">播放速度：</span>
-      <button class="speed-btn px-4 py-1.5 text-xs font-semibold rounded-full border transition-all" data-speed="1" style="background:var(--pa);color:#fff;border-color:var(--pa);">正常</button>
-      <button class="speed-btn px-4 py-1.5 text-xs font-semibold rounded-full border border-neutral-300 text-neutral-500 bg-white hover:border-neutral-400 transition-all" data-speed="3">快速</button>
-      <button class="speed-btn px-4 py-1.5 text-xs font-semibold rounded-full border border-neutral-300 text-neutral-500 bg-white hover:border-neutral-400 transition-all" data-speed="10">极速</button>
+      <button class="speed-btn px-4 py-1.5 text-xs font-semibold rounded-full border transition-all" data-speed="1" style="background:var(--pa);color:#fff;border-color:var(--pa);">1x</button>
+      <button class="speed-btn px-4 py-1.5 text-xs font-semibold rounded-full border border-neutral-300 text-neutral-500 bg-white hover:border-neutral-400 transition-all" data-speed="2">2x</button>
+      <button class="speed-btn px-4 py-1.5 text-xs font-semibold rounded-full border border-neutral-300 text-neutral-500 bg-white hover:border-neutral-400 transition-all" data-speed="4">4x</button>
     </div>
 
     <!-- Chat window -->
-    <div class="bg-white rounded-2xl border border-neutral-200 overflow-hidden">
-      <div id="chatMessages" class="p-5 max-h-96 overflow-y-auto min-h-[120px]">
-        <div class="text-center text-neutral-400 py-10 text-sm">
+    <div class="bg-neutral-100 rounded-2xl border border-neutral-200 overflow-hidden shadow-sm">
+      <div class="bg-white rounded-t-2xl px-4 py-2.5 border-b border-neutral-100 flex items-center gap-2">
+        <span class="w-2.5 h-2.5 rounded-full bg-red-400"></span>
+        <span class="w-2.5 h-2.5 rounded-full bg-yellow-400"></span>
+        <span class="w-2.5 h-2.5 rounded-full bg-green-400"></span>
+        <span class="text-xs text-neutral-400 ml-2">AI 设计评审助手</span>
+      </div>
+      <div id="chatMessages" class="p-5 max-h-96 overflow-y-auto min-h-[200px] bg-neutral-50">
+        <div class="empty-placeholder text-center text-neutral-400 py-10 text-sm">
           点击下方按钮，模拟 AI 流式输出评审报告
         </div>
       </div>
-      <div class="flex items-center gap-3 px-5 py-3 border-t border-neutral-200">
-        <button id="streamBtn" class="px-6 py-2.5 text-white font-semibold rounded-full text-sm hover:opacity-90 transition-opacity shadow-lg" style="background:var(--pa);">
+      <div class="flex items-center gap-3 px-5 py-3 border-t border-neutral-200 bg-white rounded-b-2xl">
+        <button id="streamBtn" class="px-6 py-2.5 text-white font-semibold rounded-full text-sm hover:opacity-90 transition-all shadow-lg disabled:opacity-60 disabled:cursor-not-allowed" style="background:var(--pa);">
           开始流式输出
         </button>
         <span id="streamStatus" class="text-xs text-neutral-400"></span>
@@ -235,7 +247,7 @@ async def stream_review(visual: str, dims: list):
       var chatMessages = document.getElementById('chatMessages');
       var streamStatus = document.getElementById('streamStatus');
 
-      // The mock review text to stream
+      // The mock review text (~500 characters)
       var reviewText = [
         "## 设计评审报告\n\n",
         "**综合评分：7.5 / 10**\n\n",
@@ -253,49 +265,60 @@ async def stream_review(visual: str, dims: list):
         "### 色彩系统 (7.5/10)\n",
         "品牌主色与辅助色搭配协调，建立了清晰的视觉身份。",
         "但状态色彩（成功/警告/错误）未形成系统——成功用绿色但警告用了黄色而非橙色，",
-        "导致用户可能无法快速建立"颜色=状态"的心智模型。"
+        "导致用户可能无法快速建立\"颜色=状态\"的心智模型。"
       ];
 
       // Flatten to characters
       var allChars = reviewText.join('').split('');
 
+      function clearEmptyPlaceholder() {
+        var ph = chatMessages.querySelector('.empty-placeholder');
+        if (ph) { ph.remove(); }
+      }
+
       function addBubble(role, html) {
-        if (chatMessages.querySelector('.empty-placeholder')) {
-          chatMessages.innerHTML = '';
-        }
+        clearEmptyPlaceholder();
         var div = document.createElement('div');
-        div.className = 'max-w-[82%] mb-3 px-4 py-2.5 rounded-2xl text-sm leading-relaxed ' +
-          (role === 'user' ? 'ml-auto text-white rounded-br-sm' : 'mr-auto text-neutral-700 rounded-bl-sm bg-neutral-100');
-        if (role === 'user') { div.style.background = 'var(--pa)'; }
+        div.className = role === 'user' ? 'chat-bubble-user fade-in' : 'chat-bubble-ai fade-in';
         div.innerHTML = html;
         chatMessages.appendChild(div);
         chatMessages.scrollTop = chatMessages.scrollHeight;
         return div;
       }
 
+      function formatMarkdown(text) {
+        var escaped = text
+          .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        var html = escaped
+          .replace(/^## (.+)$/gm, '<p style="font-size:1.15em;font-weight:700;color:#1f1b18;margin:0.5em 0 0.25em;">$1</p>')
+          .replace(/^### (.+)$/gm, '<p style="font-weight:700;color:var(--pa);margin:0.5em 0 0.15em;">$1</p>')
+          .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+          .replace(/\n/g, '<br>');
+        return html;
+      }
+
       streamBtn.addEventListener('click', function() {
         if (isStreaming) return;
         isStreaming = true;
+        streamBtn.disabled = true;
         streamBtn.textContent = '流式输出中...';
-        streamBtn.style.opacity = '0.7';
         streamStatus.textContent = 'AI 正在生成...';
 
         // Add user message
         addBubble('user', '请帮我评审这个设计稿');
 
-        // Add typing indicator
-        var typingEl = document.createElement('div');
-        typingEl.className = 'flex gap-1 px-4 py-3 mr-auto';
-        typingEl.id = 'typingEl';
-        typingEl.innerHTML = '<span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span>';
-        chatMessages.appendChild(typingEl);
+        // Add typing indicator dots
+        var typingWrap = document.createElement('div');
+        typingWrap.className = 'flex gap-1.5 px-4 py-3 mr-auto';
+        typingWrap.id = 'typingEl';
+        typingWrap.innerHTML = '<span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span>';
+        chatMessages.appendChild(typingWrap);
         chatMessages.scrollTop = chatMessages.scrollHeight;
 
         // Delay then start streaming
         setTimeout(function() {
-          if (document.getElementById('typingEl')) {
-            document.getElementById('typingEl').remove();
-          }
+          var dots = document.getElementById('typingEl');
+          if (dots) { dots.remove(); }
 
           var bubble = addBubble('ai', '<span class="cursor-blink"></span>');
           var fullText = '';
@@ -305,32 +328,24 @@ async def stream_review(visual: str, dims: list):
             if (i >= allChars.length) {
               bubble.innerHTML = formatMarkdown(fullText);
               isStreaming = false;
+              streamBtn.disabled = false;
               streamBtn.textContent = '开始流式输出';
-              streamBtn.style.opacity = '1';
               streamStatus.textContent = '生成完成';
               return;
             }
-            // Release N chars at a time based on speed
-            var batch = allChars.slice(i, i + speed);
-            fullText += batch.join('');
-            i += speed;
+            var batchSize = Math.min(speed, allChars.length - i);
+            for (var j = 0; j < batchSize; j++) {
+              fullText += allChars[i + j];
+            }
+            i += batchSize;
             bubble.innerHTML = formatMarkdown(fullText) + '<span class="cursor-blink"></span>';
             chatMessages.scrollTop = chatMessages.scrollHeight;
             requestAnimationFrame(pushChars);
           }
 
           pushChars();
-        }, 600);
+        }, 700);
       });
-
-      function formatMarkdown(text) {
-        return text
-          .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-          .replace(/## (.*)/g, '<strong style="font-size:1.1em;">$1</strong>')
-          .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-          .replace(/### (.*)/g, '<strong style="color:var(--pa);">$1</strong>')
-          .replace(/\n/g, '<br>');
-      }
 
       // Mobile menu toggle
       document.getElementById('hamburger').addEventListener('click', function() {

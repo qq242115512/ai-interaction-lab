@@ -99,25 +99,26 @@
   <section class="max-w-3xl mx-auto px-6 pb-20">
     <div class="section-divider mb-8"><span class="section-divider-dot"></span></div>
     <h2 class="font-display text-2xl text-primary-800 mb-6">交互 Demo</h2>
+    <p class="text-sm text-neutral-500 mb-6">模拟一个关键操作的三步确认流程——人在回路，防误操作。</p>
 
     <!-- Flow Steps -->
-    <div class="flex mb-6" id="flowIndicator">
-      <div class="flex-1 text-center pb-2 border-b-3 transition-all text-xs font-semibold" id="fstep1" style="border-color:var(--pa);color:var(--pa);">1. 发起操作</div>
-      <div class="flex-1 text-center pb-2 border-b-3 transition-all text-xs text-neutral-400" id="fstep2" style="border-color:transparent;">2. 确认 / 取消</div>
-      <div class="flex-1 text-center pb-2 border-b-3 transition-all text-xs text-neutral-400" id="fstep3" style="border-color:transparent;">3. 执行结果</div>
+    <div class="flex mb-8" id="flowIndicator">
+      <div class="flex-1 text-center pb-2 border-b-[3px] transition-all duration-300 text-xs font-semibold" id="fstep1" style="border-bottom-color:var(--pa);color:var(--pa);">1. 描述操作</div>
+      <div class="flex-1 text-center pb-2 border-b-[3px] transition-all duration-300 text-xs text-neutral-400" id="fstep2" style="border-bottom-color:transparent;">2. 确认 / 取消</div>
+      <div class="flex-1 text-center pb-2 border-b-[3px] transition-all duration-300 text-xs text-neutral-400" id="fstep3" style="border-bottom-color:transparent;">3. 执行结果</div>
     </div>
 
-    <!-- Stage 1: Describe action -->
-    <div id="flowContent">
-      <p class="text-sm text-neutral-500 mb-3">试试让 AI 帮你执行一个关键操作（模拟场景）：</p>
-      <textarea id="actionInput" class="w-full p-4 border border-neutral-300 rounded-xl text-sm resize-y min-h-[60px] focus:outline-none focus:ring-2 focus:ring-offset-1" style="font-family:inherit;focus-ring-color:var(--pa);" placeholder="比如：删除我的「电商App改版」项目">删除我的「电商App改版」项目</textarea>
-      <div class="text-center mt-4">
-        <button id="goBtn" class="px-8 py-3 text-white font-semibold rounded-full text-sm hover:opacity-90 transition-opacity shadow-lg" style="background:var(--pa);">生成确认请求</button>
+    <!-- Step 1: Describe Action -->
+    <div id="step1Content" class="bg-white rounded-2xl p-6 border border-neutral-200">
+      <h3 class="font-semibold text-primary-800 mb-3 text-sm">描述你想让 AI 执行的操作</h3>
+      <p class="text-sm text-neutral-500 mb-4 leading-relaxed">将首页主色调从蓝色改为橙色，所有按钮和链接颜色同步更新，保持现有布局和间距不变。</p>
+      <div class="text-center">
+        <button id="genConfirmBtn" class="px-8 py-3 text-white font-semibold rounded-full text-sm hover:opacity-90 transition-opacity shadow-lg" style="background:var(--pa);">生成确认请求</button>
       </div>
     </div>
 
-    <!-- Stage 2 & 3: Confirm Card -->
-    <div id="confirmCard" class="hidden mt-6"></div>
+    <!-- Step 2 & 3 content (hidden initially) -->
+    <div id="stepContent" class="hidden"></div>
   </section>
 
   <!-- How It Works -->
@@ -214,41 +215,53 @@ async def execute_action(req: ExecuteRequest):
 
   <script>
     (function() {
+      var currentStep = 1;
+
       function setFlow(n) {
+        currentStep = n;
         for (var i = 1; i <= 3; i++) {
           var el = document.getElementById('fstep' + i);
-          el.style.borderColor = 'transparent';
+          el.style.borderBottomColor = 'transparent';
           el.style.color = '#a89f96';
+          el.style.fontWeight = '600';
         }
         for (var i = 1; i < n; i++) {
           var el = document.getElementById('fstep' + i);
-          el.style.borderColor = '#10b981';
+          el.style.borderBottomColor = '#10b981';
           el.style.color = '#10b981';
         }
         var active = document.getElementById('fstep' + n);
-        active.style.borderColor = 'var(--pa)';
+        active.style.borderBottomColor = 'var(--pa)';
         active.style.color = 'var(--pa)';
+        active.style.fontWeight = '700';
       }
 
       function escHtml(s) { var d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }
 
-      document.getElementById('goBtn').addEventListener('click', function() {
-        var action = document.getElementById('actionInput').value.trim();
-        if (!action) { action = '删除我的「电商App改版」项目'; }
-
+      document.getElementById('genConfirmBtn').addEventListener('click', function() {
         setFlow(2);
 
-        // Mock confirm card
-        var html = '<div class="bg-white rounded-2xl p-6 border-2 transition-all duration-500 max-w-lg mx-auto" style="border-color:#f59e0b;" id="confirmCardInner">';
-        html += '<div class="flex items-center gap-3 mb-4">';
+        var html = '<div class="bg-white rounded-2xl p-6 border-2 transition-all duration-500" style="border-color:#f59e0b;" id="confirmCardInner">';
+        html += '<div class="flex items-center gap-3 mb-5">';
         html += '<span class="text-2xl">&#x26A0;&#xFE0F;</span>';
-        html += '<span class="font-bold text-base text-neutral-800">确认操作</span>';
+        html += '<span class="font-bold text-base text-neutral-800">AI 确认请求</span>';
         html += '</div>';
-        html += '<div class="space-y-3 text-sm">';
-        html += '<div class="flex gap-2"><span class="font-semibold text-neutral-600 flex-shrink-0">操作：</span><span class="text-neutral-700">删除项目「电商App改版」及其所有的设计稿、评审记录和修改历史。</span></div>';
-        html += '<div class="flex gap-2"><span class="font-semibold text-neutral-600 flex-shrink-0">影响：</span><span class="text-neutral-700">该项目包含 12 个页面、3 次评审记录。删除后数据<strong class="text-red-500">不可恢复</strong>。关联的分享链接将失效。</span></div>';
-        html += '<div class="flex gap-2"><span class="font-semibold text-neutral-600 flex-shrink-0">可逆：</span><span class="text-red-500 font-semibold">不可逆操作</span></div>';
+
+        html += '<div class="mb-4">';
+        html += '<div class="text-xs font-semibold text-neutral-500 uppercase tracking-wider mb-1.5">Proposal（提案）</div>';
+        html += '<div class="text-sm text-neutral-700 bg-neutral-50 rounded-lg p-3 leading-relaxed">将首页主色调从蓝色（#3b82f6）切换为橙色（#e07340）。影响范围：导航栏链接色、所有按钮（主按钮 + 次要按钮边框）、链接文字色、focus ring 颜色。布局和间距保持不变。</div>';
         html += '</div>';
+
+        html += '<div class="mb-4">';
+        html += '<div class="text-xs font-semibold text-neutral-500 uppercase tracking-wider mb-1.5">Impact（影响范围）</div>';
+        html += '<div class="text-sm text-neutral-700 bg-neutral-50 rounded-lg p-3 leading-relaxed">全局 CSS 变量 --pa 值变更，影响 6 个页面共 40+ 处颜色引用。变更后需验证所有页面的对比度是否仍满足 WCAG AA 标准。</div>';
+        html += '</div>';
+
+        html += '<div class="mb-5">';
+        html += '<div class="text-xs font-semibold text-neutral-500 uppercase tracking-wider mb-1.5">Reversible（是否可逆）</div>';
+        html += '<div class="flex items-center gap-2 text-sm"><span class="text-green-500 font-bold text-lg">&#10003;</span><span class="text-green-600 font-semibold">可逆操作</span><span class="text-neutral-400 text-xs">— 改回 CSS 变量即可恢复，预计 1 分钟</span></div>';
+        html += '</div>';
+
         html += '<div class="flex gap-3 justify-center mt-6">';
         html += '<button id="confirmExec" class="px-8 py-3 text-white font-semibold rounded-full text-sm hover:opacity-90 transition-opacity shadow-lg" style="background:var(--pa);">确认执行</button>';
         html += '<button id="confirmCancel" class="px-8 py-3 border-2 border-neutral-300 text-neutral-600 font-semibold rounded-full text-sm hover:border-neutral-400 hover:text-neutral-700 transition-colors bg-white">取消</button>';
@@ -256,44 +269,46 @@ async def execute_action(req: ExecuteRequest):
         html += '<p class="text-xs text-neutral-400 text-center mt-4">确认请求 10 分钟后自动过期</p>';
         html += '</div>';
 
-        document.getElementById('confirmCard').innerHTML = html;
-        document.getElementById('confirmCard').classList.remove('hidden');
-        document.getElementById('confirmCard').scrollIntoView({ behavior: 'smooth' });
+        var container = document.getElementById('stepContent');
+        container.innerHTML = html;
+        container.classList.remove('hidden');
+        document.getElementById('step1Content').classList.add('hidden');
+        container.scrollIntoView({ behavior: 'smooth' });
 
-        // Confirm execute
         document.getElementById('confirmExec').addEventListener('click', function() {
           setFlow(2);
           var card = document.getElementById('confirmCardInner');
           card.style.borderColor = 'var(--pa)';
-          card.innerHTML = '<div class="text-center py-4"><div class="inline-block w-8 h-8 border-3 border-blue-200 border-t-blue-500 rounded-full animate-spin mb-3"></div><p class="text-sm text-neutral-500">正在执行操作...</p></div>';
+          card.innerHTML = '<div class="text-center py-6"><div class="inline-block w-8 h-8 border-[3px] border-blue-200 border-t-blue-500 rounded-full animate-spin mb-3"></div><p class="text-sm text-neutral-500">正在执行操作...</p></div>';
 
           setTimeout(function() {
             setFlow(3);
             card.style.borderColor = '#10b981';
             card.innerHTML = '<div class="text-center py-4">' +
-              '<div class="text-3xl mb-3">&#x2705;</div>' +
-              '<p class="font-bold text-base text-neutral-800 mb-2">操作已完成</p>' +
-              '<p class="text-sm text-neutral-500 mb-4">项目「电商App改版」已成功删除，数据不可恢复。</p>' +
+              '<div class="text-4xl mb-3">&#10003;</div>' +
+              '<p class="font-bold text-lg text-neutral-800 mb-2">已执行</p>' +
+              '<p class="text-sm text-neutral-500 mb-2">主色调已从蓝色切换为橙色，6 个页面的 40+ 处颜色引用已同步更新。</p>' +
+              '<p class="text-xs text-neutral-400 mb-4">对比度检查通过，所有页面满足 WCAG AA 标准。</p>' +
               '<button onclick="location.reload()" class="px-6 py-2.5 border-2 border-neutral-300 text-neutral-600 font-semibold rounded-full text-sm hover:border-neutral-400 transition-colors bg-white">重新演示</button>' +
               '</div>';
-          }, 1200);
+          }, 1500);
         });
 
-        // Confirm cancel
         document.getElementById('confirmCancel').addEventListener('click', function() {
           setFlow(2);
           var card = document.getElementById('confirmCardInner');
-          card.style.borderColor = 'var(--pa)';
-          card.innerHTML = '<div class="text-center py-4"><div class="inline-block w-8 h-8 border-3 border-blue-200 border-t-blue-500 rounded-full animate-spin mb-3"></div><p class="text-sm text-neutral-500">正在取消操作...</p></div>';
+          card.style.borderColor = '#d4cec8';
+          card.innerHTML = '<div class="text-center py-6"><div class="inline-block w-8 h-8 border-[3px] border-neutral-200 border-t-neutral-500 rounded-full animate-spin mb-3"></div><p class="text-sm text-neutral-500">正在取消...</p></div>';
 
           setTimeout(function() {
             setFlow(3);
             card.style.borderColor = '#d4cec8';
-            card.style.opacity = '0.7';
+            card.style.opacity = '0.75';
             card.innerHTML = '<div class="text-center py-4">' +
-              '<div class="text-3xl mb-3">&#x1F6AB;</div>' +
-              '<p class="font-bold text-base text-neutral-800 mb-2">操作已取消</p>' +
-              '<p class="text-sm text-neutral-500 mb-4">项目「电商App改版」保持不变，未执行任何操作。</p>' +
+              '<div class="text-4xl mb-3">&#10007;</div>' +
+              '<p class="font-bold text-lg text-neutral-800 mb-2">已取消</p>' +
+              '<p class="text-sm text-neutral-500 mb-2">未执行任何操作，首页主色调仍为蓝色（#3b82f6）。</p>' +
+              '<p class="text-xs text-neutral-400 mb-4">操作已安全终止，所有文件保持不变。</p>' +
               '<button onclick="location.reload()" class="px-6 py-2.5 border-2 border-neutral-300 text-neutral-600 font-semibold rounded-full text-sm hover:border-neutral-400 transition-colors bg-white">重新演示</button>' +
               '</div>';
           }, 800);
