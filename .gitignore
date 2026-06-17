@@ -1,23 +1,40 @@
-# 系统文件
+# ===== Secrets & Credentials =====
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*-key.json
+*credentials*
+*secret*
+secrets.*
+*.token
+
+# ===== System =====
 .DS_Store
 Thumbs.db
 *.log
 
-# 编辑器
+# ===== Editor =====
 .vscode/
 
-# 环境
-.env
+# ===== Dependencies =====
 node_modules/
 __pycache__/
 *.pyc
 venv/
 
-# 部署脚本（含服务器信息不提交）
+# ===== Build & Cache =====
+.pytest_cache/
+.ruff_cache/
+*.pyo
+
+# ===== Deploy =====
 src/deploy/deploy.sh
 src/deploy/test_*.py
 
-# 大文件
+# ===== Data & Assets =====
 assets/
 test_results/
 .playwright-mcp/
+src/backend/data/

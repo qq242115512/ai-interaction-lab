@@ -225,7 +225,7 @@ AI 输出：
             resp = await hc.post(
                 "https://api.deepseek.com/v1/chat/completions",
                 headers={
-                    "Authorization": f"Bearer {os.getenv('DEEPSEEK_API_KEY', 'REPLACED_OLD_KEY')}",
+                    "Authorization": f"Bearer {os.getenv('DEEPSEEK_API_KEY', '')}",
                     "Content-Type": "application/json",
                 },
                 json={
@@ -519,7 +519,7 @@ def _run_review_prompt_test(test_case: dict) -> dict:
                 resp = await hc.post(
                     "https://api.deepseek.com/v1/chat/completions",
                     headers={
-                        "Authorization": f"Bearer {os.getenv('DEEPSEEK_API_KEY', 'REPLACED_OLD_KEY')}",
+                        "Authorization": f"Bearer {os.getenv('DEEPSEEK_API_KEY', '')}",
                         "Content-Type": "application/json",
                     },
                     json={
