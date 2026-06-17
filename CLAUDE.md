@@ -169,6 +169,20 @@ PO (用户)
 
 **部署脚本**：`.github/workflows/deploy.yml` — 备份 → rsync 后端 → rsync 前端 → systemctl restart → 健康检查 × 5 → 失败自动回滚到备份。
 
+## 安全规则（2026-06-17 新增，经历过密钥泄露后的教训）
+
+### 硬约束
+
+1. **禁止在任何源码中硬编码密钥**：API key、token、password 一律走环境变量。`os.getenv("KEY")` 不带 fallback 值——`os.getenv("KEY", "sk-xxx")` 是自爆
+2. **所有 commit 前自动扫描**：`.githooks/pre-commit` 拦截 `sk-`、`Bearer`、`PRIVATE KEY` 等模式，命中拒绝提交。用 `git commit --no-verify` 绕过时必须确认不是在藏密钥
+3. **`.env` 永远不进仓库**：`.gitignore` 已加固——`.env`、`*.pem`、`*secret*`、`*credentials*`、`*.token` 全部屏蔽
+4. **泄露后立即响应**：① 后台删旧 key 生成新的 ② 全局替换所有文件 ③ `git filter-branch` 清理历史 ④ force push ⑤ 部署新 key
+
+### 检查清单（每次 push 前）
+- [ ] `grep -r "sk-" src/ --include="*.py"` 返回空（或只有环境变量读取）
+- [ ] `.env` 在 `.gitignore` 中
+- [ ] `check.bat` 通过
+
 ## 设计决策
 
 - 前端不用框架（React/Vue），用 Tailwind CSS CDN + GSAP 动画。15 个页面全部 Tailwind。

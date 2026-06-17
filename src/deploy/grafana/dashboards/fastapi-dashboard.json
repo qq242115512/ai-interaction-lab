@@ -1,0 +1,89 @@
+{
+  "dashboard": {
+    "uid": "ai-lab",
+    "title": "AI Interaction Lab",
+    "tags": ["fastapi", "ai-lab"],
+    "timezone": "browser",
+    "refresh": "30s",
+    "time": {"from": "now-6h", "to": "now"},
+    "panels": [
+      {
+        "id": 1, "title": "HTTP Requests / min", "type": "graph",
+        "gridPos": {"x": 0, "y": 0, "w": 12, "h": 8},
+        "targets": [{
+          "expr": "sum(rate(http_requests_total[1m])) by (method, status)",
+          "legendFormat": "{{method}} {{status}}"
+        }],
+        "yaxes": [{"format": "short"}, {"format": "short"}],
+        "legend": {"alignAsTable": true, "rightSide": true}
+      },
+      {
+        "id": 2, "title": "Request Duration (p95)", "type": "graph",
+        "gridPos": {"x": 12, "y": 0, "w": 12, "h": 8},
+        "targets": [{
+          "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[1m])) by (le, method))",
+          "legendFormat": "{{method}} p95"
+        },{
+          "expr": "histogram_quantile(0.50, sum(rate(http_request_duration_seconds_bucket[1m])) by (le))",
+          "legendFormat": "all p50"
+        }],
+        "yaxes": [{"format": "s"}, {"format": "short"}]
+      },
+      {
+        "id": 3, "title": "Error Rate (5xx)", "type": "stat",
+        "gridPos": {"x": 0, "y": 8, "w": 4, "h": 4},
+        "targets": [{
+          "expr": "sum(rate(http_requests_total{status=~\"5..\"}[5m])) / sum(rate(http_requests_total[5m])) * 100",
+          "legendFormat": "Error %"
+        }],
+        "fieldConfig": {"defaults": {"unit": "percent", "thresholds": {"steps": [{"color": "green","value": null},{"color": "yellow","value": 1},{"color": "red","value": 5}]}}},
+        "options": {"graphMode": "none", "colorMode": "background"}
+      },
+      {
+        "id": 4, "title": "Requests / sec", "type": "stat",
+        "gridPos": {"x": 4, "y": 8, "w": 4, "h": 4},
+        "targets": [{"expr": "sum(rate(http_requests_total[1m]))"}],
+        "fieldConfig": {"defaults": {"unit": "reqps"}},
+        "options": {"graphMode": "area", "colorMode": "value"}
+      },
+      {
+        "id": 5, "title": "Active Sessions", "type": "stat",
+        "gridPos": {"x": 8, "y": 8, "w": 4, "h": 4},
+        "targets": [{"expr": "active_sessions"}],
+        "options": {"graphMode": "area", "colorMode": "value"}
+      },
+      {
+        "id": 6, "title": "API Endpoints", "type": "bargauge",
+        "gridPos": {"x": 12, "y": 8, "w": 12, "h": 4},
+        "targets": [{
+          "expr": "sum(rate(http_requests_total[5m])) by (path)",
+          "legendFormat": "{{path}}"
+        }],
+        "fieldConfig": {"defaults": {"unit": "reqps"}},
+        "options": {"orientation": "horizontal", "displayMode": "gradient"}
+      },
+      {
+        "id": 7, "title": "Status Distribution", "type": "piechart",
+        "gridPos": {"x": 0, "y": 12, "w": 8, "h": 6},
+        "targets": [{
+          "expr": "sum(http_requests_total) by (status)",
+          "legendFormat": "{{status}}"
+        }],
+        "options": {"displayLabels": ["percent","name"], "legend": {"displayMode": "table","placement": "right"}}
+      },
+      {
+        "id": 8, "title": "Top Slowest Endpoints", "type": "table",
+        "gridPos": {"x": 8, "y": 12, "w": 16, "h": 6},
+        "targets": [{
+          "expr": "histogram_quantile(0.99, sum(rate(http_request_duration_seconds_bucket[10m])) by (le, path))",
+          "legendFormat": "{{path}}",
+          "format": "table", "instant": true
+        }],
+        "transformations": [{"id": "organize","options": {"excludeByName":{"Time":true},"indexByName":{"path":0,"Value":1}}}],
+        "fieldConfig": {"defaults": {"unit": "s"},"overrides": [{"matcher":{"id":"byName","options":"path"},"properties":[{"id":"displayName","value":"Endpoint"}]}]}
+      }
+    ],
+    "schemaVersion": 38,
+    "version": 1
+  }
+}
