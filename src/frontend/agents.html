@@ -1,440 +1,159 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>多 Agent 协作仪表盘 — AI 交互模式实验室</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧪</text></svg>" />
-
-        <link rel="stylesheet" href="css/tailwind.min.css?v=2.1">
-  <link rel="stylesheet" href="css/fonts.css?v=2.1">
-
-  <style>
-    @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
-    }
-    :focus-visible { outline: 2px solid #e07340; outline-offset: 2px; border-radius: 2px; }
-    .section-divider { display: flex; align-items: center; gap: 1rem; }
-    .section-divider::before, .section-divider::after { content: ''; flex: 1; height: 1px; background: #e8e4e0; }
-    .section-divider-dot { width: 8px; height: 8px; border-radius: 50%; background: #e07340; flex-shrink: 0; }
-    .mobile-menu { max-height: 0; overflow: hidden; transition: max-height 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease; opacity: 0; }
-    .mobile-menu.open { max-height: 320px; opacity: 1; }
-
-    .agent-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
-    .stage-label-explore { background: #EEF0FF; color: #6366F1; }
-    .stage-label-plan { background: #F3EEFF; color: #8B5CF6; }
-    .stage-label-design { background: #FDF2F8; color: #EC4899; }
-    .stage-label-build { background: #FFFBEB; color: #F59E0B; }
-    .stage-label-deliver { background: #ECFDF5; color: #10B981; }
-
-    .agent-card { transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease; }
-    .agent-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
-  </style>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Agent 协作仪表盘 — 樊书洋</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>"/>
+<link rel="stylesheet" href="css/tailwind.min.css?v=2.1"/>
+<link rel="stylesheet" href="css/fonts.css?v=2.1"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<style>
+:root{--bg:#0A0E17;--bg-card:#111820;--bg-card-hover:#161D27;--text-primary:#F0F0F0;--text-muted:#8B949E;--accent:#E07340;--border:#1E2938;--border-hover:#2D3A4E}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:0.01ms!important;transition-duration:0.01ms!important}}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:2px}
+body{background:var(--bg);color:var(--text-primary);font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;-webkit-font-smoothing:antialiased}
+.font-display{font-family:'DM Serif Display','Noto Serif SC','Songti SC',serif}
+.font-mono{font-family:'JetBrains Mono','Cascadia Code',monospace}
+#navbar{position:fixed;top:0;width:100%;z-index:50;background:rgba(10,14,23,0.85);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid var(--border)}
+#navbar .inner{max-width:1200px;margin:0 auto;padding:0 48px;height:68px;display:flex;align-items:center;justify-content:space-between}
+#navbar .logo{font-size:18px;font-weight:700;color:var(--text-primary);text-decoration:none}
+#navbar .links{display:flex;align-items:center;gap:36px}
+#navbar .links a{color:var(--text-muted);font-size:15px;font-weight:500;text-decoration:none;transition:color 0.25s}
+#navbar .links a:hover{color:var(--text-primary)}
+#navbar .links a.active{color:var(--text-primary)}
+.section-label{display:flex;align-items:center;gap:16px;margin-bottom:48px;font-size:13px;color:var(--accent);text-transform:uppercase;letter-spacing:0.14em;font-weight:500}
+.section-label::after{content:'';flex:1;height:1px;background:var(--border)}
+.page-hero{padding:180px 48px 80px;max-width:1200px;margin:0 auto;text-align:center}
+.page-body{max-width:1200px;margin:0 auto;padding:0 48px 80px}
+.stage-header{display:flex;align-items:center;gap:16px;margin-bottom:20px}
+.stage-number{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px;color:#fff;flex-shrink:0}
+.stage-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px;margin-bottom:48px}
+.agent-card{background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:20px;display:flex;gap:16px;align-items:flex-start;transition:border-color 0.25s,transform 0.25s}
+.agent-card:hover{border-color:var(--accent);transform:translateY(-2px)}
+.stats-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;text-align:center;padding:56px 48px;background:var(--bg-card);border-top:1px solid var(--border);border-bottom:1px solid var(--border);margin-bottom:80px}
+.site-footer{border-top:1px solid var(--border);padding:48px 48px 72px;max-width:1200px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px}
+.footer-links{display:flex;align-items:center;gap:28px}
+.footer-links a{color:var(--text-muted);text-decoration:none;font-size:14px;font-weight:500;transition:color 0.2s}
+.footer-links a:hover{color:var(--accent)}
+.footer-credit{font-size:13px;color:var(--text-muted)}
+.reveal{opacity:0;transform:translateY(28px)}
+@media(max-width:768px){#navbar .inner{padding:0 24px}#navbar .links{display:none}.page-hero{padding:160px 24px 60px}.page-body{padding:0 24px 60px}.stats-strip{grid-template-columns:repeat(2,1fr);padding:40px 24px}.site-footer{flex-direction:column;align-items:flex-start;padding:40px 24px 64px}}
+</style>
 </head>
-<body class="bg-neutral-100 font-body text-neutral-700 antialiased">
+<body>
 
-  <!-- Navigation -->
-  <nav id="navbar" class="fixed top-0 w-full z-50 bg-neutral-100/90 backdrop-blur-md border-b border-neutral-200">
-    <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-      <a href="/" class="font-display text-2xl text-primary-700 tracking-tight no-underline">AI<span class="text-accent-500">·</span>Lab</a>
-      <div class="hidden md:flex items-center gap-8">
-        <a href="/patterns/streaming.html" class="text-sm font-medium text-neutral-500 hover:text-neutral-800 transition-colors no-underline">Patterns</a>
-        <a href="/about.html" class="text-sm font-medium text-neutral-500 hover:text-neutral-800 transition-colors no-underline">About</a>
-        <a href="/agents.html" class="text-sm font-medium text-accent-500 transition-colors no-underline">Agents</a>
-        <a href="/behind-the-scenes.html" class="text-sm font-medium text-neutral-500 hover:text-neutral-800 transition-colors no-underline">Behind the Scenes</a>
-        <a href="/review.html" class="px-6 py-2.5 bg-accent-500 text-white font-semibold rounded-full text-sm hover:bg-accent-600 transition-colors shadow-lg shadow-accent-500/25 no-underline">Try Review Tool</a>
-      </div>
-      <button id="hamburger" class="md:hidden flex flex-col gap-1.5 p-2 bg-transparent border-0 cursor-pointer" aria-label="打开菜单">
-        <span class="block w-6 h-0.5 bg-neutral-700 rounded transition-transform duration-300"></span>
-        <span class="block w-6 h-0.5 bg-neutral-700 rounded transition-opacity duration-300"></span>
-        <span class="block w-6 h-0.5 bg-neutral-700 rounded transition-transform duration-300"></span>
-      </button>
-    </div>
-    <div id="mobile-menu" class="mobile-menu md:hidden bg-neutral-100/95 backdrop-blur-md border-b border-neutral-200">
-      <div class="px-6 py-4 flex flex-col gap-3">
-        <a href="/patterns/streaming.html" class="text-sm font-medium text-neutral-600 hover:text-neutral-900 no-underline py-2">Patterns</a>
-        <a href="/about.html" class="text-sm font-medium text-neutral-600 hover:text-neutral-900 no-underline py-2">About</a>
-        <a href="/agents.html" class="text-sm font-medium text-accent-500 no-underline py-2">Agents</a>
-        <a href="/behind-the-scenes.html" class="text-sm font-medium text-neutral-600 hover:text-neutral-900 no-underline py-2">Behind the Scenes</a>
-        <a href="/review.html" class="px-6 py-2.5 bg-accent-500 text-white font-semibold rounded-full text-sm hover:bg-accent-600 transition-colors text-center no-underline shadow-lg shadow-accent-500/25">Try Review Tool</a>
-      </div>
-    </div>
-  </nav>
+<nav id="navbar"><div class="inner">
+<a href="/" class="logo">樊书洋<span style="color:var(--accent)">.</span></a>
+<div class="links">
+<a href="about.html">关于</a>
+<a href="agents.html" class="active">Agents</a>
+<a href="behind-the-scenes.html">幕后</a>
+</div></div></nav>
 
-  <!-- Hero -->
-  <section class="pt-28 pb-8 md:pt-36 md:pb-10 px-6 text-center">
-    <div class="max-w-3xl mx-auto">
-      <div class="text-5xl mb-4 opacity-0" id="hero-icon">🤖</div>
-      <p class="text-xs font-semibold text-accent-500 uppercase tracking-widest mb-4 opacity-0" id="hero-eyebrow">Agent Collaboration System</p>
-      <h1 class="font-display text-3xl md:text-5xl text-primary-900 leading-tight mb-4 opacity-0" id="hero-title">多 Agent 协作仪表盘</h1>
-      <p class="text-base md:text-lg text-neutral-500 leading-relaxed max-w-xl mx-auto opacity-0" id="hero-subtitle">
-        15 个 AI 角色，零出错的工程化协作体系
-      </p>
-    </div>
-  </section>
+<section class="page-hero">
+<p class="font-mono section-label reveal" style="justify-content:center;margin-bottom:24px">$ python -m agent_pipeline --list</p>
+<h1 class="font-display reveal" style="font-size:clamp(36px,5vw,56px);line-height:1.15;margin-bottom:20px">多 Agent 协作仪表盘</h1>
+<p class="reveal" style="font-size:17px;color:var(--text-muted);max-width:520px;margin:0 auto">15 个 AI 角色，零出错的工程化协作体系</p>
+</section>
 
-  <!-- Stats Strip -->
-  <section class="bg-primary-950 text-neutral-200 -mx-0 px-6 py-12 opacity-0" id="stats-strip">
-    <div class="max-w-4xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-      <div>
-        <div class="font-display text-3xl md:text-4xl text-white mb-1">15</div>
-        <div class="text-xs text-neutral-400">角色 · 完整流水线</div>
-      </div>
-      <div>
-        <div class="font-display text-3xl md:text-4xl text-white mb-1">5</div>
-        <div class="text-xs text-neutral-400">阶段 · 端到端</div>
-      </div>
-      <div>
-        <div class="font-display text-3xl md:text-4xl text-white mb-1">7</div>
-        <div class="text-xs text-neutral-400">机制 · 防出错</div>
-      </div>
-      <div>
-        <div class="font-display text-3xl md:text-4xl text-white mb-1">12+</div>
-        <div class="text-xs text-neutral-400">教训 · 已归档</div>
-      </div>
-    </div>
-  </section>
+<div class="stats-strip reveal">
+<div><div class="font-display" style="font-size:44px;color:var(--text-primary);margin-bottom:4px">15</div><div style="font-size:13px;color:var(--text-muted)">角色 · 完整流水线</div></div>
+<div><div class="font-display" style="font-size:44px;color:var(--text-primary);margin-bottom:4px">5</div><div style="font-size:13px;color:var(--text-muted)">阶段 · 端到端</div></div>
+<div><div class="font-display" style="font-size:44px;color:var(--text-primary);margin-bottom:4px">7</div><div style="font-size:13px;color:var(--text-muted)">机制 · 防出错</div></div>
+<div><div class="font-display" style="font-size:44px;color:var(--text-primary);margin-bottom:4px">12+</div><div style="font-size:13px;color:var(--text-muted)">教训 · 已归档</div></div>
+</div>
 
-  <!-- Pipeline Stages -->
-  <section class="max-w-7xl mx-auto px-6 py-16 opacity-0" id="pipeline-section">
-    <div class="section-divider mb-8"><span class="section-divider-dot"></span></div>
-    <h2 class="font-display text-2xl text-primary-800 mb-2 text-center">流水线阶段分组</h2>
-    <p class="text-sm text-neutral-500 text-center mb-10">每个阶段包含特定角色，按流水线顺序执行</p>
+<section class="page-body">
+<div class="section-label font-mono reveal">// Pipeline Stages</div>
 
-    <!-- Explore -->
-    <div class="mb-10">
-      <div class="flex items-center gap-3 mb-4">
-        <span class="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm" style="background:#6366F1;">1</span>
-        <div>
-          <h3 class="font-display text-lg text-primary-800">Explore <span class="text-sm font-normal text-neutral-400">· 探索摸底</span></h3>
-          <p class="text-xs text-neutral-400">确认技术栈、文件结构、命令可用性，发现缺口</p>
-        </div>
-      </div>
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 ml-13" style="margin-left:52px;">
-        <div class="agent-card bg-white rounded-xl border border-neutral-200 p-4 flex items-center gap-4" style="border-left:3px solid #6366F1;">
-          <div class="w-10 h-10 rounded-lg flex items-center justify-center text-lg" style="background:#EEF0FF;">🔍</div>
-          <div>
-            <p class="font-semibold text-primary-800 text-sm">Scout <span class="text-xs text-neutral-400 font-normal">侦察兵</span></p>
-            <p class="text-xs text-neutral-500">摸底调研、技术栈文档</p>
-            <p class="text-xs text-neutral-400 mt-1">模型: Sonnet · SKILL.md 112 行</p>
-          </div>
-        </div>
-        <div class="agent-card bg-white rounded-xl border border-neutral-200 p-4 flex items-center gap-4" style="border-left:3px solid #6366F1;">
-          <div class="w-10 h-10 rounded-lg flex items-center justify-center text-lg" style="background:#EEF0FF;">📋</div>
-          <div>
-            <p class="font-semibold text-primary-800 text-sm">BA <span class="text-xs text-neutral-400 font-normal">业务分析师</span></p>
-            <p class="text-xs text-neutral-500">需求澄清、用户故事、验收标准</p>
-            <p class="text-xs text-neutral-400 mt-1">模型: Sonnet · SKILL.md 120 行</p>
-          </div>
-        </div>
-      </div>
-    </div>
+<!-- Stage 1: Explore -->
+<div class="reveal">
+<div class="stage-header">
+<div class="stage-number" style="background:#6366F1">1</div>
+<div><h3 style="font-size:18px;font-weight:600">Explore <span style="font-size:14px;color:var(--text-muted);font-weight:400">· 探索摸底</span></h3><p style="font-size:13px;color:var(--text-muted)">确认技术栈、文件结构、命令可用性，发现缺口</p></div>
+</div>
+<div class="stage-cards">
+<div class="agent-card" style="border-left:3px solid #6366F1"><div style="width:44px;height:44px;border-radius:8px;background:rgba(99,102,241,0.12);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">S</div><div><p style="font-weight:600;font-size:15px">Scout <span style="font-size:13px;color:var(--text-muted);font-weight:400">侦察兵</span></p><p style="font-size:13px;color:var(--text-muted);margin-top:2px">摸底调研、技术栈文档</p><p class="font-mono" style="font-size:11px;color:var(--text-muted);margin-top:4px">Sonnet · SKILL.md 112行</p></div></div>
+<div class="agent-card" style="border-left:3px solid #6366F1"><div style="width:44px;height:44px;border-radius:8px;background:rgba(99,102,241,0.12);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">B</div><div><p style="font-weight:600;font-size:15px">BA <span style="font-size:13px;color:var(--text-muted);font-weight:400">业务分析师</span></p><p style="font-size:13px;color:var(--text-muted);margin-top:2px">需求澄清、用户故事、验收标准</p><p class="font-mono" style="font-size:11px;color:var(--text-muted);margin-top:4px">Sonnet · SKILL.md 120行</p></div></div>
+</div></div>
 
-    <!-- Plan -->
-    <div class="mb-10">
-      <div class="flex items-center gap-3 mb-4">
-        <span class="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm" style="background:#8B5CF6;">2</span>
-        <div>
-          <h3 class="font-display text-lg text-primary-800">Plan <span class="text-sm font-normal text-neutral-400">· 需求规划</span></h3>
-          <p class="text-xs text-neutral-400">用户故事、验收标准、对抗审查、风险登记</p>
-        </div>
-      </div>
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" style="margin-left:52px;">
-        <div class="agent-card bg-white rounded-xl border border-neutral-200 p-4 flex items-center gap-4" style="border-left:3px solid #8B5CF6;">
-          <div class="w-10 h-10 rounded-lg flex items-center justify-center text-lg" style="background:#F3EEFF;">⚔️</div>
-          <div>
-            <p class="font-semibold text-primary-800 text-sm">Adversarial Reviewer <span class="text-xs text-neutral-400 font-normal">对抗审查员</span></p>
-            <p class="text-xs text-neutral-500">常规审查+元审查+预验尸</p>
-            <p class="text-xs text-neutral-400 mt-1">模型: Opus · SKILL.md 140 行</p>
-          </div>
-        </div>
-        <div class="agent-card bg-white rounded-xl border border-neutral-200 p-4 flex items-center gap-4" style="border-left:3px solid #8B5CF6;">
-          <div class="w-10 h-10 rounded-lg flex items-center justify-center text-lg" style="background:#F3EEFF;">📊</div>
-          <div>
-            <p class="font-semibold text-primary-800 text-sm">PM <span class="text-xs text-neutral-400 font-normal">项目经理</span></p>
-            <p class="text-xs text-neutral-500">任务路由、风险登记册、阶段门检查</p>
-            <p class="text-xs text-neutral-400 mt-1">模型: Sonnet · SKILL.md 115 行</p>
-          </div>
-        </div>
-      </div>
-    </div>
+<!-- Stage 2: Plan -->
+<div class="reveal">
+<div class="stage-header">
+<div class="stage-number" style="background:#8B5CF6">2</div>
+<div><h3 style="font-size:18px;font-weight:600">Plan <span style="font-size:14px;color:var(--text-muted);font-weight:400">· 需求规划</span></h3><p style="font-size:13px;color:var(--text-muted)">对抗审查、风险登记、任务分解</p></div>
+</div>
+<div class="stage-cards">
+<div class="agent-card" style="border-left:3px solid #8B5CF6"><div style="width:44px;height:44px;border-radius:8px;background:rgba(139,92,246,0.12);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">A</div><div><p style="font-weight:600;font-size:15px">Adversarial Reviewer <span style="font-size:13px;color:var(--text-muted);font-weight:400">对抗审查员</span></p><p style="font-size:13px;color:var(--text-muted);margin-top:2px">常规审查+元审查+预验尸</p><p class="font-mono" style="font-size:11px;color:var(--text-muted);margin-top:4px">Opus · SKILL.md 140行</p></div></div>
+<div class="agent-card" style="border-left:3px solid #8B5CF6"><div style="width:44px;height:44px;border-radius:8px;background:rgba(139,92,246,0.12);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">P</div><div><p style="font-weight:600;font-size:15px">PM <span style="font-size:13px;color:var(--text-muted);font-weight:400">项目经理</span></p><p style="font-size:13px;color:var(--text-muted);margin-top:2px">任务路由、风险登记册、阶段门检查</p><p class="font-mono" style="font-size:11px;color:var(--text-muted);margin-top:4px">Sonnet · SKILL.md 115行</p></div></div>
+</div></div>
 
-    <!-- Design -->
-    <div class="mb-10">
-      <div class="flex items-center gap-3 mb-4">
-        <span class="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm" style="background:#EC4899;">3</span>
-        <div>
-          <h3 class="font-display text-lg text-primary-800">Design <span class="text-sm font-normal text-neutral-400">· 视觉设计</span></h3>
-          <p class="text-xs text-neutral-400">视觉设计、交互状态、设计Token、WCAG无障碍</p>
-        </div>
-      </div>
-      <div class="grid grid-cols-1 sm:grid-cols-1 gap-3" style="margin-left:52px;">
-        <div class="agent-card bg-white rounded-xl border border-neutral-200 p-4 flex items-center gap-4" style="border-left:3px solid #EC4899;">
-          <div class="w-10 h-10 rounded-lg flex items-center justify-center text-lg" style="background:#FDF2F8;">🎨</div>
-          <div>
-            <p class="font-semibold text-primary-800 text-sm">UX/UI Designer <span class="text-xs text-neutral-400 font-normal">设计师</span></p>
-            <p class="text-xs text-neutral-500">视觉设计、交互状态、设计Token、WCAG</p>
-            <p class="text-xs text-neutral-400 mt-1">模型: Opus · SKILL.md 130 行</p>
-          </div>
-        </div>
-      </div>
-    </div>
+<!-- Stage 3: Design -->
+<div class="reveal">
+<div class="stage-header">
+<div class="stage-number" style="background:#EC4899">3</div>
+<div><h3 style="font-size:18px;font-weight:600">Design <span style="font-size:14px;color:var(--text-muted);font-weight:400">· 视觉设计</span></h3><p style="font-size:13px;color:var(--text-muted)">设计Token、交互状态、WCAG无障碍</p></div>
+</div>
+<div class="stage-cards">
+<div class="agent-card" style="border-left:3px solid #EC4899"><div style="width:44px;height:44px;border-radius:8px;background:rgba(236,72,153,0.12);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">D</div><div><p style="font-weight:600;font-size:15px">UX/UI Designer <span style="font-size:13px;color:var(--text-muted);font-weight:400">设计师</span></p><p style="font-size:13px;color:var(--text-muted);margin-top:2px">视觉设计、交互状态、设计Token、WCAG</p><p class="font-mono" style="font-size:11px;color:var(--text-muted);margin-top:4px">Opus · SKILL.md 130行</p></div></div>
+</div></div>
 
-    <!-- Build -->
-    <div class="mb-10">
-      <div class="flex items-center gap-3 mb-4">
-        <span class="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm" style="background:#F59E0B;">4</span>
-        <div>
-          <h3 class="font-display text-lg text-primary-800">Build <span class="text-sm font-normal text-neutral-400">· 实现与验证</span></h3>
-          <p class="text-xs text-neutral-400">前后端开发、代码审查、测试、安全加固</p>
-        </div>
-      </div>
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3" style="margin-left:52px;">
-        <div class="agent-card bg-white rounded-xl border border-neutral-200 p-4 flex items-center gap-4" style="border-left:3px solid #F59E0B;">
-          <div class="w-10 h-10 rounded-lg flex items-center justify-center text-lg" style="background:#FFFBEB;">💻</div>
-          <div>
-            <p class="font-semibold text-primary-800 text-sm">Frontend <span class="text-xs text-neutral-400 font-normal">前端开发</span></p>
-            <p class="text-xs text-neutral-500">HTML/CSS/JS/GSAP 实现</p>
-            <p class="text-xs text-neutral-400 mt-1">模型: Sonnet · 2 条教训</p>
-          </div>
-        </div>
-        <div class="agent-card bg-white rounded-xl border border-neutral-200 p-4 flex items-center gap-4" style="border-left:3px solid #F59E0B;">
-          <div class="w-10 h-10 rounded-lg flex items-center justify-center text-lg" style="background:#FFFBEB;">⚙️</div>
-          <div>
-            <p class="font-semibold text-primary-800 text-sm">Backend <span class="text-xs text-neutral-400 font-normal">后端开发</span></p>
-            <p class="text-xs text-neutral-500">API/数据库/业务逻辑</p>
-            <p class="text-xs text-neutral-400 mt-1">模型: Sonnet · 1 条教训</p>
-          </div>
-        </div>
-        <div class="agent-card bg-white rounded-xl border border-neutral-200 p-4 flex items-center gap-4" style="border-left:3px solid #F59E0B;">
-          <div class="w-10 h-10 rounded-lg flex items-center justify-center text-lg" style="background:#FFFBEB;">🔧</div>
-          <div>
-            <p class="font-semibold text-primary-800 text-sm">Fullstack <span class="text-xs text-neutral-400 font-normal">全栈开发</span></p>
-            <p class="text-xs text-neutral-500">端到端垂直切片</p>
-            <p class="text-xs text-neutral-400 mt-1">模型: Sonnet · SKILL.md 110 行</p>
-          </div>
-        </div>
-        <div class="agent-card bg-white rounded-xl border border-neutral-200 p-4 flex items-center gap-4" style="border-left:3px solid #F59E0B;">
-          <div class="w-10 h-10 rounded-lg flex items-center justify-center text-lg" style="background:#FFFBEB;">👀</div>
-          <div>
-            <p class="font-semibold text-primary-800 text-sm">Code Reviewer <span class="text-xs text-neutral-400 font-normal">代码审查员</span></p>
-            <p class="text-xs text-neutral-500">5层分层代码审查</p>
-            <p class="text-xs text-neutral-400 mt-1">模型: Sonnet · SKILL.md 135 行</p>
-          </div>
-        </div>
-        <div class="agent-card bg-white rounded-xl border border-neutral-200 p-4 flex items-center gap-4" style="border-left:3px solid #F59E0B;">
-          <div class="w-10 h-10 rounded-lg flex items-center justify-center text-lg" style="background:#FFFBEB;">🧪</div>
-          <div>
-            <p class="font-semibold text-primary-800 text-sm">QA <span class="text-xs text-neutral-400 font-normal">测试工程师</span></p>
-            <p class="text-xs text-neutral-500">AI专项测试+传统测试</p>
-            <p class="text-xs text-neutral-400 mt-1">模型: Sonnet · SKILL.md 122 行</p>
-          </div>
-        </div>
-        <div class="agent-card bg-white rounded-xl border border-neutral-200 p-4 flex items-center gap-4" style="border-left:3px solid #F59E0B;">
-          <div class="w-10 h-10 rounded-lg flex items-center justify-center text-lg" style="background:#FFFBEB;">🛡️</div>
-          <div>
-            <p class="font-semibold text-primary-800 text-sm">Security Guardian <span class="text-xs text-neutral-400 font-normal">安全卫士</span></p>
-            <p class="text-xs text-neutral-500">安全漏洞审计</p>
-            <p class="text-xs text-neutral-400 mt-1">模型: Sonnet · 2 条教训</p>
-          </div>
-        </div>
-      </div>
-    </div>
+<!-- Stage 4: Build -->
+<div class="reveal">
+<div class="stage-header">
+<div class="stage-number" style="background:#F59E0B">4</div>
+<div><h3 style="font-size:18px;font-weight:600">Build <span style="font-size:14px;color:var(--text-muted);font-weight:400">· 实现与验证</span></h3><p style="font-size:13px;color:var(--text-muted)">前后端开发、代码审查、测试、安全加固</p></div>
+</div>
+<div class="stage-cards">
+<div class="agent-card" style="border-left:3px solid #F59E0B"><div style="width:44px;height:44px;border-radius:8px;background:rgba(245,158,11,0.12);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">F</div><div><p style="font-weight:600;font-size:15px">Frontend <span style="font-size:13px;color:var(--text-muted);font-weight:400">前端开发</span></p><p style="font-size:13px;color:var(--text-muted);margin-top:2px">HTML/CSS/JS/GSAP 实现 · 2条教训</p><p class="font-mono" style="font-size:11px;color:var(--text-muted);margin-top:4px">Sonnet</p></div></div>
+<div class="agent-card" style="border-left:3px solid #F59E0B"><div style="width:44px;height:44px;border-radius:8px;background:rgba(245,158,11,0.12);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">B</div><div><p style="font-weight:600;font-size:15px">Backend <span style="font-size:13px;color:var(--text-muted);font-weight:400">后端开发</span></p><p style="font-size:13px;color:var(--text-muted);margin-top:2px">API/数据库/业务逻辑 · 1条教训</p><p class="font-mono" style="font-size:11px;color:var(--text-muted);margin-top:4px">Sonnet</p></div></div>
+<div class="agent-card" style="border-left:3px solid #F59E0B"><div style="width:44px;height:44px;border-radius:8px;background:rgba(245,158,11,0.12);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">F</div><div><p style="font-weight:600;font-size:15px">Fullstack <span style="font-size:13px;color:var(--text-muted);font-weight:400">全栈开发</span></p><p style="font-size:13px;color:var(--text-muted);margin-top:2px">端到端垂直切片</p><p class="font-mono" style="font-size:11px;color:var(--text-muted);margin-top:4px">Sonnet · SKILL.md 110行</p></div></div>
+<div class="agent-card" style="border-left:3px solid #F59E0B"><div style="width:44px;height:44px;border-radius:8px;background:rgba(245,158,11,0.12);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">C</div><div><p style="font-weight:600;font-size:15px">Code Reviewer <span style="font-size:13px;color:var(--text-muted);font-weight:400">代码审查员</span></p><p style="font-size:13px;color:var(--text-muted);margin-top:2px">5层分层代码审查</p><p class="font-mono" style="font-size:11px;color:var(--text-muted);margin-top:4px">Sonnet · SKILL.md 135行</p></div></div>
+<div class="agent-card" style="border-left:3px solid #F59E0B"><div style="width:44px;height:44px;border-radius:8px;background:rgba(245,158,11,0.12);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">Q</div><div><p style="font-weight:600;font-size:15px">QA <span style="font-size:13px;color:var(--text-muted);font-weight:400">测试工程师</span></p><p style="font-size:13px;color:var(--text-muted);margin-top:2px">AI专项测试+传统测试</p><p class="font-mono" style="font-size:11px;color:var(--text-muted);margin-top:4px">Sonnet · SKILL.md 122行</p></div></div>
+<div class="agent-card" style="border-left:3px solid #F59E0B"><div style="width:44px;height:44px;border-radius:8px;background:rgba(245,158,11,0.12);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">S</div><div><p style="font-weight:600;font-size:15px">Security Guardian <span style="font-size:13px;color:var(--text-muted);font-weight:400">安全卫士</span></p><p style="font-size:13px;color:var(--text-muted);margin-top:2px">安全漏洞审计 · 2条教训</p><p class="font-mono" style="font-size:11px;color:var(--text-muted);margin-top:4px">Sonnet</p></div></div>
+</div></div>
 
-    <!-- Deliver -->
-    <div class="mb-4">
-      <div class="flex items-center gap-3 mb-4">
-        <span class="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm" style="background:#10B981;">5</span>
-        <div>
-          <h3 class="font-display text-lg text-primary-800">Deliver <span class="text-sm font-normal text-neutral-400">· 交付与归档</span></h3>
-          <p class="text-xs text-neutral-400">部署上线、文档编写、记忆归档、教训飞轮</p>
-        </div>
-      </div>
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3" style="margin-left:52px;">
-        <div class="agent-card bg-white rounded-xl border border-neutral-200 p-4 flex items-center gap-4" style="border-left:3px solid #10B981;">
-          <div class="w-10 h-10 rounded-lg flex items-center justify-center text-lg" style="background:#ECFDF5;">🚀</div>
-          <div>
-            <p class="font-semibold text-primary-800 text-sm">DevOps <span class="text-xs text-neutral-400 font-normal">运维工程师</span></p>
-            <p class="text-xs text-neutral-500">部署、CI/CD、Git版本管理</p>
-            <p class="text-xs text-neutral-400 mt-1">模型: Sonnet · 4 条教训</p>
-          </div>
-        </div>
-        <div class="agent-card bg-white rounded-xl border border-neutral-200 p-4 flex items-center gap-4" style="border-left:3px solid #10B981;">
-          <div class="w-10 h-10 rounded-lg flex items-center justify-center text-lg" style="background:#ECFDF5;">📝</div>
-          <div>
-            <p class="font-semibold text-primary-800 text-sm">Technical Writer <span class="text-xs text-neutral-400 font-normal">技术文档工程师</span></p>
-            <p class="text-xs text-neutral-500">文档、ADR、Changelog</p>
-            <p class="text-xs text-neutral-400 mt-1">模型: Sonnet · SKILL.md 108 行</p>
-          </div>
-        </div>
-        <div class="agent-card bg-white rounded-xl border border-neutral-200 p-4 flex items-center gap-4" style="border-left:3px solid #10B981;">
-          <div class="w-10 h-10 rounded-lg flex items-center justify-center text-lg" style="background:#ECFDF5;">🧠</div>
-          <div>
-            <p class="font-semibold text-primary-800 text-sm">Memory Curator <span class="text-xs text-neutral-400 font-normal">记忆策展人</span></p>
-            <p class="text-xs text-neutral-500">跨会话记忆、Session State、教训管理</p>
-            <p class="text-xs text-neutral-400 mt-1">模型: Sonnet · SKILL.md 116 行</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
+<!-- Stage 5: Deliver -->
+<div class="reveal">
+<div class="stage-header">
+<div class="stage-number" style="background:#10B981">5</div>
+<div><h3 style="font-size:18px;font-weight:600">Deliver <span style="font-size:14px;color:var(--text-muted);font-weight:400">· 交付与归档</span></h3><p style="font-size:13px;color:var(--text-muted)">部署上线、文档编写、记忆归档、教训飞轮</p></div>
+</div>
+<div class="stage-cards">
+<div class="agent-card" style="border-left:3px solid #10B981"><div style="width:44px;height:44px;border-radius:8px;background:rgba(16,185,129,0.12);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">D</div><div><p style="font-weight:600;font-size:15px">DevOps <span style="font-size:13px;color:var(--text-muted);font-weight:400">运维工程师</span></p><p style="font-size:13px;color:var(--text-muted);margin-top:2px">部署、CI/CD、Git版本管理 · 4条教训</p><p class="font-mono" style="font-size:11px;color:var(--text-muted);margin-top:4px">Sonnet · SKILL.md 132行</p></div></div>
+<div class="agent-card" style="border-left:3px solid #10B981"><div style="width:44px;height:44px;border-radius:8px;background:rgba(16,185,129,0.12);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">T</div><div><p style="font-weight:600;font-size:15px">Technical Writer <span style="font-size:13px;color:var(--text-muted);font-weight:400">技术文档工程师</span></p><p style="font-size:13px;color:var(--text-muted);margin-top:2px">文档、ADR、Changelog</p><p class="font-mono" style="font-size:11px;color:var(--text-muted);margin-top:4px">Sonnet · SKILL.md 108行</p></div></div>
+<div class="agent-card" style="border-left:3px solid #10B981"><div style="width:44px;height:44px;border-radius:8px;background:rgba(16,185,129,0.12);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">M</div><div><p style="font-weight:600;font-size:15px">Memory Curator <span style="font-size:13px;color:var(--text-muted);font-weight:400">记忆策展人</span></p><p style="font-size:13px;color:var(--text-muted);margin-top:2px">跨会话记忆、Session State、教训管理</p><p class="font-mono" style="font-size:11px;color:var(--text-muted);margin-top:4px">Sonnet · SKILL.md 116行</p></div></div>
+</div></div>
+</section>
 
-  <!-- All 15 Cards Grid -->
-  <section class="max-w-7xl mx-auto px-6 pb-24 opacity-0" id="all-cards-section">
-    <div class="section-divider mb-8"><span class="section-divider-dot"></span></div>
-    <h2 class="font-display text-2xl text-primary-800 mb-2 text-center">全部 15 张角色卡片</h2>
-    <p class="text-sm text-neutral-500 text-center mb-8">悬停查看详情 · 绿色圆点 = 就绪</p>
+<section class="page-body">
+<div class="section-label font-mono reveal">// Orchestrator</div>
+<div class="reveal" style="text-align:center;max-width:480px;margin:0 auto">
+<div style="width:80px;height:80px;clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);background:#4F5CD6;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;color:#fff;margin:0 auto 16px">O</div>
+<p style="font-weight:600;font-size:18px">Orchestrator <span style="font-size:14px;color:var(--text-muted);font-weight:400">协调器</span></p>
+<p style="font-size:14px;color:var(--text-muted);margin-top:8px">协调分发、质量把关、接口契约。不写代码，只协调——15个角色的指挥中心。</p>
+<p class="font-mono" style="font-size:12px;color:var(--text-muted);margin-top:8px">Opus · SKILL.md 145行 · 3条教训</p>
+</div>
+</section>
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4" id="full-agent-grid"></div>
-  </section>
+<footer class="site-footer reveal">
+<div class="footer-links">
+<a href="about.html">关于</a>
+<a href="https://github.com/qq242115512/ai-interaction-lab">GitHub</a>
+<a href="mailto:fsy20060225@163.com">fsy20060225@163.com</a>
+</div>
+<p class="footer-credit font-mono">designed & built with AI · 2026</p>
+</footer>
 
-  <!-- Footer -->
-  <footer id="footer" class="bg-primary-950 text-neutral-400 px-6 py-16 opacity-0">
-    <div class="max-w-7xl mx-auto">
-      <div class="flex flex-col md:flex-row items-center justify-between gap-6 mb-8">
-        <a href="/" class="font-display text-xl text-neutral-200 tracking-tight no-underline">AI<span class="text-accent-400">·</span>Lab</a>
-        <div class="flex flex-wrap justify-center gap-6 text-sm">
-          <a href="/patterns/streaming.html" class="text-neutral-400 hover:text-neutral-200 transition-colors no-underline">Patterns</a>
-          <a href="/about.html" class="text-neutral-400 hover:text-neutral-200 transition-colors no-underline">About</a>
-          <a href="/agents.html" class="text-neutral-400 hover:text-neutral-200 transition-colors no-underline">Agents</a>
-          <a href="/behind-the-scenes.html" class="text-neutral-400 hover:text-neutral-200 transition-colors no-underline">Behind the Scenes</a>
-          <a href="/review.html" class="text-neutral-400 hover:text-neutral-200 transition-colors no-underline">Review Tool</a>
-        </div>
-        <a href="https://github.com/qq242115512/ai-interaction-lab" target="_blank" rel="noopener" class="text-neutral-400 hover:text-neutral-200 transition-colors no-underline text-sm">
-          <svg class="w-5 h-5 inline-block mr-1.5 align-text-bottom" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.385-1.335-1.755-1.335-1.755-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.605-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12 24 5.37 18.63 0 12 0z"/></svg>GitHub</a>
-      </div>
-      <div class="border-t border-primary-800 pt-6 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-neutral-500">
-        <span>&copy; 2026 樊书洋 · AI 交互模式实验室</span>
-        <span class="font-mono">v0.5.0</span>
-      </div>
-    </div>
-  </footer>
-
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
-  <script src="js/animations.js?v=2.1"></script>
-
-  <script>
-    document.addEventListener("DOMContentLoaded", function () {
-      if (typeof gsap === "undefined") return;
-      gsap.registerPlugin(ScrollTrigger);
-      var mm = gsap.matchMedia();
-
-      // Nav
-      var navbar = document.getElementById("navbar");
-      if (navbar) { gsap.set(navbar, { autoAlpha: 1 }); gsap.from(navbar, { y: -20, autoAlpha: 0, duration: 0.55, ease: "power3.out" }); }
-
-      // Hero
-      var heroIcon = document.getElementById("hero-icon");
-      if (heroIcon) { gsap.set(heroIcon, { autoAlpha: 1 }); gsap.from(heroIcon, { scale: 0.8, autoAlpha: 0, duration: 0.5, ease: "back.out(1.7)" }); }
-      var heroEyebrow = document.getElementById("hero-eyebrow");
-      if (heroEyebrow) { gsap.set(heroEyebrow, { autoAlpha: 1 }); gsap.from(heroEyebrow, { y: 16, autoAlpha: 0, duration: 0.5, ease: "power3.out", delay: 0.1 }); }
-      var heroTitle = document.getElementById("hero-title");
-      if (heroTitle) { gsap.set(heroTitle, { autoAlpha: 1 }); gsap.from(heroTitle, { y: 30, autoAlpha: 0, duration: 0.65, ease: "power3.out", delay: 0.16 }); }
-      var heroSubtitle = document.getElementById("hero-subtitle");
-      if (heroSubtitle) { gsap.set(heroSubtitle, { autoAlpha: 1 }); gsap.from(heroSubtitle, { y: 20, autoAlpha: 0, duration: 0.5, ease: "power3.out", delay: 0.3 }); }
-
-      // Stats strip
-      var statsStrip = document.getElementById("stats-strip");
-      if (statsStrip) { gsap.set(statsStrip, { autoAlpha: 1 }); gsap.from(statsStrip, { y: 30, autoAlpha: 0, duration: 0.6, ease: "power3.out", delay: 0.2 }); }
-
-      // Pipeline section
-      var pipelineSection = document.getElementById("pipeline-section");
-      if (pipelineSection) { gsap.set(pipelineSection, { autoAlpha: 1 }); gsap.from(pipelineSection, { y: 36, autoAlpha: 0, duration: 0.6, ease: "power3.out", scrollTrigger: { trigger: pipelineSection, start: "top 85%", once: true } }); }
-
-      // Render full agent grid
-      var allAgents = [
-        { name:"Orchestrator",zh:"协调器",icon:"🎯",model:"Opus",lines:145,lessons:3,stage:"coordination",color:"#4F5CD6",desc:"协调分发、质量把关、接口契约"},
-        { name:"Scout",zh:"侦察兵",icon:"🔍",model:"Sonnet",lines:112,lessons:0,stage:"explore",color:"#6366F1",desc:"摸底调研、技术栈文档"},
-        { name:"BA",zh:"业务分析师",icon:"📋",model:"Sonnet",lines:120,lessons:0,stage:"explore",color:"#6366F1",desc:"需求澄清、用户故事、验收标准"},
-        { name:"Adversarial Reviewer",zh:"对抗审查员",icon:"⚔️",model:"Opus",lines:140,lessons:0,stage:"plan",color:"#8B5CF6",desc:"常规审查+元审查+预验尸"},
-        { name:"PM",zh:"项目经理",icon:"📊",model:"Sonnet",lines:115,lessons:0,stage:"plan",color:"#8B5CF6",desc:"任务路由、风险登记册、阶段门检查"},
-        { name:"UX/UI Designer",zh:"设计师",icon:"🎨",model:"Opus",lines:130,lessons:0,stage:"design",color:"#EC4899",desc:"视觉设计、交互状态、设计Token、WCAG"},
-        { name:"Frontend Developer",zh:"前端开发",icon:"💻",model:"Sonnet",lines:125,lessons:2,stage:"build",color:"#F59E0B",desc:"HTML/CSS/JS/GSAP 实现"},
-        { name:"Backend Developer",zh:"后端开发",icon:"⚙️",model:"Sonnet",lines:118,lessons:1,stage:"build",color:"#F59E0B",desc:"API/数据库/业务逻辑"},
-        { name:"Fullstack Developer",zh:"全栈开发",icon:"🔧",model:"Sonnet",lines:110,lessons:0,stage:"build",color:"#F59E0B",desc:"端到端垂直切片"},
-        { name:"Code Reviewer",zh:"代码审查员",icon:"👀",model:"Sonnet",lines:135,lessons:0,stage:"build",color:"#F59E0B",desc:"5层分层代码审查"},
-        { name:"QA Engineer",zh:"测试工程师",icon:"🧪",model:"Sonnet",lines:122,lessons:0,stage:"build",color:"#F59E0B",desc:"AI专项测试+传统测试"},
-        { name:"Security Guardian",zh:"安全卫士",icon:"🛡️",model:"Sonnet",lines:126,lessons:2,stage:"build",color:"#F59E0B",desc:"安全漏洞审计"},
-        { name:"DevOps Engineer",zh:"运维工程师",icon:"🚀",model:"Sonnet",lines:132,lessons:4,stage:"deliver",color:"#10B981",desc:"部署、CI/CD、Git版本管理"},
-        { name:"Technical Writer",zh:"技术文档工程师",icon:"📝",model:"Sonnet",lines:108,lessons:0,stage:"deliver",color:"#10B981",desc:"文档、ADR、Changelog"},
-        { name:"Memory Curator",zh:"记忆策展人",icon:"🧠",model:"Sonnet",lines:116,lessons:0,stage:"deliver",color:"#10B981",desc:"跨会话记忆、Session State、教训管理"}
-      ];
-
-      var grid = document.getElementById("full-agent-grid");
-      allAgents.forEach(function (a) {
-        var card = document.createElement("div");
-        card.className = "agent-card bg-white rounded-xl border border-neutral-200 p-5";
-        card.style.borderLeft = "3px solid " + a.color;
-        card.innerHTML =
-          '<div class="flex items-center gap-3 mb-3">' +
-          '<div class="w-10 h-10 rounded-lg flex items-center justify-center text-lg" style="background:' + a.color + '20;color:' + a.color + ';">' + a.icon + '</div>' +
-          '<div>' +
-          '<p class="font-semibold text-primary-800 text-sm leading-tight">' + a.name + '</p>' +
-          '<p class="text-xs text-neutral-400">' + a.zh + ' · ' + a.model + '</p>' +
-          '</div>' +
-          '</div>' +
-          '<p class="text-xs text-neutral-500 mb-3">' + a.desc + '</p>' +
-          '<div class="flex items-center justify-between text-xs">' +
-          '<span class="text-neutral-400">SKILL.md ' + a.lines + ' 行</span>' +
-          (a.lessons > 0 ? '<span class="text-amber-600 font-semibold">' + a.lessons + ' 条教训 ✦</span>' : '<span class="text-neutral-300">暂无教训</span>') +
-          '</div>';
-        grid.appendChild(card);
-      });
-
-      // Animate full agent grid
-      var allCardsSection = document.getElementById("all-cards-section");
-      if (allCardsSection) { gsap.set(allCardsSection, { autoAlpha: 1 }); gsap.from(allCardsSection, { y: 36, autoAlpha: 0, duration: 0.6, ease: "power3.out", scrollTrigger: { trigger: allCardsSection, start: "top 85%", once: true } }); }
-
-      // Stagger the cards
-      setTimeout(function () {
-        var cards = document.querySelectorAll("#full-agent-grid .agent-card");
-        if (cards.length) {
-          gsap.set(cards, { autoAlpha: 1 });
-          gsap.from(cards, { y: 30, autoAlpha: 0, duration: 0.35, stagger: 0.03, ease: "power2.out", scrollTrigger: { trigger: "#all-cards-section", start: "top 85%", once: true } });
-        }
-      }, 150);
-
-      // Footer
-      var footer = document.getElementById("footer");
-      if (footer) { gsap.set(footer, { autoAlpha: 1 }); gsap.from(footer, { y: 30, autoAlpha: 0, duration: 0.6, ease: "power3.out", scrollTrigger: { trigger: footer, start: "top 90%", once: true } }); }
-
-      // Mobile menu
-      var hamburger = document.getElementById("hamburger");
-      var mobileMenu = document.getElementById("mobile-menu");
-      if (hamburger && mobileMenu) { hamburger.addEventListener("click", function () { mobileMenu.classList.toggle("open"); }); }
-
-      mm.add("(prefers-reduced-motion: reduce)", function () { gsap.globalTimeline.timeScale(0); return function () { gsap.globalTimeline.timeScale(1); }; });
-      ScrollTrigger.refresh();
-    });
-  </script>
 <script>
-(function(){
-  var reported = new Set();
-  window.onerror = function(msg, url, line, col, err) {
-    var key = (msg||'') + '|' + (url||'') + '|' + line;
-    if (reported.has(key) || reported.size > 10) return;
-    reported.add(key);
-    try {
-      var x = new XMLHttpRequest();
-      x.open('POST', '/api/health', true);
-      x.setRequestHeader('Content-Type', 'application/json');
-      x.send(JSON.stringify({message:String(msg||'').substring(0,500), url:String(url||'').substring(0,200), line:line, col:col, page:location.href, ts:Date.now()}));
-    } catch(e) {}
-  };
-  window.addEventListener('unhandledrejection', function(e) {
-    var key = 'rejection|' + String(e.reason||'').substring(0,100);
-    if (reported.has(key) || reported.size > 10) return;
-    reported.add(key);
-    try {
-      var x = new XMLHttpRequest();
-      x.open('POST', '/api/health', true);
-      x.setRequestHeader('Content-Type', 'application/json');
-      x.send(JSON.stringify({message:'Promise rejection: '+String(e.reason||'').substring(0,500), page:location.href, ts:Date.now()}));
-    } catch(e) {}
-  });
-  console.log('[monitor] Error tracking active');
-})();
+(function(){var r=new Set();window.onerror=function(m,u,l,c,e){var k=(m||'')+'|'+(u||'')+'|'+l;if(r.has(k)||r.size>10)return;r.add(k);try{var x=new XMLHttpRequest();x.open('POST','/api/health',true);x.setRequestHeader('Content-Type','application/json');x.send(JSON.stringify({message:String(m||'').substring(0,500),url:String(u||'').substring(0,200),line:l,col:c,page:location.href,ts:Date.now()}))}catch(e){}};window.addEventListener('unhandledrejection',function(e){var k='rejection|'+String(e.reason||'').substring(0,100);if(r.has(k)||r.size>10)return;r.add(k);try{var x=new XMLHttpRequest();x.open('POST','/api/health',true);x.setRequestHeader('Content-Type','application/json');x.send(JSON.stringify({message:'Promise rejection: '+String(e.reason||'').substring(0,500),page:location.href,ts:Date.now()}))}catch(e){}})})();
+</script>
+<script>
+gsap.registerPlugin(ScrollTrigger);
+document.querySelectorAll('.reveal').forEach((el,i)=>{gsap.fromTo(el,{opacity:0,y:28},{opacity:1,y:0,duration:0.8,delay:i*0.03,ease:'power2.out',scrollTrigger:{trigger:el,start:'top 92%',toggleActions:'play none none none'}})});
 </script>
 </body>
 </html>

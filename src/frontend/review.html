@@ -1,306 +1,123 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AI 设计评审工具 — AI 交互模式实验室</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧪</text></svg>" />
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>AI 设计评审工具 — 樊书洋</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>"/>
+<link rel="stylesheet" href="css/tailwind.min.css?v=2.1"/><link rel="stylesheet" href="css/fonts.css?v=2.1"/>
+<style>
+:root{--bg:#0A0E17;--bg-card:#111820;--bg-card-hover:#161D27;--text-primary:#F0F0F0;--text-muted:#8B949E;--accent:#E07340;--border:#1E2938;--border-hover:#2D3A4E}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:0.01ms!important;transition-duration:0.01ms!important}}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:2px}
+body{background:var(--bg);color:var(--text-primary);font-family:system-ui,-apple-system,'PingFang SC','Microsoft YaHei',sans-serif;-webkit-font-smoothing:antialiased}
+.font-display{font-family:'DM Serif Display','Noto Serif SC',serif}
+.font-mono{font-family:'JetBrains Mono','Cascadia Code',monospace}
+#navbar{position:fixed;top:0;width:100%;z-index:50;background:rgba(10,14,23,0.85);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid var(--border)}
+#navbar .inner{max-width:1200px;margin:0 auto;padding:0 48px;height:68px;display:flex;align-items:center;justify-content:space-between}
+#navbar .logo{font-size:18px;font-weight:700;color:var(--text-primary);text-decoration:none}
+#navbar .links{display:flex;align-items:center;gap:36px}
+#navbar .links a{color:var(--text-muted);font-size:15px;font-weight:500;text-decoration:none;transition:color 0.25s}
+#navbar .links a:hover{color:var(--text-primary)}
+.hero-wrap{padding:160px 48px 60px;max-width:800px;margin:0 auto;text-align:center}
+.section-wrap{max-width:800px;margin:0 auto;padding:0 48px 40px}
+.section-heading{font-size:13px;color:var(--accent);text-transform:uppercase;letter-spacing:0.14em;font-weight:500;margin-bottom:20px}
+.upload-zone{border:2px dashed var(--border);border-radius:12px;padding:48px 24px;text-align:center;cursor:pointer;transition:border-color 0.25s,background 0.25s}
+.upload-zone:hover{border-color:var(--accent);background:rgba(224,115,64,0.04)}
+.upload-zone.has-image{padding:16px 24px}
+.dim-card{border:1px solid var(--border);border-radius:8px;padding:16px;cursor:pointer;transition:border-color 0.25s,background 0.25s;display:flex;align-items:flex-start;gap:12px;margin-bottom:10px}
+.dim-card:hover{border-color:var(--accent)}
+.dim-card.selected{border-color:var(--accent);background:rgba(224,115,64,0.06)}
+.dim-checkbox{width:20px;height:20px;border-radius:4px;border:2px solid var(--border);flex-shrink:0;transition:all 0.2s;margin-top:2px}
+.dim-card.selected .dim-checkbox{background:var(--accent);border-color:var(--accent)}
+.dim-card.selected .dim-checkbox::after{content:'✓';display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:700;height:100%}
+.btn-primary{display:inline-flex;align-items:center;gap:8px;background:var(--accent);color:#fff;padding:14px 40px;border-radius:8px;font-size:15px;font-weight:600;text-decoration:none;border:none;cursor:pointer;transition:opacity 0.2s}
+.btn-primary:hover{opacity:0.9}
+.btn-primary:disabled{opacity:0.4;cursor:not-allowed}
+.btn-outline{padding:12px 32px;border-radius:8px;font-size:14px;font-weight:500;border:1px solid var(--border);background:transparent;color:var(--text-primary);cursor:pointer;transition:border-color 0.25s}
+.btn-outline:hover{border-color:var(--accent)}
+.error-banner{background:rgba(224,85,96,0.12);color:#E05560;padding:12px 20px;border-radius:8px;font-size:14px;display:none;margin-bottom:16px}
+.error-banner.active{display:block}
+.loading-overlay{display:none;text-align:center;padding:32px}
+.loading-overlay.active{display:block}
+.spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 16px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.review-results{display:none}
+.review-results.active{display:block}
+.dim-card-result{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:16px}
+.dim-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.dim-name{font-family:'DM Serif Display','Noto Serif SC',serif;font-size:18px;font-weight:700;color:var(--text-primary)}
+.dim-score{padding:4px 12px;border-radius:8px;font-size:18px;font-weight:800}
+.dim-score.high{color:#10B981;background:rgba(16,185,129,0.1)}
+.dim-score.mid{color:#F59E0B;background:rgba(245,158,11,0.1)}
+.dim-score.low{color:#E05560;background:rgba(224,85,96,0.1)}
+.dim-summary{font-size:14px;color:var(--text-muted);line-height:1.6;margin-bottom:16px}
+.finding-item{border-top:1px solid var(--border);padding:14px 0}
+.finding-header{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.finding-badge{display:inline-block;padding:2px 10px;border-radius:100px;font-size:11px;font-weight:600}
+.finding-badge.issue{background:rgba(224,85,96,0.12);color:#E05560}
+.finding-badge.strength{background:rgba(16,185,129,0.12);color:#10B981}
+.finding-title{font-size:15px;font-weight:600;color:var(--text-primary)}
+.finding-desc{font-size:13px;color:var(--text-muted);line-height:1.6;margin-bottom:10px}
+.principle-card{background:var(--bg);border-radius:8px;padding:14px 16px;border:1px solid var(--border)}
+.principle-name{font-size:14px;font-weight:700;color:var(--accent);margin-bottom:2px}
+.principle-brief{font-size:12px;color:var(--text-muted);margin-bottom:8px}
+.principle-detail{font-size:13px;color:var(--text-muted);line-height:1.6}
+.principle-detail summary{cursor:pointer;font-weight:600;color:var(--accent);font-size:13px;margin-bottom:6px}
+.chat-msg{margin-bottom:12px;max-width:85%}
+.chat-msg-user{margin-left:auto}
+.chat-msg-ai{margin-right:auto}
+.chat-bubble{padding:10px 16px;border-radius:16px;font-size:14px;line-height:1.6}
+.chat-msg-user .chat-bubble{background:var(--accent);color:#fff;border-bottom-right-radius:4px}
+.chat-msg-ai .chat-bubble{background:var(--bg-card);color:var(--text-primary);border:1px solid var(--border);border-bottom-left-radius:4px}
+.chat-typing{opacity:0.6}
+.chat-typing::after{content:'...';animation:dotPulse 1.2s infinite}
+@keyframes dotPulse{0%,20%{opacity:0}50%{opacity:1}80%,100%{opacity:0}}
+.chat-refs{margin-top:6px;padding:6px 14px;background:var(--bg);border-radius:10px;font-size:12px;color:var(--accent)}
+.site-footer{border-top:1px solid var(--border);padding:48px 48px 72px;max-width:1200px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px}
+.footer-links{display:flex;align-items:center;gap:28px}
+.footer-links a{color:var(--text-muted);text-decoration:none;font-size:14px;font-weight:500;transition:color 0.2s}
+.footer-links a:hover{color:var(--accent)}
+.footer-credit{font-size:13px;color:var(--text-muted)}
+@media(max-width:768px){#navbar .inner{padding:0 24px}#navbar .links{display:none}.hero-wrap{padding:140px 24px 40px}.section-wrap{padding:0 24px 30px}.site-footer{flex-direction:column;align-items:flex-start;padding:40px 24px 64px}}
+</style></head><body>
 
-        <link rel="stylesheet" href="css/tailwind.min.css?v=2.1">
-  <link rel="stylesheet" href="css/fonts.css?v=2.1">
+<nav id="navbar"><div class="inner"><a href="/" class="logo">樊书洋<span style="color:var(--accent)">.</span></a><div class="links"><a href="about.html">关于</a><a href="agents.html">Agents</a><a href="behind-the-scenes.html">幕后</a></div></div></nav>
 
-  <style>
-    @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
-    }
-    :focus-visible { outline: 2px solid #e07340; outline-offset: 2px; border-radius: 2px; }
-    .section-divider { display: flex; align-items: center; gap: 1rem; }
-    .section-divider::before, .section-divider::after { content: ''; flex: 1; height: 1px; background: #e8e4e0; }
-    .section-divider-dot { width: 8px; height: 8px; border-radius: 50%; background: #e07340; flex-shrink: 0; }
-    .mobile-menu { max-height: 0; overflow: hidden; transition: max-height 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease; opacity: 0; }
-    .mobile-menu.open { max-height: 320px; opacity: 1; }
+<section class="hero-wrap"><p class="font-mono" style="font-size:13px;color:var(--accent);text-transform:uppercase;letter-spacing:0.14em;margin-bottom:16px">Interactive Tool</p><h1 class="font-display" style="font-size:clamp(32px,5vw,48px);line-height:1.15;margin-bottom:12px">AI 设计评审工具</h1><p style="font-size:17px;color:var(--text-muted)">上传 UI 截图，选择评审维度，获取结构化设计建议</p></section>
 
-    /* Upload zone */
-    .upload-zone { border: 2px dashed #d4cec8; border-radius: 16px; padding: 48px 24px; text-align: center; cursor: pointer; transition: border-color 0.25s ease, background 0.25s ease; }
-    .upload-zone:hover, .upload-zone.drag-over { border-color: #e07340; background: #fef7f4; }
-    .upload-zone.has-image { padding: 16px 24px; }
+<div class="section-wrap"><div id="errorBanner" class="error-banner"></div></div>
 
-    /* Dimension cards */
-    .dimension-card { border: 2px solid #e8e4e0; border-radius: 12px; padding: 16px; cursor: pointer; transition: border-color 0.25s ease, background 0.25s ease, transform 0.2s ease; display: flex; align-items: flex-start; gap: 12px; }
-    .dimension-card:hover { border-color: #f5b598; }
-    .dimension-card.selected { border-color: #e07340; background: #fef7f4; transform: translateY(-2px); }
-    .dimension-checkbox { width: 20px; height: 20px; border-radius: 6px; border: 2px solid #d4cec8; flex-shrink: 0; transition: all 0.2s ease; margin-top: 2px; }
-    .dimension-card.selected .dimension-checkbox { background: #e07340; border-color: #e07340; }
-    .dimension-card.selected .dimension-checkbox::after { content: '✓'; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 12px; font-weight: 700; height: 100%; }
+<section class="section-wrap"><div id="uploadZone" class="upload-zone">
+<input type="file" id="uploadInput" style="display:none" accept="image/png,image/jpeg,image/webp"/>
+<div id="uploadPlaceholder"><div style="font-size:36px;margin-bottom:12px">📤</div><div style="font-weight:600;color:var(--text-primary);margin-bottom:4px">上传你的设计截图</div><div style="font-size:14px;color:var(--text-muted)">支持 PNG / JPG / WebP，不超过 10MB。拖拽也可以。</div></div>
+<div id="uploadPreview" style="display:none;align-items:center;gap:16px"><img id="previewImg" src="" alt="预览" style="width:64px;height:64px;border-radius:8px;object-fit:cover;border:1px solid var(--border)"/><div style="flex:1;text-align:left"><div id="previewName" style="font-size:14px;font-weight:600;color:var(--text-primary)"></div><div id="previewSize" style="font-size:12px;color:var(--text-muted)"></div></div><button onclick="removeFile()" style="padding:8px 16px;font-size:13px;font-weight:600;color:#E05560;background:transparent;border:none;cursor:pointer;border-radius:6px">移除</button></div>
+</div></section>
 
-    /* Error banner */
-    .error-banner { background: #fef2f2; color: #991b1b; padding: 12px 20px; border-radius: 12px; font-size: 14px; display: none; margin-bottom: 16px; }
-    .error-banner.active { display: block; }
+<section class="section-wrap"><div class="section-heading font-mono">// 选择评审维度</div><div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px">
+<div class="dim-card" data-dimension="信息架构"><div class="dim-checkbox"></div><div><div style="font-weight:600;font-size:14px">信息架构</div><div style="font-size:12px;color:var(--text-muted);margin-top:2px">导航是否清晰、分类是否合理、信息层级是否明确</div></div></div>
+<div class="dim-card" data-dimension="视觉层级"><div class="dim-checkbox"></div><div><div style="font-weight:600;font-size:14px">视觉层级</div><div style="font-size:12px;color:var(--text-muted);margin-top:2px">重要信息是否突出、视觉流是否顺畅</div></div></div>
+<div class="dim-card" data-dimension="可用性"><div class="dim-checkbox"></div><div><div style="font-weight:600;font-size:14px">可用性</div><div style="font-size:12px;color:var(--text-muted);margin-top:2px">操作是否便捷、反馈是否及时</div></div></div>
+<div class="dim-card" data-dimension="色彩系统"><div class="dim-checkbox"></div><div><div style="font-weight:600;font-size:14px">色彩系统</div><div style="font-size:12px;color:var(--text-muted);margin-top:2px">颜色搭配是否和谐、对比度是否达标</div></div></div>
+<div class="dim-card" data-dimension="版式设计"><div class="dim-checkbox"></div><div><div style="font-weight:600;font-size:14px">版式设计</div><div style="font-size:12px;color:var(--text-muted);margin-top:2px">字体层级是否清晰、间距节奏是否舒适</div></div></div>
+<div class="dim-card" data-dimension="无障碍"><div class="dim-checkbox"></div><div><div style="font-weight:600;font-size:14px">无障碍</div><div style="font-size:12px;color:var(--text-muted);margin-top:2px">文字可读性、色彩对比度、触控区域</div></div></div>
+</div></section>
 
-    /* Loading */
-    .loading-overlay { display: none; text-align: center; padding: 32px; }
-    .loading-overlay.active { display: block; }
+<div class="section-wrap" style="text-align:center"><button id="submitBtn" class="btn-primary" disabled>开始评审</button></div>
 
-    /* Review results */
-    .review-results { display: none; }
-    .review-results.active { display: block; }
+<div id="loadingOverlay" class="loading-overlay section-wrap"><div class="spinner"></div><div id="loadingStepVisual" style="font-size:14px;color:var(--text-muted);margin-bottom:8px">AI 正在识别设计元素...</div><div id="loadingStepReview" style="font-size:14px;color:var(--text-muted);margin-bottom:16px"></div><div id="streamTextContainer" style="display:none;background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:20px;text-align:left;max-height:260px;overflow-y:auto"><div style="font-size:12px;color:var(--text-muted);margin-bottom:8px">AI 实时输出：</div><pre id="streamText" style="font-size:13px;color:var(--text-primary);white-space:pre-wrap;font-family:'JetBrains Mono',monospace;margin:0"></pre></div></div>
 
-    /* Chat */
-    .chat-msg { margin-bottom: 12px; max-width: 85%; }
-    .chat-msg-user { margin-left: auto; }
-    .chat-msg-ai { margin-right: auto; }
-    .chat-bubble { padding: 10px 16px; border-radius: 16px; font-size: 14px; line-height: 1.6; }
-    .chat-msg-user .chat-bubble { background: #e07340; color: #fff; border-bottom-right-radius: 4px; }
-    .chat-msg-ai .chat-bubble { background: #f5f3f1; color: #4a423b; border-bottom-left-radius: 4px; }
+<section id="reviewResults" class="review-results section-wrap"><div style="text-align:center;margin-bottom:32px"><div id="overallNumber" style="font-family:'DM Serif Display',serif;font-size:72px;color:var(--accent)">—</div><div style="font-size:14px;color:var(--text-muted);margin-top:4px">综合评分</div></div><div id="dimensionsContainer" style="display:flex;flex-direction:column;gap:16px"></div><div style="text-align:center;margin-top:32px"><button onclick="resetAll()" class="btn-outline">重新开始新的评审</button></div></section>
 
-    /* Spinner */
-    .spinner { width: 36px; height: 36px; border: 3px solid #e8e4e0; border-top-color: #e07340; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 16px; }
-    @keyframes spin { to { transform: rotate(360deg); } }
+<section id="chatSection" class="section-wrap" style="display:none"><div class="section-heading font-mono">// 追问 AI 导师</div><div id="chatMessages" style="display:flex;flex-direction:column;gap:12px;margin-bottom:16px;min-height:100px"></div><div style="display:flex;gap:12px"><input id="chatInput" style="flex:1;padding:12px 20px;border-radius:8px;border:1px solid var(--border);background:var(--bg-card);color:var(--text-primary);font-size:14px;outline:none" placeholder="对评审内容有任何疑问？在这里追问..."/><button id="chatSendBtn" class="btn-primary" style="padding:12px 24px;border-radius:8px">发送</button></div></section>
 
-    /* ===== JS-generated review result elements ===== */
-    .dimension-card-result { background: #fff; border: 1px solid #e8e4e0; border-radius: 16px; padding: 20px 24px; margin-bottom: 16px; }
-    .dim-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-    .dim-name { font-family: 'DM Serif Display','Noto Serif SC',serif; font-size: 18px; font-weight: 700; color: #292d57; }
-    .dim-score { font-size: 20px; font-weight: 800; padding: 2px 10px; border-radius: 8px; }
-    .dim-score.high { color: #059669; background: #ecfdf5; }
-    .dim-score.mid { color: #d97706; background: #fffbeb; }
-    .dim-score.low { color: #dc2626; background: #fef2f2; }
-    .dim-summary { font-size: 14px; color: #5e554c; line-height: 1.6; margin-bottom: 16px; }
+<footer class="site-footer"><div class="footer-links"><a href="about.html">关于</a><a href="https://github.com/qq242115512/ai-interaction-lab">GitHub</a><a href="mailto:fsy20060225@163.com">fsy20060225@163.com</a></div><p class="footer-credit font-mono">designed & built with AI · 2026</p></footer>
 
-    .finding-item { border-top: 1px solid #f5f3f1; padding: 14px 0; }
-    .finding-header { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
-    .finding-badge { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 11px; font-weight: 600; }
-    .finding-badge.issue { background: #fef2f2; color: #dc2626; }
-    .finding-badge.strength { background: #ecfdf5; color: #059669; }
-    .finding-title { font-size: 15px; font-weight: 600; color: #292d57; }
-    .finding-desc { font-size: 13px; color: #5e554c; line-height: 1.6; margin-bottom: 10px; }
-
-    .principle-card { background: #fafaf9; border-radius: 12px; padding: 14px 16px; border: 1px solid #f5f3f1; }
-    .principle-name { font-size: 14px; font-weight: 700; color: #6e76c4; margin-bottom: 2px; }
-    .principle-brief { font-size: 12px; color: #a89f96; margin-bottom: 8px; }
-    .principle-detail { font-size: 13px; color: #4a423b; line-height: 1.6; }
-    .principle-detail summary { cursor: pointer; font-weight: 600; color: #6e76c4; font-size: 13px; margin-bottom: 6px; }
-    .principle-detail p { margin-bottom: 6px; }
-
-    /* ===== JS-generated chat elements ===== */
-    .chat-typing { opacity: 0.6; }
-    .chat-typing::after { content: '...'; animation: dotPulse 1.2s infinite; }
-    @keyframes dotPulse { 0%,20%{opacity:0} 50%{opacity:1} 80%,100%{opacity:0} }
-    .chat-refs { margin-top: 6px; padding: 6px 14px; background: #f5f3f1; border-radius: 10px; font-size: 12px; color: #6e76c4; }
-  </style>
-</head>
-<body class="bg-neutral-100 font-body text-neutral-700 antialiased">
-
-  <!-- Navigation -->
-  <nav id="navbar" class="fixed top-0 w-full z-50 bg-neutral-100/90 backdrop-blur-md border-b border-neutral-200">
-    <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-      <a href="/" class="font-display text-2xl text-primary-700 tracking-tight no-underline">AI<span class="text-accent-500">·</span>Lab</a>
-      <div class="hidden md:flex items-center gap-8">
-        <a href="/patterns/streaming.html" class="text-sm font-medium text-neutral-500 hover:text-neutral-800 transition-colors no-underline">Patterns</a>
-        <a href="/about.html" class="text-sm font-medium text-neutral-500 hover:text-neutral-800 transition-colors no-underline">About</a>
-        <a href="/agents.html" class="text-sm font-medium text-neutral-500 hover:text-neutral-800 transition-colors no-underline">Agents</a>
-        <a href="/behind-the-scenes.html" class="text-sm font-medium text-neutral-500 hover:text-neutral-800 transition-colors no-underline">Behind the Scenes</a>
-        <a href="/review.html" class="px-6 py-2.5 bg-accent-500 text-white font-semibold rounded-full text-sm hover:bg-accent-600 transition-colors shadow-lg shadow-accent-500/25 no-underline">Try Review Tool</a>
-      </div>
-      <button id="hamburger" class="md:hidden flex flex-col gap-1.5 p-2 bg-transparent border-0 cursor-pointer" aria-label="打开菜单">
-        <span class="block w-6 h-0.5 bg-neutral-700 rounded transition-transform duration-300"></span>
-        <span class="block w-6 h-0.5 bg-neutral-700 rounded transition-opacity duration-300"></span>
-        <span class="block w-6 h-0.5 bg-neutral-700 rounded transition-transform duration-300"></span>
-      </button>
-    </div>
-    <div id="mobile-menu" class="mobile-menu md:hidden bg-neutral-100/95 backdrop-blur-md border-b border-neutral-200">
-      <div class="px-6 py-4 flex flex-col gap-3">
-        <a href="/patterns/streaming.html" class="text-sm font-medium text-neutral-600 hover:text-neutral-900 no-underline py-2">Patterns</a>
-        <a href="/about.html" class="text-sm font-medium text-neutral-600 hover:text-neutral-900 no-underline py-2">About</a>
-        <a href="/agents.html" class="text-sm font-medium text-neutral-600 hover:text-neutral-900 no-underline py-2">Agents</a>
-        <a href="/behind-the-scenes.html" class="text-sm font-medium text-neutral-600 hover:text-neutral-900 no-underline py-2">Behind the Scenes</a>
-        <a href="/review.html" class="px-6 py-2.5 bg-accent-500 text-white font-semibold rounded-full text-sm hover:bg-accent-600 transition-colors text-center no-underline shadow-lg shadow-accent-500/25">Try Review Tool</a>
-      </div>
-    </div>
-  </nav>
-
-  <!-- Hero -->
-  <section class="pt-28 pb-8 md:pt-36 md:pb-10 px-6 text-center">
-    <div class="max-w-3xl mx-auto">
-      <p class="text-xs font-semibold text-accent-500 uppercase tracking-widest mb-4 opacity-0" id="hero-eyebrow">Interactive Tool</p>
-      <h1 class="font-display text-3xl md:text-5xl text-primary-900 leading-tight mb-4 opacity-0" id="hero-title">AI 设计评审工具</h1>
-      <p class="text-base md:text-lg text-neutral-500 leading-relaxed max-w-xl mx-auto opacity-0" id="hero-subtitle">
-        上传 UI 截图，选择评审维度，获取结构化设计建议
-      </p>
-    </div>
-  </section>
-
-  <!-- Error Banner -->
-  <div class="max-w-3xl mx-auto px-6">
-    <div id="errorBanner" class="error-banner"></div>
-  </div>
-
-  <!-- Upload Section -->
-  <section class="max-w-3xl mx-auto px-6 pb-8">
-    <div id="uploadZone" class="upload-zone">
-      <input type="file" id="uploadInput" class="hidden" accept="image/png,image/jpeg,image/webp" />
-      <div id="uploadPlaceholder">
-        <span class="text-4xl mb-3 block">📤</span>
-        <div class="font-semibold text-primary-800 mb-1">上传你的设计截图</div>
-        <div class="text-sm text-neutral-400">支持 PNG / JPG / WebP，不超过 10MB。拖拽也可以。</div>
-      </div>
-      <div id="uploadPreview" class="hidden items-center gap-4">
-        <img id="previewImg" src="" alt="预览" class="w-16 h-16 rounded-lg object-cover border border-neutral-200" />
-        <div class="flex-1 text-left">
-          <div id="previewName" class="text-sm font-semibold text-primary-800"></div>
-          <div id="previewSize" class="text-xs text-neutral-400"></div>
-        </div>
-        <button class="px-4 py-2 text-sm font-semibold text-red-500 hover:bg-red-50 rounded-lg transition-colors border-0 bg-transparent cursor-pointer" onclick="removeFile()">移除</button>
-      </div>
-    </div>
-  </section>
-
-  <!-- Dimension Selection -->
-  <section class="max-w-3xl mx-auto px-6 pb-8">
-    <div class="text-sm font-semibold text-primary-800 mb-4">选择评审维度（可多选）</div>
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-      <div class="dimension-card" data-dimension="信息架构">
-        <div class="dimension-checkbox"></div>
-        <div>
-          <div class="font-semibold text-primary-800 text-sm">信息架构</div>
-          <div class="text-xs text-neutral-400 mt-0.5">导航是否清晰、分类是否合理、信息层级是否明确</div>
-        </div>
-      </div>
-      <div class="dimension-card" data-dimension="视觉层级">
-        <div class="dimension-checkbox"></div>
-        <div>
-          <div class="font-semibold text-primary-800 text-sm">视觉层级</div>
-          <div class="text-xs text-neutral-400 mt-0.5">重要信息是否突出、视觉流是否顺畅、对比是否得当</div>
-        </div>
-      </div>
-      <div class="dimension-card" data-dimension="可用性">
-        <div class="dimension-checkbox"></div>
-        <div>
-          <div class="font-semibold text-primary-800 text-sm">可用性</div>
-          <div class="text-xs text-neutral-400 mt-0.5">操作是否便捷、反馈是否及时、是否有预防错误的设计</div>
-        </div>
-      </div>
-      <div class="dimension-card" data-dimension="色彩系统">
-        <div class="dimension-checkbox"></div>
-        <div>
-          <div class="font-semibold text-primary-800 text-sm">色彩系统</div>
-          <div class="text-xs text-neutral-400 mt-0.5">颜色搭配是否和谐、情感表达是否匹配、对比度是否达标</div>
-        </div>
-      </div>
-      <div class="dimension-card" data-dimension="版式设计">
-        <div class="dimension-checkbox"></div>
-        <div>
-          <div class="font-semibold text-primary-800 text-sm">版式设计</div>
-          <div class="text-xs text-neutral-400 mt-0.5">字体层级是否清晰、间距节奏是否舒适、对齐是否规整</div>
-        </div>
-      </div>
-      <div class="dimension-card" data-dimension="无障碍">
-        <div class="dimension-checkbox"></div>
-        <div>
-          <div class="font-semibold text-primary-800 text-sm">无障碍</div>
-          <div class="text-xs text-neutral-400 mt-0.5">文字大小是否可读、色彩对比度是否足够、触控区域是否友好</div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Submit -->
-  <div class="max-w-3xl mx-auto px-6 pb-8 text-center">
-    <button id="submitBtn" class="px-10 py-3.5 bg-accent-500 text-white font-semibold rounded-full text-lg hover:bg-accent-600 transition-colors shadow-lg shadow-accent-500/25 disabled:opacity-50 disabled:cursor-not-allowed border-0 cursor-pointer" disabled>开始评审</button>
-  </div>
-
-  <!-- Loading -->
-  <div id="loadingOverlay" class="loading-overlay max-w-3xl mx-auto px-6">
-    <div class="spinner"></div>
-    <div id="loadingStepVisual" class="text-sm text-neutral-500 mb-2">AI 正在识别设计元素...</div>
-    <div id="loadingStepReview" class="text-sm text-neutral-500 mb-4"></div>
-    <div id="streamTextContainer" class="hidden bg-primary-950 rounded-xl p-5 text-left max-h-64 overflow-y-auto">
-      <div class="text-xs text-neutral-400 mb-1">AI 实时输出：</div>
-      <pre id="streamText" class="text-sm font-mono text-neutral-200 whitespace-pre-wrap"></pre>
-    </div>
-  </div>
-
-  <!-- Review Results -->
-  <section id="reviewResults" class="review-results max-w-3xl mx-auto px-6 pb-8">
-    <div class="text-center mb-8">
-      <div id="overallNumber" class="font-display text-6xl md:text-7xl text-accent-500">—</div>
-      <div class="text-sm text-neutral-400 mt-2">综合评分</div>
-    </div>
-    <div id="dimensionsContainer" class="space-y-4"></div>
-    <div class="text-center mt-8">
-      <button class="px-8 py-3 border-2 border-primary-300 text-primary-700 font-semibold rounded-full hover:bg-primary-50 transition-colors bg-white cursor-pointer" onclick="resetAll()">重新开始新的评审</button>
-    </div>
-  </section>
-
-  <!-- Chat -->
-  <section id="chatSection" class="max-w-3xl mx-auto px-6 pb-20" style="display:none;">
-    <div class="section-divider mb-8"><span class="section-divider-dot"></span></div>
-    <div class="font-semibold text-primary-800 mb-4">追问 AI 导师</div>
-    <div id="chatMessages" class="space-y-3 mb-4 min-h-[100px]"></div>
-    <div class="flex gap-3">
-      <input id="chatInput" class="flex-1 px-5 py-3 rounded-full border border-neutral-200 text-sm focus:outline-none focus:border-accent-400 transition-colors" placeholder="对评审内容有任何疑问？在这里追问..." />
-      <button id="chatSendBtn" class="px-8 py-3 bg-accent-500 text-white font-semibold rounded-full text-sm hover:bg-accent-600 transition-colors shadow-lg shadow-accent-500/25 border-0 cursor-pointer">发送</button>
-    </div>
-  </section>
-
-  <!-- Footer -->
-  <footer id="footer" class="bg-primary-950 text-neutral-400 px-6 py-16 opacity-0">
-    <div class="max-w-7xl mx-auto">
-      <div class="flex flex-col md:flex-row items-center justify-between gap-6 mb-8">
-        <a href="/" class="font-display text-xl text-neutral-200 tracking-tight no-underline">AI<span class="text-accent-400">·</span>Lab</a>
-        <div class="flex flex-wrap justify-center gap-6 text-sm">
-          <a href="/patterns/streaming.html" class="text-neutral-400 hover:text-neutral-200 transition-colors no-underline">Patterns</a>
-          <a href="/about.html" class="text-neutral-400 hover:text-neutral-200 transition-colors no-underline">About</a>
-          <a href="/agents.html" class="text-neutral-400 hover:text-neutral-200 transition-colors no-underline">Agents</a>
-          <a href="/behind-the-scenes.html" class="text-neutral-400 hover:text-neutral-200 transition-colors no-underline">Behind the Scenes</a>
-          <a href="/review.html" class="text-neutral-400 hover:text-neutral-200 transition-colors no-underline">Review Tool</a>
-        </div>
-        <a href="https://github.com/qq242115512/ai-interaction-lab" target="_blank" rel="noopener" class="text-neutral-400 hover:text-neutral-200 transition-colors no-underline text-sm">
-          <svg class="w-5 h-5 inline-block mr-1.5 align-text-bottom" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.385-1.335-1.755-1.335-1.755-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.605-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12 24 5.37 18.63 0 12 0z"/></svg>GitHub</a>
-      </div>
-      <div class="border-t border-primary-800 pt-6 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-neutral-500">
-        <span>&copy; 2026 樊书洋 · AI 交互模式实验室</span>
-        <span class="font-mono">v0.5.0</span>
-      </div>
-    </div>
-  </footer>
-
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
-  <script src="js/utils.js"></script>
-  <script src="js/api.js"></script>
-  <script src="js/upload.js"></script>
-  <script src="js/review.js"></script>
-  <script src="js/chat.js"></script>
-  <script src="js/main.js"></script>
-  <script src="js/animations.js?v=2.1"></script>
-<script>
-(function(){
-  var reported = new Set();
-  window.onerror = function(msg, url, line, col, err) {
-    var key = (msg||'') + '|' + (url||'') + '|' + line;
-    if (reported.has(key) || reported.size > 10) return;
-    reported.add(key);
-    try {
-      var x = new XMLHttpRequest();
-      x.open('POST', '/api/health', true);
-      x.setRequestHeader('Content-Type', 'application/json');
-      x.send(JSON.stringify({message:String(msg||'').substring(0,500), url:String(url||'').substring(0,200), line:line, col:col, page:location.href, ts:Date.now()}));
-    } catch(e) {}
-  };
-  window.addEventListener('unhandledrejection', function(e) {
-    var key = 'rejection|' + String(e.reason||'').substring(0,100);
-    if (reported.has(key) || reported.size > 10) return;
-    reported.add(key);
-    try {
-      var x = new XMLHttpRequest();
-      x.open('POST', '/api/health', true);
-      x.setRequestHeader('Content-Type', 'application/json');
-      x.send(JSON.stringify({message:'Promise rejection: '+String(e.reason||'').substring(0,500), page:location.href, ts:Date.now()}));
-    } catch(e) {}
-  });
-  console.log('[monitor] Error tracking active');
-})();
-</script>
-</body>
-</html>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="js/utils.js?v=2.2"></script>
+<script src="js/api.js?v=2.2"></script>
+<script src="js/upload.js?v=2.2"></script>
+<script src="js/review.js?v=2.2"></script>
+<script src="js/chat.js?v=2.2"></script>
+<script src="js/main.js?v=2.2"></script>
+<script src="js/animations.js?v=2.1"></script>
+<script>(function(){var r=new Set();window.onerror=function(m,u,l,c,e){var k=(m||'')+'|'+(u||'')+'|'+l;if(r.has(k)||r.size>10)return;r.add(k);try{var x=new XMLHttpRequest();x.open('POST','/api/health',true);x.setRequestHeader('Content-Type','application/json');x.send(JSON.stringify({message:String(m||'').substring(0,500),url:String(u||'').substring(0,200),line:l,col:c,page:location.href,ts:Date.now()}))}catch(e){}};window.addEventListener('unhandledrejection',function(e){var k='rejection|'+String(e.reason||'').substring(0,100);if(r.has(k)||r.size>10)return;r.add(k);try{var x=new XMLHttpRequest();x.open('POST','/api/health',true);x.setRequestHeader('Content-Type','application/json');x.send(JSON.stringify({message:'Promise rejection: '+String(e.reason||'').substring(0,500),page:location.href,ts:Date.now()}))}catch(e){}})})();</script>
+</body></html>

@@ -5,365 +5,232 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>失败兜底 — AI 交互模式实验室</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧪</text></svg>" />
-
-        <link rel="stylesheet" href="../css/tailwind.min.css?v=2.1">
+  <link rel="stylesheet" href="../css/tailwind.min.css?v=2.1">
   <link rel="stylesheet" href="../css/fonts.css?v=2.1">
-
+  <link rel="stylesheet" href="style.css?v=2.2">
   <style>
     :root { --pa: #f43f5e; }
-    .pattern-accent-text { color: var(--pa); }
-    .pattern-accent-bg { background: var(--pa); }
-    .pattern-accent-border { border-color: var(--pa); }
-    .section-divider { display:flex; align-items:center; gap:1rem; }
-    .section-divider::before,.section-divider::after { content:''; flex:1; height:1px; background:#e8e4e0; }
-    .section-divider-dot { width:8px; height:8px; border-radius:50%; background:var(--pa); flex-shrink:0; }
-    .mobile-menu { max-height:0; overflow:hidden; transition:max-height 0.35s cubic-bezier(0.16,1,0.3,1),opacity 0.25s ease; opacity:0; }
-    .mobile-menu.open { max-height:320px; opacity:1; }
-    body { font-family: 'Inter','Noto Sans SC',sans-serif; }
     .log-info { color: #7dd3fc; }
     .log-error { color: #fca5a5; }
     .log-success { color: #86efac; }
     .log-warn { color: #fde68a; }
     .log-step { color: #c4b5fd; }
-    .tab-btn.active { border-bottom: 3px solid var(--pa) !important; color: var(--pa) !important; font-weight: 700 !important; }
+    .log-terminal { background: #0d1117; border: 1px solid var(--border); border-radius: 10px; padding: 20px; font-family: 'JetBrains Mono','Cascadia Code',monospace; font-size: 13px; line-height: 1.8; min-height: 200px; max-height: 420px; overflow-y: auto; color: #c9d1d9; }
+    .log-terminal .dim { color: #484f58; }
+    .tab-btn-deg { flex: 1; padding: 10px 0; font-size: 12px; font-weight: 600; border: none; background: none; cursor: pointer; color: var(--text-muted); border-bottom: 2px solid transparent; margin-bottom: -1px; transition: all 0.2s; }
+    .tab-btn-deg.active { color: var(--pa); border-bottom-color: var(--pa); font-weight: 700; }
   </style>
 </head>
-<body class="bg-neutral-100 text-neutral-700 antialiased">
+<body>
 
-  <!-- Navigation -->
-  <nav id="navbar" class="fixed top-0 w-full z-50 bg-neutral-100/90 backdrop-blur-md border-b border-neutral-200">
-    <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-      <a href="/" class="font-display text-2xl text-primary-700 tracking-tight no-underline">AI<span class="text-accent-500">·</span>Lab</a>
-      <div class="hidden md:flex items-center gap-8">
-        <a href="/patterns/streaming.html" class="text-sm font-medium text-neutral-500 hover:text-neutral-800 transition-colors no-underline">Patterns</a>
-        <a href="/about.html" class="text-sm font-medium text-neutral-500 hover:text-neutral-800 transition-colors no-underline">About</a>
-        <a href="/agents.html" class="text-sm font-medium text-neutral-500 hover:text-neutral-800 transition-colors no-underline">Agents</a>
-        <a href="/behind-the-scenes.html" class="text-sm font-medium text-neutral-500 hover:text-neutral-800 transition-colors no-underline">Behind the Scenes</a>
-        <a href="/review.html" class="px-6 py-2.5 bg-accent-500 text-white font-semibold rounded-full text-sm hover:bg-accent-600 transition-colors shadow-lg shadow-accent-500/25 no-underline">Try Review Tool</a>
-      </div>
-      <button id="hamburger" class="md:hidden flex flex-col gap-1.5 p-2 bg-transparent border-0 cursor-pointer" aria-label="菜单">
-        <span class="block w-6 h-0.5 bg-neutral-700 rounded transition-transform duration-300"></span>
-        <span class="block w-6 h-0.5 bg-neutral-700 rounded transition-opacity duration-300"></span>
-        <span class="block w-6 h-0.5 bg-neutral-700 rounded transition-transform duration-300"></span>
-      </button>
-    </div>
-    <div id="mobile-menu" class="mobile-menu md:hidden bg-neutral-100/95 backdrop-blur-md border-b border-neutral-200">
-      <div class="px-6 py-4 flex flex-col gap-3">
-        <a href="/patterns/streaming.html" class="text-sm font-medium text-neutral-600 hover:text-neutral-900 no-underline py-2">Patterns</a>
-        <a href="/about.html" class="text-sm font-medium text-neutral-600 hover:text-neutral-900 no-underline py-2">About</a>
-        <a href="/agents.html" class="text-sm font-medium text-neutral-600 hover:text-neutral-900 no-underline py-2">Agents</a>
-        <a href="/behind-the-scenes.html" class="text-sm font-medium text-neutral-600 hover:text-neutral-900 no-underline py-2">Behind the Scenes</a>
-        <a href="/review.html" class="px-6 py-2.5 bg-accent-500 text-white font-semibold rounded-full text-sm hover:bg-accent-600 transition-colors text-center no-underline shadow-lg shadow-accent-500/25">Try Review Tool</a>
-      </div>
-    </div>
-  </nav>
+<nav id="navbar"><div class="inner"><a href="/" class="logo">樊书洋<span style="color:var(--accent)">.</span></a><div class="links"><a href="../about.html">关于</a><a href="../agents.html">Agents</a><a href="../behind-the-scenes.html">幕后</a></div></div></nav>
 
-  <!-- Pattern Hero -->
-  <section class="pt-28 pb-12 md:pt-36 md:pb-16 px-6 text-center">
-    <div class="max-w-3xl mx-auto">
-      <div class="text-5xl mb-4">🛡️</div>
-      <p class="text-xs font-semibold tracking-widest uppercase mb-4" style="color:var(--pa)">AI Interaction Pattern</p>
-      <h1 class="font-display text-3xl md:text-5xl text-primary-900 leading-tight mb-4">失败兜底</h1>
-      <p class="text-lg md:text-xl text-neutral-500">API 出错时优雅降级，用户看不到崩溃</p>
-    </div>
-  </section>
+<section class="pattern-hero">
+  <div class="icon">🛡️</div>
+  <p class="tag font-mono" style="color:var(--pa)">Pattern 04</p>
+  <h1 class="font-display" style="font-size:clamp(32px,5vw,48px);line-height:1.15;margin-bottom:12px">失败兜底</h1>
+  <p style="font-size:17px;color:var(--text-muted)">API 出错时优雅降级，用户看不到崩溃</p>
+</section>
 
-  <!-- Design Rationale -->
-  <section class="max-w-3xl mx-auto px-6 pb-16">
-    <div class="section-divider mb-8"><span class="section-divider-dot"></span></div>
-    <h2 class="font-display text-2xl text-primary-800 mb-6">设计思路</h2>
-    <div class="space-y-4 text-neutral-600 leading-relaxed">
-      <p><strong class="text-neutral-800">解决的问题：</strong>AI 产品依赖外部 API——可能超时、限流、返回格式错误。如果这些错误直接暴露给用户（白屏、红字报错、堆栈信息），用户会觉得产品不可靠，甚至怀疑"是不是我的操作把系统搞崩了"。</p>
-      <p><strong class="text-neutral-800">设计决策：</strong>5 层防御体系——网络重试（指数退避）、JSON 解析回退（3 层）、流式失败转非流式、安全中间件兜底、错误信息脱敏。引用<strong class="text-neutral-800">预防错误</strong>和<strong class="text-neutral-800">帮助用户识别、诊断并恢复</strong>（尼尔森第九原则）。</p>
-      <p><strong class="text-neutral-800">生活类比：</strong>餐厅上错菜了——服务员不会说"厨房数据解析错误"或者把炒糊的菜直接端给你。他们会说"不好意思，我帮您换一份"。不管后厨出了什么问题，你作为顾客只应该看到一道正常的菜。这就是兜底——把系统内部的错误翻译成用户能理解、能行动的信息。</p>
-      <div class="flex flex-wrap gap-2 pt-2">
-        <span class="inline-block px-3 py-1 text-xs font-medium rounded-full border" style="background:#fff1f2;color:#e11d48;border-color:#fecdd3;">预防错误</span>
-        <span class="inline-block px-3 py-1 text-xs font-medium rounded-full border" style="background:#fff1f2;color:#e11d48;border-color:#fecdd3;">帮助识别与恢复</span>
-        <span class="inline-block px-3 py-1 text-xs font-medium rounded-full border" style="background:#fff1f2;color:#e11d48;border-color:#fecdd3;">优雅降级</span>
-        <span class="inline-block px-3 py-1 text-xs font-medium rounded-full border" style="background:#fff1f2;color:#e11d48;border-color:#fecdd3;">系统状态可见性</span>
-      </div>
-    </div>
-  </section>
+<section class="page-section">
+  <div class="section-heading font-mono">Design Rationale</div>
+  <div style="color:var(--text-muted);font-size:14px;line-height:1.8">
+    <p style="margin-bottom:16px"><strong style="color:var(--text-primary)">解决的问题：</strong>AI 产品依赖外部 API——可能超时、限流、返回格式错误。如果这些错误直接暴露给用户（白屏、红字报错、堆栈信息），用户会觉得产品不可靠，甚至怀疑"是不是我的操作把系统搞崩了"。</p>
+    <p style="margin-bottom:16px"><strong style="color:var(--text-primary)">设计决策：</strong>5 层防御体系——网络重试（指数退避）、JSON 解析回退（3 层）、流式失败转非流式、安全中间件兜底、错误信息脱敏。引用<strong style="color:var(--text-primary)">预防错误</strong>和<strong style="color:var(--text-primary)">帮助用户识别、诊断并恢复</strong>（尼尔森第九原则）。</p>
+    <p style="margin-bottom:16px"><strong style="color:var(--text-primary)">生活类比：</strong>餐厅上错菜了——服务员不会说"厨房数据解析错误"或者把炒糊的菜直接端给你。他们会说"不好意思，我帮您换一份"。不管后厨出了什么问题，你作为顾客只应该看到一道正常的菜。</p>
+    <div class="principles-tags"><span>优雅降级</span><span>错误脱敏</span><span>指数退避</span></div>
+  </div>
+</section>
 
-  <!-- Live Demo -->
-  <section class="max-w-4xl mx-auto px-6 pb-20">
-    <div class="section-divider mb-8"><span class="section-divider-dot"></span></div>
-    <h2 class="font-display text-2xl text-primary-800 mb-6">交互 Demo</h2>
-    <p class="text-sm text-neutral-500 mb-4">切换 Tab 查看三种失败场景的兜底处理方式</p>
+<section class="page-section">
+  <div class="section-heading font-mono">交互 Demo</div>
+  <p style="font-size:14px;color:var(--text-muted);margin-bottom:20px">切换 Tab 查看三种失败场景的兜底处理方式</p>
 
-    <!-- Tab Buttons -->
-    <div class="flex border-b-2 border-neutral-200 mb-4">
-      <button class="tab-btn active flex-1 py-3 text-xs font-bold transition-all" data-tab="retry" style="border-bottom:3px solid var(--pa);color:var(--pa);margin-bottom:-2px;background:none;border-top:none;border-left:none;border-right:none;cursor:pointer;">网络断开</button>
-      <button class="tab-btn flex-1 py-3 text-xs font-semibold transition-all text-neutral-400" data-tab="badjson" style="border-bottom:3px solid transparent;margin-bottom:-2px;background:none;border-top:none;border-left:none;border-right:none;cursor:pointer;">返回乱码</button>
-      <button class="tab-btn flex-1 py-3 text-xs font-semibold transition-all text-neutral-400" data-tab="timeout" style="border-bottom:3px solid transparent;margin-bottom:-2px;background:none;border-top:none;border-left:none;border-right:none;cursor:pointer;">请求超时</button>
-    </div>
+  <!-- Tab buttons -->
+  <div style="display:flex;border-bottom:1px solid var(--border);margin-bottom:16px">
+    <button class="tab-btn-deg active" data-tab="retry">网络断开</button>
+    <button class="tab-btn-deg" data-tab="badjson">返回乱码</button>
+    <button class="tab-btn-deg" data-tab="timeout">请求超时</button>
+  </div>
 
-    <!-- Scene Description -->
-    <p class="text-sm text-neutral-600 mb-4" id="tabDesc">模拟网络中断场景：API 调用失败后自动重试，用户只看到最终成功或友好提示</p>
+  <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px" id="tabDesc">模拟网络中断场景：API 调用失败后自动重试，用户只看到最终成功或友好提示</p>
 
-    <div class="text-center mb-3">
-      <button id="runBtn" class="px-6 py-2.5 text-white font-semibold rounded-full text-sm hover:opacity-90 transition-opacity shadow-lg" style="background:var(--pa);">运行演示</button>
-    </div>
+  <div style="text-align:center;margin-bottom:16px">
+    <button class="btn btn-primary" id="runBtn" style="padding:10px 28px">运行演示</button>
+  </div>
 
-    <!-- Log Terminal -->
-    <div id="logArea" class="rounded-xl p-5 font-mono text-sm leading-relaxed min-h-[200px] max-h-[400px] overflow-y-auto" style="background:#1c1917;color:#d6d3d1;">
-      <span style="color:#78716c;">蓝色 = 信息，黄色 = 警告，红色 = 错误，绿色 = 恢复成功，紫色 = 处理步骤。点击 [运行演示] 开始。</span>
-    </div>
-  </section>
+  <!-- Log terminal -->
+  <div class="log-terminal" id="logArea"><span class="dim">蓝色 = 信息，黄色 = 警告，红色 = 错误，绿色 = 恢复成功，紫色 = 处理步骤。点击 [运行演示] 开始。</span></div>
+</section>
 
-  <!-- How It Works -->
-  <section class="max-w-3xl mx-auto px-6 pb-16">
-    <div class="section-divider mb-8"><span class="section-divider-dot"></span></div>
-    <h2 class="font-display text-2xl text-primary-800 mb-6">实现方式</h2>
-    <div class="space-y-6">
-      <div class="flex gap-4">
-        <div class="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm" style="background:var(--pa);">1</div>
-        <div>
-          <h3 class="font-semibold text-primary-800 mb-1">retry_with_backoff — 指数退避重试</h3>
-          <p class="text-neutral-600 text-sm">网络失败时按 1s、2s、4s 逐步增加等待时间重试，最多 2 次。避免雪崩式重试加重服务器负担。</p>
-        </div>
-      </div>
-      <div class="flex gap-4">
-        <div class="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm" style="background:var(--pa);">2</div>
-        <div>
-          <h3 class="font-semibold text-primary-800 mb-1">parse_json_response — 三层 JSON 回退</h3>
-          <p class="text-neutral-600 text-sm">第 1 层：直接 json.loads()。第 2 层：去掉 Markdown fences (```json ... ```)。第 3 层：括号匹配提取完整 JSON 对象。三层都失败才报错。</p>
-        </div>
-      </div>
-      <div class="flex gap-4">
-        <div class="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm" style="background:var(--pa);">3</div>
-        <div>
-          <h3 class="font-semibold text-primary-800 mb-1">流式失败切非流式 fallback</h3>
-          <p class="text-neutral-600 text-sm">SSE 流解析失败时，自动切换为非流式请求重试，确保至少能拿到结果。同时 sanitize_error() 脱敏错误信息，防止 API Key 等敏感信息泄露到前端。</p>
-        </div>
-      </div>
-    </div>
-  </section>
+<section class="page-section">
+  <div class="section-heading font-mono">实现方式</div>
+  <div class="step-item">
+    <div class="step-num">1</div>
+    <div class="step-content"><h3>retry_with_backoff — 指数退避重试</h3><p>网络失败时按 1s、2s、4s 逐步增加等待时间重试，最多 2 次。避免雪崩式重试加重服务器负担。</p></div>
+  </div>
+  <div class="step-item">
+    <div class="step-num">2</div>
+    <div class="step-content"><h3>parse_json_response — 三层 JSON 回退</h3><p>第 1 层：直接 json.loads()。第 2 层：去掉 Markdown fences。第 3 层：括号匹配提取。三层都失败才报错。</p></div>
+  </div>
+  <div class="step-item">
+    <div class="step-num">3</div>
+    <div class="step-content"><h3>流式失败切非流式 fallback + 错误脱敏</h3><p>SSE 流解析失败时自动切换为非流式请求重试。同时 sanitize_error() 脱敏错误信息，防止 API Key 等敏感信息泄露。</p></div>
+  </div>
+</section>
 
-  <!-- Code Reference -->
-  <section class="max-w-4xl mx-auto px-6 pb-20">
-    <div class="section-divider mb-8"><span class="section-divider-dot"></span></div>
-    <h2 class="font-display text-2xl text-primary-800 mb-6">源码参考</h2>
-    <div class="bg-primary-950 rounded-xl overflow-hidden border border-primary-800">
-      <div class="flex items-center justify-between px-5 py-2.5 bg-primary-900 border-b border-primary-800">
-        <span class="text-xs font-mono text-neutral-400">src/backend/services/utils.py</span>
-      </div>
-      <pre class="p-5 overflow-x-auto"><code class="text-sm font-mono text-neutral-200 leading-relaxed">async def retry_with_backoff(fn, max_retries=2, base_delay=1.0):
+<section class="page-section">
+  <div class="section-heading font-mono">源码参考</div>
+  <div class="code-block">
+    <div class="header">src/backend/services/utils.py</div>
+    <pre>async def retry_with_backoff(fn, max_retries=2, base_delay=1.0):
     """Exponential backoff: 1s -> 2s -> fail"""
     for attempt in range(max_retries + 1):
-        try:
-            return await fn()
+        try: return await fn()
         except Exception as e:
             if attempt == max_retries: raise
             delay = base_delay * (2 ** attempt)
-            logger.warning(f"Retry {attempt+1}/{max_retries} in {delay}s: {e}")
+            logger.warning(f"Retry {attempt+1}/{max_retries} in {delay}s")
             await asyncio.sleep(delay)
 
 def parse_json_response(raw: str):
     """3-layer JSON parsing fallback."""
-    # Layer 1: Direct parse
-    try: return json.loads(raw)
+    try: return json.loads(raw)           # Layer 1
     except JSONDecodeError: pass
-
-    # Layer 2: Strip markdown fences
     cleaned = re.sub(r'^```(?:json)?\s*|\s*```$', '', raw.strip(), flags=re.M)
-    try: return json.loads(cleaned)
+    try: return json.loads(cleaned)       # Layer 2
     except JSONDecodeError: pass
-
-    # Layer 3: Bracket matching
     match = re.search(r'\{.*\}', raw, re.DOTALL)
     if match:
-        try: return json.loads(match.group())
+        try: return json.loads(match.group())  # Layer 3
         except JSONDecodeError: pass
-
     raise ValueError("All 3 JSON parsing layers failed")
 
 def sanitize_error(msg: str) -> str:
-    """Strip API keys, tokens, and truncate long messages."""
+    """Strip API keys, tokens from error messages."""
     msg = re.sub(r'sk-[a-zA-Z0-9]+', '[REDACTED]', msg)
     msg = re.sub(r'Bearer\s+[a-zA-Z0-9\-_]+', 'Bearer [REDACTED]', msg)
-    return msg[:300] if len(msg) > 300 else msg</code></pre>
-    </div>
-  </section>
+    return msg[:300] if len(msg) > 300 else msg</pre>
+  </div>
+</section>
 
-  <!-- Footer -->
-  <!-- Pattern Navigation -->
-  <section class="max-w-4xl mx-auto px-6 pb-8">
-    <div class="section-divider mb-8"><span class="section-divider-dot"></span></div>
-    <div class="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3">
-      <a href="clarify.html" class="group flex items-center gap-3 px-5 py-3 bg-white border border-neutral-200 rounded-2xl text-sm text-neutral-600 hover:border-primary-300 hover:shadow-sm transition-all no-underline">
-        <span class="text-lg flex-shrink-0">←</span>
-        <div><span class="text-xs text-neutral-400 block">上一个模式</span><span class="font-semibold text-primary-700">澄清提问</span></div>
-      </a>
-      <a href="context.html" class="group flex items-center gap-3 px-5 py-3 bg-white border border-neutral-200 rounded-2xl text-sm text-neutral-600 hover:border-primary-300 hover:shadow-sm transition-all no-underline text-right">
-        <div><span class="text-xs text-neutral-400 block">下一个模式</span><span class="font-semibold text-primary-700">多轮上下文</span></div>
-        <span class="text-lg flex-shrink-0">→</span>
-      </a>
-    </div>
-  </section>
+<section class="pattern-nav">
+  <div class="pattern-nav-inner">
+    <a href="clarify.html"><span style="font-size:18px">←</span><div><span class="label">上一个模式</span><span class="title">澄清提问</span></div></a>
+    <a href="context.html"><div style="text-align:right"><span class="label">下一个模式</span><span class="title">多轮上下文</span></div><span style="font-size:18px">→</span></a>
+  </div>
+</section>
 
-  <footer class="bg-primary-950 text-neutral-400 py-16 px-6">
-    <div class="max-w-7xl mx-auto">
-      <div class="flex flex-col md:flex-row justify-between items-center gap-6 mb-8">
-        <a href="/" class="font-display text-2xl text-neutral-200 no-underline">AI<span class="text-accent-500">·</span>Lab</a>
-        <div class="flex gap-6 text-sm">
-          <a href="/about.html" class="hover:text-neutral-200 transition-colors no-underline">About</a>
-          <a href="/patterns/streaming.html" class="hover:text-neutral-200 transition-colors no-underline">Patterns</a>
-          <a href="/agents.html" class="hover:text-neutral-200 transition-colors no-underline">Agents</a>
-          <a href="https://github.com/qq242115512/ai-interaction-lab" class="hover:text-neutral-200 transition-colors no-underline" target="_blank">GitHub</a>
-        </div>
-      </div>
-      <div class="border-t border-primary-800 pt-6 flex flex-col sm:flex-row justify-between items-center gap-2 text-xs">
-        <p>&copy; 2026 Fanshuyang. Built with AI, shipped with care.</p>
-      </div>
-    </div>
-  </footer>
+<footer class="site-footer"><div class="footer-links"><a href="../about.html">关于</a><a href="https://github.com/qq242115512/ai-interaction-lab">GitHub</a><a href="mailto:fsy20060225@163.com">fsy20060225@163.com</a></div><p class="footer-credit font-mono">designed & built with AI · 2026</p></footer>
 
-  <!-- GSAP -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
-  <script src="../js/animations.js?v=2.1"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 
-  <script>
-    (function() {
-      var log = document.getElementById('logArea');
-      var currentTab = 'retry';
-
-      function logLine(msg, cls) {
-        var time = new Date().toLocaleTimeString();
-        var line = '<div><span class="' + (cls || '') + '">[' + time + '] ' + msg + '</span></div>';
-        log.innerHTML += line;
-        log.scrollTop = log.scrollHeight;
-      }
-
-      function clearLog() { log.innerHTML = ''; }
-
-      function sleep(ms) { return new Promise(function(r) { setTimeout(r, ms); }); }
-
-      var tabDescs = {
-        retry: '模拟网络中断场景：API 调用失败后自动重试，用户只看到最终成功或友好提示',
-        badjson: '模拟 AI 返回格式异常：三层 JSON 解析回退，逐层尝试直到成功提取有效数据',
-        timeout: '模拟请求超时场景：超时后自动切换非流式备用方案，确保用户拿到结果'
-      };
-
-      // Tab switching
-      document.querySelectorAll('.tab-btn').forEach(function(btn) {
-        btn.addEventListener('click', function() {
-          currentTab = this.dataset.tab;
-          document.querySelectorAll('.tab-btn').forEach(function(b) {
-            b.classList.remove('active');
-            b.style.borderBottomColor = 'transparent';
-            b.style.color = '#a89f96';
-            b.style.fontWeight = '600';
-          });
-          this.classList.add('active');
-          this.style.borderBottomColor = 'var(--pa)';
-          this.style.color = 'var(--pa)';
-          this.style.fontWeight = '700';
-          document.getElementById('tabDesc').textContent = tabDescs[currentTab];
-          clearLog();
-          log.innerHTML = '<span style="color:#78716c;">已切换到「' + this.textContent + '」场景。点击 [运行演示] 查看效果。</span>';
-        });
-      });
-
-      document.getElementById('runBtn').addEventListener('click', function() {
-        if (currentTab === 'retry') simulateRetry();
-        else if (currentTab === 'badjson') simulateBadJson();
-        else simulateTimeout();
-      });
-
-      async function simulateRetry() {
-        clearLog();
-        logLine('正在连接 DeepSeek API...', 'log-info');
-        await sleep(500);
-        logLine('连接失败: Connection refused', 'log-error');
-        await sleep(400);
-        logLine('第 1 次重试 (1s)...', 'log-warn');
-        await sleep(800);
-        logLine('连接失败: Connection refused', 'log-error');
-        await sleep(300);
-        logLine('第 2 次重试 (2s)...', 'log-warn');
-        await sleep(1200);
-        logLine('连接成功，正在发送请求...', 'log-info');
-        await sleep(400);
-        logLine('重试成功，继续执行', 'log-success');
-        await sleep(300);
-        logLine('');
-        logLine('用户侧：评审正常完成，对刚才的网络波动完全无感知。', 'log-success');
-      }
-
-      async function simulateBadJson() {
-        clearLog();
-        logLine('正在连接 DeepSeek API...', 'log-info');
-        await sleep(400);
-        logLine('收到响应 (200 OK)', 'log-step');
-        await sleep(300);
-        logLine('JSON 解析失败: 第 1 层回退 — json.loads() 直接解析', 'log-warn');
-        await sleep(500);
-        logLine('  → JSONDecodeError: 响应含 Markdown fences', 'log-error');
-        await sleep(300);
-        logLine('JSON 解析失败: 第 2 层回退 — 去掉 ```json ... ``` fences 后重试', 'log-warn');
-        await sleep(500);
-        logLine('第 2 层回退成功，提取到有效 JSON', 'log-success');
-        await sleep(200);
-        logLine('');
-        logLine('用户侧：看到完整评审报告，完全不知道 AI 返回的 JSON 差点翻车。', 'log-success');
-      }
-
-      async function simulateTimeout() {
-        clearLog();
-        logLine('正在连接 DeepSeek API...', 'log-info');
-        await sleep(400);
-        logLine('流式请求已发送，等待首个 token...', 'log-info');
-        await sleep(1500);
-        logLine('已等待 5 秒，仍未收到响应...', 'log-warn');
-        await sleep(1500);
-        logLine('已等待 10 秒，仍未收到响应...', 'log-warn');
-        await sleep(500);
-        logLine('请求超时', 'log-error');
-        await sleep(300);
-        logLine('切换到非流式备用方案', 'log-warn');
-        await sleep(600);
-        logLine('非流式请求已发送...', 'log-info');
-        await sleep(800);
-        logLine('备用方案完成', 'log-success');
-        await sleep(200);
-        logLine('');
-        logLine('用户侧：看到完整结果。不知道中间切换过方案，只知道"AI 回应了"。', 'log-success');
-      }
-
-      document.getElementById('hamburger').addEventListener('click', function() {
-        document.getElementById('mobile-menu').classList.toggle('open');
-      });
-    })();
-  </script>
 <script>
-(function(){
-  var reported = new Set();
-  window.onerror = function(msg, url, line, col, err) {
-    var key = (msg||'') + '|' + (url||'') + '|' + line;
-    if (reported.has(key) || reported.size > 10) return;
-    reported.add(key);
-    try {
-      var x = new XMLHttpRequest();
-      x.open('POST', '/api/health', true);
-      x.setRequestHeader('Content-Type', 'application/json');
-      x.send(JSON.stringify({message:String(msg||'').substring(0,500), url:String(url||'').substring(0,200), line:line, col:col, page:location.href, ts:Date.now()}));
-    } catch(e) {}
+(function() {
+  var log = document.getElementById('logArea');
+  var currentTab = 'retry';
+
+  function logLine(msg, cls) {
+    var time = new Date().toLocaleTimeString();
+    log.innerHTML += '<div><span class="' + (cls || '') + '">[' + time + '] ' + msg + '</span></div>';
+    log.scrollTop = log.scrollHeight;
+  }
+
+  function clearLog() { log.innerHTML = ''; }
+
+  function sleep(ms) { return new Promise(function(r) { setTimeout(r, ms); }); }
+
+  var tabDescs = {
+    retry: '模拟网络中断场景：API 调用失败后自动重试，用户只看到最终成功或友好提示',
+    badjson: '模拟 AI 返回格式异常：三层 JSON 解析回退，逐层尝试直到成功提取有效数据',
+    timeout: '模拟请求超时场景：超时后自动切换非流式备用方案，确保用户拿到结果'
   };
-  window.addEventListener('unhandledrejection', function(e) {
-    var key = 'rejection|' + String(e.reason||'').substring(0,100);
-    if (reported.has(key) || reported.size > 10) return;
-    reported.add(key);
-    try {
-      var x = new XMLHttpRequest();
-      x.open('POST', '/api/health', true);
-      x.setRequestHeader('Content-Type', 'application/json');
-      x.send(JSON.stringify({message:'Promise rejection: '+String(e.reason||'').substring(0,500), page:location.href, ts:Date.now()}));
-    } catch(e) {}
+
+  document.querySelectorAll('.tab-btn-deg').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      currentTab = this.dataset.tab;
+      document.querySelectorAll('.tab-btn-deg').forEach(function(b) { b.classList.remove('active'); });
+      this.classList.add('active');
+      document.getElementById('tabDesc').textContent = tabDescs[currentTab];
+      clearLog();
+      log.innerHTML = '<span class="dim">已切换到「' + this.textContent + '」场景。点击 [运行演示] 查看效果。</span>';
+    });
   });
-  console.log('[monitor] Error tracking active');
+
+  document.getElementById('runBtn').addEventListener('click', function() {
+    if (currentTab === 'retry') simulateRetry();
+    else if (currentTab === 'badjson') simulateBadJson();
+    else simulateTimeout();
+  });
+
+  async function simulateRetry() {
+    clearLog();
+    logLine('正在连接 DeepSeek API...', 'log-info');
+    await sleep(500);
+    logLine('连接失败: Connection refused', 'log-error');
+    await sleep(400);
+    logLine('第 1 次重试 (1s 后退)...', 'log-warn');
+    await sleep(800);
+    logLine('连接失败: Connection refused', 'log-error');
+    await sleep(300);
+    logLine('第 2 次重试 (2s 后退)...', 'log-warn');
+    await sleep(1200);
+    logLine('连接成功，正在发送请求...', 'log-info');
+    await sleep(400);
+    logLine('重试成功，评审正常完成', 'log-success');
+    await sleep(200);
+    logLine('', '');
+    logLine('用户侧：评审正常完成，对刚才的网络波动完全无感知。', 'log-success');
+  }
+
+  async function simulateBadJson() {
+    clearLog();
+    logLine('正在连接 DeepSeek API...', 'log-info');
+    await sleep(400);
+    logLine('收到响应 (200 OK)', 'log-step');
+    await sleep(300);
+    logLine('JSON 解析尝试: 第 1 层 — json.loads() 直接解析', 'log-warn');
+    await sleep(500);
+    logLine('  -> JSONDecodeError: 响应含 Markdown fences', 'log-error');
+    await sleep(300);
+    logLine('JSON 解析尝试: 第 2 层 — 去掉 ```json ... ``` fences', 'log-warn');
+    await sleep(500);
+    logLine('第 2 层回退成功，提取到有效 JSON', 'log-success');
+    await sleep(200);
+    logLine('', '');
+    logLine('用户侧：看到完整评审报告，完全不知道 AI 返回的 JSON 差点翻车。', 'log-success');
+  }
+
+  async function simulateTimeout() {
+    clearLog();
+    logLine('正在连接 DeepSeek API...', 'log-info');
+    await sleep(400);
+    logLine('流式请求已发送，等待首个 token...', 'log-info');
+    await sleep(1500);
+    logLine('已等待 5 秒，仍未收到响应...', 'log-warn');
+    await sleep(1500);
+    logLine('已等待 10 秒，仍未收到响应...', 'log-warn');
+    await sleep(500);
+    logLine('请求超时', 'log-error');
+    await sleep(300);
+    logLine('切换到非流式备用方案', 'log-warn');
+    await sleep(600);
+    logLine('非流式请求已发送...', 'log-info');
+    await sleep(800);
+    logLine('备用方案完成', 'log-success');
+    await sleep(200);
+    logLine('', '');
+    logLine('用户侧：看到完整结果。不知道中间切换过方案，只知道"AI 回应了"。', 'log-success');
+  }
+
+  gsap.registerPlugin(ScrollTrigger);
+  gsap.utils.toArray('.page-section,.pattern-nav').forEach(function(el) {
+    gsap.from(el, { scrollTrigger: { trigger: el, start: 'top 85%' }, opacity: 0, y: 28, duration: 0.6 });
+  });
 })();
 </script>
+
+<script>(function(){var r=new Set();window.onerror=function(m,u,l,c,e){var k=(m||'')+'|'+(u||'')+'|'+l;if(r.has(k)||r.size>10)return;r.add(k);try{var x=new XMLHttpRequest();x.open('POST','/api/health',true);x.setRequestHeader('Content-Type','application/json');x.send(JSON.stringify({message:String(m||'').substring(0,500),url:String(u||'').substring(0,200),line:l,col:c,page:location.href,ts:Date.now()}))}catch(e){}};window.addEventListener('unhandledrejection',function(e){var k='rejection|'+String(e.reason||'').substring(0,100);if(r.has(k)||r.size>10)return;r.add(k);try{var x=new XMLHttpRequest();x.open('POST','/api/health',true);x.setRequestHeader('Content-Type','application/json');x.send(JSON.stringify({message:'Promise rejection: '+String(e.reason||'').substring(0,500),page:location.href,ts:Date.now()}))}catch(e){}})})();</script>
 </body>
 </html>

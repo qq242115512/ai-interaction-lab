@@ -1,496 +1,183 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>制作幕后 — AI 交互模式实验室</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧪</text></svg>" />
-
-        <link rel="stylesheet" href="css/tailwind.min.css?v=2.1">
-  <link rel="stylesheet" href="css/fonts.css?v=2.1">
-
-  <style>
-    @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
-    }
-    :focus-visible { outline: 2px solid #e07340; outline-offset: 2px; border-radius: 2px; }
-    .section-divider { display: flex; align-items: center; gap: 1rem; }
-    .section-divider::before, .section-divider::after { content: ''; flex: 1; height: 1px; background: #e8e4e0; }
-    .section-divider-dot { width: 8px; height: 8px; border-radius: 50%; background: #e07340; flex-shrink: 0; }
-    .mobile-menu { max-height: 0; overflow: hidden; transition: max-height 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease; opacity: 0; }
-    .mobile-menu.open { max-height: 320px; opacity: 1; }
-    /* Pipeline */
-    .pipeline-node { width: 56px; height: 56px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; font-weight: 700; color: #fff; flex-shrink: 0; transition: transform 0.25s ease, box-shadow 0.25s ease; }
-    .pipeline-node:hover { transform: scale(1.15); box-shadow: 0 8px 24px rgba(0,0,0,0.15); }
-    .pipeline-arrow { flex-shrink: 0; width: 32px; height: 2px; }
-    .stage-explore { background: #6366F1; }
-    .stage-plan { background: #8B5CF6; }
-    .stage-design { background: #EC4899; }
-    .stage-build { background: #F59E0B; }
-    .stage-deliver { background: #10B981; }
-    .stage-orch { background: #4F5CD6; }
-    .agent-card-bts { transition: transform 0.25s ease, box-shadow 0.25s ease; }
-    .agent-card-bts:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
-  </style>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>制作幕后 — 樊书洋</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>"/>
+<link rel="stylesheet" href="css/tailwind.min.css?v=2.1"/>
+<link rel="stylesheet" href="css/fonts.css?v=2.1"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<style>
+:root{--bg:#0A0E17;--bg-card:#111820;--bg-card-hover:#161D27;--text-primary:#F0F0F0;--text-muted:#8B949E;--accent:#E07340;--border:#1E2938;--border-hover:#2D3A4E}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:0.01ms!important;transition-duration:0.01ms!important}}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:2px}
+body{background:var(--bg);color:var(--text-primary);font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;-webkit-font-smoothing:antialiased}
+.font-display{font-family:'DM Serif Display','Noto Serif SC','Songti SC',serif}
+.font-mono{font-family:'JetBrains Mono','Cascadia Code',monospace}
+#navbar{position:fixed;top:0;width:100%;z-index:50;background:rgba(10,14,23,0.85);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid var(--border)}
+#navbar .inner{max-width:1200px;margin:0 auto;padding:0 48px;height:68px;display:flex;align-items:center;justify-content:space-between}
+#navbar .logo{font-size:18px;font-weight:700;color:var(--text-primary);text-decoration:none}
+#navbar .links{display:flex;align-items:center;gap:36px}
+#navbar .links a{color:var(--text-muted);font-size:15px;font-weight:500;text-decoration:none;transition:color 0.25s}
+#navbar .links a:hover{color:var(--text-primary)}
+#navbar .links a.active{color:var(--text-primary)}
+.section-label{display:flex;align-items:center;gap:16px;margin-bottom:48px;font-size:13px;color:var(--accent);text-transform:uppercase;letter-spacing:0.14em;font-weight:500}
+.section-label::after{content:'';flex:1;height:1px;background:var(--border)}
+.page-hero{padding:180px 48px 80px;max-width:1200px;margin:0 auto;text-align:center}
+.page-body{max-width:1000px;margin:0 auto;padding:0 48px 80px}
+.page-body-wide{max-width:1200px;margin:0 auto;padding:0 48px 80px}
+.pipeline-row{display:flex;align-items:flex-start;justify-content:center;flex-wrap:wrap;gap:0;padding:24px 0;overflow-x:auto}
+.pipeline-node{width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;flex-shrink:0;transition:transform 0.25s}
+.pipeline-node:hover{transform:scale(1.15)}
+.pipeline-arrow{flex-shrink:0;width:32px;height:56px;display:flex;align-items:center}
+.pipeline-arrow::after{content:'';width:100%;height:2px;background:var(--border)}
+.lesson-card{background:var(--bg-card);border:1px solid var(--border);border-left:3px solid #E05560;border-radius:0 8px 8px 0;padding:20px;margin-bottom:12px}
+.lesson-card h4{font-size:15px;font-weight:600;margin-bottom:4px}
+.lesson-card p{font-size:13px;color:var(--text-muted)}
+.protocol-step{display:flex;gap:20px;align-items:flex-start;padding:24px;background:var(--bg-card);border:1px solid var(--border);border-radius:8px;margin-bottom:12px}
+.protocol-num{width:36px;height:36px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;flex-shrink:0}
+.scale-table{width:100%;border-collapse:collapse;font-size:14px}
+.scale-table th{padding:16px;text-align:left;font-weight:600;color:var(--text-primary);border-bottom:1px solid var(--border)}
+.scale-table td{padding:16px;color:var(--text-muted);border-bottom:1px solid var(--border)}
+.badge{font-size:11px;padding:3px 10px;border-radius:100px;font-weight:600}
+.site-footer{border-top:1px solid var(--border);padding:48px 48px 72px;max-width:1200px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px}
+.footer-links{display:flex;align-items:center;gap:28px}
+.footer-links a{color:var(--text-muted);text-decoration:none;font-size:14px;font-weight:500;transition:color 0.2s}
+.footer-links a:hover{color:var(--accent)}
+.footer-credit{font-size:13px;color:var(--text-muted)}
+.reveal{opacity:0;transform:translateY(28px)}
+@media(max-width:768px){#navbar .inner{padding:0 24px}#navbar .links{display:none}.page-hero{padding:160px 24px 60px}.page-body,.page-body-wide{padding:0 24px 60px}.site-footer{flex-direction:column;align-items:flex-start;padding:40px 24px 64px}}
+</style>
 </head>
-<body class="bg-neutral-100 font-body text-neutral-700 antialiased">
+<body>
 
-  <!-- Navigation -->
-  <nav id="navbar" class="fixed top-0 w-full z-50 bg-neutral-100/90 backdrop-blur-md border-b border-neutral-200">
-    <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-      <a href="/" class="font-display text-2xl text-primary-700 tracking-tight no-underline">AI<span class="text-accent-500">·</span>Lab</a>
-      <div class="hidden md:flex items-center gap-8">
-        <a href="/patterns/streaming.html" class="text-sm font-medium text-neutral-500 hover:text-neutral-800 transition-colors no-underline">Patterns</a>
-        <a href="/about.html" class="text-sm font-medium text-neutral-500 hover:text-neutral-800 transition-colors no-underline">About</a>
-        <a href="/agents.html" class="text-sm font-medium text-neutral-500 hover:text-neutral-800 transition-colors no-underline">Agents</a>
-        <a href="/behind-the-scenes.html" class="text-sm font-medium text-accent-500 transition-colors no-underline">Behind the Scenes</a>
-        <a href="/review.html" class="px-6 py-2.5 bg-accent-500 text-white font-semibold rounded-full text-sm hover:bg-accent-600 transition-colors shadow-lg shadow-accent-500/25 no-underline">Try Review Tool</a>
-      </div>
-      <button id="hamburger" class="md:hidden flex flex-col gap-1.5 p-2 bg-transparent border-0 cursor-pointer" aria-label="打开菜单">
-        <span class="block w-6 h-0.5 bg-neutral-700 rounded transition-transform duration-300"></span>
-        <span class="block w-6 h-0.5 bg-neutral-700 rounded transition-opacity duration-300"></span>
-        <span class="block w-6 h-0.5 bg-neutral-700 rounded transition-transform duration-300"></span>
-      </button>
-    </div>
-    <div id="mobile-menu" class="mobile-menu md:hidden bg-neutral-100/95 backdrop-blur-md border-b border-neutral-200">
-      <div class="px-6 py-4 flex flex-col gap-3">
-        <a href="/patterns/streaming.html" class="text-sm font-medium text-neutral-600 hover:text-neutral-900 no-underline py-2">Patterns</a>
-        <a href="/about.html" class="text-sm font-medium text-neutral-600 hover:text-neutral-900 no-underline py-2">About</a>
-        <a href="/agents.html" class="text-sm font-medium text-neutral-600 hover:text-neutral-900 no-underline py-2">Agents</a>
-        <a href="/behind-the-scenes.html" class="text-sm font-medium text-accent-500 no-underline py-2">Behind the Scenes</a>
-        <a href="/review.html" class="px-6 py-2.5 bg-accent-500 text-white font-semibold rounded-full text-sm hover:bg-accent-600 transition-colors text-center no-underline shadow-lg shadow-accent-500/25">Try Review Tool</a>
-      </div>
-    </div>
-  </nav>
+<nav id="navbar"><div class="inner">
+<a href="/" class="logo">樊书洋<span style="color:var(--accent)">.</span></a>
+<div class="links">
+<a href="about.html">关于</a>
+<a href="agents.html">Agents</a>
+<a href="behind-the-scenes.html" class="active">幕后</a>
+</div></div></nav>
 
-  <!-- Hero -->
-  <section class="pt-28 pb-12 md:pt-36 md:pb-16 px-6 text-center">
-    <div class="max-w-3xl mx-auto">
-      <div class="text-5xl mb-4 opacity-0" id="hero-icon">🏗️</div>
-      <p class="text-xs font-semibold text-accent-500 uppercase tracking-widest mb-4 opacity-0" id="hero-eyebrow">Behind the Scenes</p>
-      <h1 class="font-display text-3xl md:text-5xl text-primary-900 leading-tight mb-4 opacity-0" id="hero-title">15 Agents, One Pipeline</h1>
-      <p class="text-base md:text-lg text-neutral-500 leading-relaxed max-w-xl mx-auto opacity-0" id="hero-subtitle">
-        不会写代码的设计学生，如何让 15 个 AI 角色零出错协作
-      </p>
-    </div>
-  </section>
+<section class="page-hero">
+<p class="font-mono section-label reveal" style="justify-content:center;margin-bottom:24px">$ cat HOW_IT_WORKS.md</p>
+<h1 class="font-display reveal" style="font-size:clamp(36px,5vw,56px);line-height:1.15;margin-bottom:20px">15 Agents, One Pipeline</h1>
+<p class="reveal" style="font-size:17px;color:var(--text-muted);max-width:520px;margin:0 auto">不会写代码的设计学生，如何让 15 个 AI 角色零出错协作</p>
+</section>
 
-  <!-- Pipeline Visualization -->
-  <section class="max-w-7xl mx-auto px-6 pb-16 opacity-0" id="pipeline-section">
-    <div class="section-divider mb-8"><span class="section-divider-dot"></span></div>
-    <h2 class="font-display text-2xl text-primary-800 mb-2 text-center">协作流水线</h2>
-    <p class="text-sm text-neutral-500 text-center mb-8">15 个角色，5 个阶段，1 条流水线</p>
+<!-- Pipeline Viz -->
+<section class="page-body-wide">
+<div class="section-label font-mono reveal">// Pipeline</div>
+<div class="reveal" style="text-align:center;margin-bottom:32px">
+<div style="width:80px;height:80px;clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);background:#4F5CD6;display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;font-size:18px;margin:0 auto 8px">O</div>
+<p style="font-weight:600">Orchestrator <span style="font-size:14px;color:var(--text-muted);font-weight:400">协调器 · Opus</span></p>
+<p style="font-size:13px;color:var(--text-muted);margin-top:4px">PO → Orchestrator 分发 → 5 阶段流水线</p>
+</div>
+<div class="pipeline-row reveal">
+<div style="display:flex;flex-direction:column;align-items:center;flex-shrink:0">
+<div class="pipeline-node" style="background:#6366F1">1</div>
+<p style="font-size:13px;font-weight:600;margin-top:8px">Explore</p><p style="font-size:11px;color:var(--text-muted)">调研摸底</p><p class="font-mono" style="font-size:10px;color:var(--text-muted);margin-top:2px">Scout / BA</p>
+</div>
+<div class="pipeline-arrow"></div>
+<div style="display:flex;flex-direction:column;align-items:center;flex-shrink:0">
+<div class="pipeline-node" style="background:#8B5CF6">2</div>
+<p style="font-size:13px;font-weight:600;margin-top:8px">Plan</p><p style="font-size:11px;color:var(--text-muted)">需求规划</p><p class="font-mono" style="font-size:10px;color:var(--text-muted);margin-top:2px">PM / Adv</p>
+</div>
+<div class="pipeline-arrow"></div>
+<div style="display:flex;flex-direction:column;align-items:center;flex-shrink:0">
+<div class="pipeline-node" style="background:#EC4899">3</div>
+<p style="font-size:13px;font-weight:600;margin-top:8px">Design</p><p style="font-size:11px;color:var(--text-muted)">视觉设计</p><p class="font-mono" style="font-size:10px;color:var(--text-muted);margin-top:2px">Designer</p>
+</div>
+<div class="pipeline-arrow"></div>
+<div style="display:flex;flex-direction:column;align-items:center;flex-shrink:0">
+<div class="pipeline-node" style="background:#F59E0B">4</div>
+<p style="font-size:13px;font-weight:600;margin-top:8px">Build</p><p style="font-size:11px;color:var(--text-muted)">实现与验证</p><p class="font-mono" style="font-size:10px;color:var(--text-muted);margin-top:2px">6 角色</p>
+</div>
+<div class="pipeline-arrow"></div>
+<div style="display:flex;flex-direction:column;align-items:center;flex-shrink:0">
+<div class="pipeline-node" style="background:#10B981">5</div>
+<p style="font-size:13px;font-weight:600;margin-top:8px">Deliver</p><p style="font-size:11px;color:var(--text-muted)">交付与归档</p><p class="font-mono" style="font-size:10px;color:var(--text-muted);margin-top:2px">3 角色</p>
+</div>
+</div>
+</section>
 
-    <!-- Orchestrator -->
-    <div class="flex justify-center mb-6">
-      <div class="flex flex-col items-center">
-        <div style="width:72px;height:72px;clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);background:#4F5CD6;display:flex;align-items:center;justify-content:center;font-size:1.2rem;font-weight:700;color:#fff;">🎯</div>
-        <p class="text-xs font-semibold text-primary-800 mt-2">Orchestrator</p>
-        <p class="text-xs text-neutral-400">协调器 · Opus</p>
-      </div>
-    </div>
+<!-- Lessons Flywheel -->
+<section class="page-body">
+<div class="section-label font-mono reveal">// Lessons Flywheel</div>
+<p class="reveal" style="font-size:14px;color:var(--text-muted);margin-bottom:40px">项目结束 → 提取角色卡片未覆盖的发现 → 写入 LESSONS.md → 下次自动注入 prompt</p>
 
-    <!-- Stage Pipeline Row -->
-    <div class="flex items-start justify-center flex-wrap gap-0 py-6 overflow-x-auto" id="pipeline-row">
+<div class="reveal" style="margin-bottom:40px">
+<h3 class="font-mono" style="font-size:13px;color:var(--accent);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:16px">DevOps · 4 条教训</h3>
+<div class="lesson-card"><h4>Docker 挂载了不存在的 index.html，看似成功</h4><p>改 Docker volume 后必须 curl localhost 验证内容，不能只看 docker ps</p></div>
+<div class="lesson-card"><h4>阿里云 git pull 卡死（国内无代理）</h4><p>GitHub Actions 云端 Runner 连中国 22 端口被墙，唯一通路是自托管 Runner</p></div>
+<div class="lesson-card"><h4>systemd 环境变量隔离导致重启后 API key 丢失</h4><p>systemd service 文件用 EnvironmentFile，改完后 daemon-reload + restart 双确认</p></div>
+<div class="lesson-card"><h4>WSL2 IP 重启后变化，Docker daemon 代理失效</h4><p>Docker daemon 代理配置写宿主机 IP，重启后拉镜像失败先检查 IP 是否变了</p></div>
+</div>
 
-      <!-- Stage 1: Explore -->
-      <div class="flex flex-col items-center flex-shrink-0">
-        <div id="node-explore" style="width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.2rem;font-weight:700;color:#fff;background:#6366F1;">🔍</div>
-        <p class="text-xs font-semibold text-primary-800 mt-2">Explore</p>
-        <p class="text-[10px] text-neutral-400">调研摸底</p>
-        <p class="text-[10px] text-neutral-300 mt-1">Scout / BA</p>
-      </div>
-      <div class="flex items-center flex-shrink-0 w-8 h-14"><div class="w-full h-0.5 bg-neutral-200"></div></div>
+<div class="reveal" style="margin-bottom:40px">
+<h3 class="font-mono" style="font-size:13px;color:var(--accent);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:16px">Orchestrator · 3 条教训</h3>
+<div class="lesson-card"><h4>子 Agent 收到不合格上游产出后静默修补</h4><p>下游反馈协议——用 3 点式拒绝：缺什么 → 为什么阻塞 → 要什么</p></div>
+<div class="lesson-card"><h4>两 Agent 同时改同一文件的不同区域被误判冲突</h4><p>文件锁粒度细化到行级别区域——不同区域可并行，同区域需排队</p></div>
+<div class="lesson-card"><h4>同一角色被多次调用时，第二实例覆盖第一实例的输出</h4><p>Agent Handoff Diff Check——后续任务卡片必须标注已有样式/属性锁定</p></div>
+</div>
 
-      <!-- Stage 2: Plan -->
-      <div class="flex flex-col items-center flex-shrink-0">
-        <div id="node-plan" style="width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.2rem;font-weight:700;color:#fff;background:#8B5CF6;">📋</div>
-        <p class="text-xs font-semibold text-primary-800 mt-2">Plan</p>
-        <p class="text-[10px] text-neutral-400">需求规划</p>
-        <p class="text-[10px] text-neutral-300 mt-1">PM / Adversarial</p>
-      </div>
-      <div class="flex items-center flex-shrink-0 w-8 h-14"><div class="w-full h-0.5 bg-neutral-200"></div></div>
+<div class="reveal" style="margin-bottom:40px">
+<h3 class="font-mono" style="font-size:13px;color:var(--accent);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:16px">Frontend · 2 条 & Backend · 1 条 & Security · 2 条</h3>
+<div class="lesson-card" style="border-left-color:#6B8BBF"><h4 class="font-mono" style="font-size:11px;color:#6B8BBF">[Frontend]</h4><h4>CSS 动画和 GSAP 混用同一组元素导致页面抖动</h4><p>所有动效统一在 GSAP 管理，CSS 只做 hover/transition</p></div>
+<div class="lesson-card" style="border-left-color:#6B8BBF"><h4 class="font-mono" style="font-size:11px;color:#6B8BBF">[Frontend]</h4><h4>移动端 hamburger 菜单点击无反应</h4><p>所有 DOM 事件绑定必须放在 DOMContentLoaded 内或使用事件委托</p></div>
+<div class="lesson-card" style="border-left-color:#55A868"><h4 class="font-mono" style="font-size:11px;color:#55A868">[Backend]</h4><h4>Nginx proxy_buffering on 导致 SSE 被缓存</h4><p>任何流式输出接口，Nginx 必须设 proxy_buffering off</p></div>
+<div class="lesson-card" style="border-left-color:#A855F7"><h4 class="font-mono" style="font-size:11px;color:#A855F7">[Security]</h4><h4>CORS allow_credentials=True + allow_origins=["*"] 被浏览器拒绝</h4><p>当 allow_credentials=True 时，allow_origins 不能用通配符</p></div>
+<div class="lesson-card" style="border-left-color:#A855F7"><h4 class="font-mono" style="font-size:11px;color:#A855F7">[Security]</h4><h4>错误消息中包含 API endpoint 路径，泄露内部架构</h4><p>生产错误消息必须脱敏——不含路径、不含 IP、不含内部服务名</p></div>
+</div>
+</section>
 
-      <!-- Stage 3: Design -->
-      <div class="flex flex-col items-center flex-shrink-0">
-        <div id="node-design" style="width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.2rem;font-weight:700;color:#fff;background:#EC4899;">🎨</div>
-        <p class="text-xs font-semibold text-primary-800 mt-2">Design</p>
-        <p class="text-[10px] text-neutral-400">视觉设计</p>
-        <p class="text-[10px] text-neutral-300 mt-1">Designer</p>
-      </div>
-      <div class="flex items-center flex-shrink-0 w-8 h-14"><div class="w-full h-0.5 bg-neutral-200"></div></div>
+<!-- Feedback Protocol -->
+<section class="page-body">
+<div class="section-label font-mono reveal">// Feedback Protocol</div>
+<p class="reveal" style="font-size:14px;color:var(--text-muted);margin-bottom:40px">子 Agent 收到不合格上游产出时的标准拒绝方式</p>
+<div class="reveal" style="display:flex;flex-direction:column;gap:12px;max-width:720px;margin:0 auto 32px">
+<div class="protocol-step"><div class="protocol-num">1</div><div><h3 style="font-weight:600;font-size:16px;margin-bottom:4px">缺什么</h3><p style="font-size:14px;color:var(--text-muted)">明确指出上游输出中缺少的具体信息或格式不满足的地方</p></div></div>
+<div class="protocol-step"><div class="protocol-num">2</div><div><h3 style="font-weight:600;font-size:16px;margin-bottom:4px">为什么阻塞</h3><p style="font-size:14px;color:var(--text-muted)">解释缺少这个信息为什么导致自己无法继续执行</p></div></div>
+<div class="protocol-step"><div class="protocol-num">3</div><div><h3 style="font-weight:600;font-size:16px;margin-bottom:4px">要什么</h3><p style="font-size:14px;color:var(--text-muted)">明确给出期望的格式/字段/标准，让上游知道怎么改</p></div></div>
+</div>
+<div class="reveal" style="background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:24px;max-width:720px;margin:0 auto;font-size:14px;color:var(--text-muted);line-height:1.7;font-style:italic">
+"静默修补是质量衰减的源头" —— 子 Agent 发现上游问题却不反馈，就像施工队发现设计图有错但不告诉设计师。第一次还行，第十次房子就塌了。
+</div>
+</section>
 
-      <!-- Stage 4: Build -->
-      <div class="flex flex-col items-center flex-shrink-0">
-        <div id="node-build" style="width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.2rem;font-weight:700;color:#fff;background:#F59E0B;">💻</div>
-        <p class="text-xs font-semibold text-primary-800 mt-2">Build</p>
-        <p class="text-[10px] text-neutral-400">实现与验证</p>
-        <p class="text-[10px] text-neutral-300 mt-1">3 Dev / Reviewer / QA / Security</p>
-      </div>
-      <div class="flex items-center flex-shrink-0 w-8 h-14"><div class="w-full h-0.5 bg-neutral-200"></div></div>
+<!-- Scale Matrix -->
+<section class="page-body">
+<div class="section-label font-mono reveal">// Scale Matrix</div>
+<p class="reveal" style="font-size:14px;color:var(--text-muted);margin-bottom:40px">不是每个项目都要跑 15 个角色——按规模自动裁剪</p>
+<div class="reveal" style="overflow-x:auto">
+<table class="scale-table">
+<thead><tr><th>级别</th><th>规模</th><th>运行角色</th><th>阶段</th></tr></thead>
+<tbody>
+<tr><td><span class="badge" style="background:rgba(16,185,129,0.15);color:#10B981">S</span></td><td>单页面 / 小修复</td><td>Scout + Fullstack + QA (3个)</td><td>Explore + Build</td></tr>
+<tr><td><span class="badge" style="background:rgba(99,102,241,0.15);color:#6366F1">M</span></td><td>多页面 / 新功能</td><td>Scout+BA+PM+Designer+2Dev+Reviewer+QA+Security+DevOps+Writer (11个)</td><td>全 5 阶段</td></tr>
+<tr><td><span class="badge" style="background:rgba(139,92,246,0.15);color:#8B5CF6">L</span></td><td>新系统 / 大重构</td><td>全部 14 角色 + Adversarial 加强</td><td>全 5 阶段 + 额外审查轮次</td></tr>
+<tr><td><span class="badge" style="background:rgba(224,115,64,0.15);color:#E07340">XL</span></td><td>完整产品 / 从零搭建</td><td>全部 15 角色 + 多轮循环 + Memory Curator 归档</td><td>全 5 阶段多轮迭代</td></tr>
+</tbody></table></div>
+</section>
 
-      <!-- Stage 5: Deliver -->
-      <div class="flex flex-col items-center flex-shrink-0">
-        <div id="node-deliver" style="width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.2rem;font-weight:700;color:#fff;background:#10B981;">🚀</div>
-        <p class="text-xs font-semibold text-primary-800 mt-2">Deliver</p>
-        <p class="text-[10px] text-neutral-400">交付与归档</p>
-        <p class="text-[10px] text-neutral-300 mt-1">DevOps / Writer / Memory</p>
-      </div>
-    </div>
-  </section>
+<footer class="site-footer reveal">
+<div class="footer-links">
+<a href="about.html">关于</a>
+<a href="https://github.com/qq242115512/ai-interaction-lab">GitHub</a>
+<a href="mailto:fsy20060225@163.com">fsy20060225@163.com</a>
+</div>
+<p class="footer-credit font-mono">designed & built with AI · 2026</p>
+</footer>
 
-  <!-- Agent Cards Grid -->
-  <section class="max-w-7xl mx-auto px-6 pb-16 opacity-0" id="agents-grid-section">
-    <div class="section-divider mb-8"><span class="section-divider-dot"></span></div>
-    <h2 class="font-display text-2xl text-primary-800 mb-2 text-center">15 张角色卡片</h2>
-    <p class="text-sm text-neutral-500 text-center mb-8">每个角色 = SKILL.md (方法论) + LESSONS.md (教训档案) + I/O 契约</p>
-
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4" id="agents-grid"></div>
-  </section>
-
-  <!-- Lessons Flywheel -->
-  <section class="max-w-4xl mx-auto px-6 pb-16 opacity-0" id="lessons-section">
-    <div class="section-divider mb-8"><span class="section-divider-dot"></span></div>
-    <h2 class="font-display text-2xl text-primary-800 mb-2 text-center">教训飞轮</h2>
-    <p class="text-sm text-neutral-500 text-center mb-8">项目结束 → 提取卡片未覆盖的发现 → 写入角色 LESSONS.md → 下次自动注入 prompt</p>
-
-    <div class="space-y-6">
-      <!-- DevOps -->
-      <div class="bg-white rounded-xl border border-neutral-200 p-6">
-        <div class="flex items-center gap-2 mb-3">
-          <span class="text-xs font-semibold bg-amber-100 text-amber-700 px-2.5 py-0.5 rounded-full">DevOps</span>
-          <span class="text-xs text-neutral-400">4 条教训 · Sonnet</span>
-        </div>
-        <div class="space-y-3">
-          <div class="bg-red-50 border-l-2 border-red-400 rounded-r-lg p-4">
-            <p class="text-sm font-semibold text-neutral-800 mb-1">Bug: Docker 挂载了不存在的 index.html，看似成功</p>
-            <p class="text-xs text-neutral-500">规则: 改 Docker volume 后必须 curl localhost 验证内容，不能只看 docker ps</p>
-          </div>
-          <div class="bg-red-50 border-l-2 border-red-400 rounded-r-lg p-4">
-            <p class="text-sm font-semibold text-neutral-800 mb-1">Bug: 阿里云 git pull 卡死（国内无代理）</p>
-            <p class="text-xs text-neutral-500">规则: GitHub Actions 云端 Runner（美国）连中国 22 端口被墙，唯一通路是自托管 Runner</p>
-          </div>
-          <div class="bg-red-50 border-l-2 border-red-400 rounded-r-lg p-4">
-            <p class="text-sm font-semibold text-neutral-800 mb-1">Bug: systemd 环境变量隔离导致重启后 API key 丢失</p>
-            <p class="text-xs text-neutral-500">规则: systemd service 文件用 EnvironmentFile，改完后 daemon-reload + restart 双确认</p>
-          </div>
-          <div class="bg-red-50 border-l-2 border-red-400 rounded-r-lg p-4">
-            <p class="text-sm font-semibold text-neutral-800 mb-1">Bug: WSL2 IP 重启后变化，Docker daemon 代理失效</p>
-            <p class="text-xs text-neutral-500">规则: Docker daemon 代理配置写宿主机 IP，重启后如果 Docker 拉镜像失败先检查 IP 是否变了</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Frontend -->
-      <div class="bg-white rounded-xl border border-neutral-200 p-6">
-        <div class="flex items-center gap-2 mb-3">
-          <span class="text-xs font-semibold bg-blue-100 text-blue-700 px-2.5 py-0.5 rounded-full">Frontend</span>
-          <span class="text-xs text-neutral-400">2 条教训 · Sonnet</span>
-        </div>
-        <div class="space-y-3">
-          <div class="bg-red-50 border-l-2 border-red-400 rounded-r-lg p-4">
-            <p class="text-sm font-semibold text-neutral-800 mb-1">Bug: CSS 动画和 GSAP 混用同一组元素导致页面抖动</p>
-            <p class="text-xs text-neutral-500">规则: CSS 动画和 GSAP 不能同时作用于同一组元素。所有动效统一在 GSAP 管理，CSS 只做 hover/transition</p>
-          </div>
-          <div class="bg-red-50 border-l-2 border-red-400 rounded-r-lg p-4">
-            <p class="text-sm font-semibold text-neutral-800 mb-1">Bug: 移动端 hamburger 菜单点击无反应（事件绑定在 DOM 加载前）</p>
-            <p class="text-xs text-neutral-500">规则: 所有 DOM 事件绑定必须放在 DOMContentLoaded 内或使用事件委托</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Backend -->
-      <div class="bg-white rounded-xl border border-neutral-200 p-6">
-        <div class="flex items-center gap-2 mb-3">
-          <span class="text-xs font-semibold bg-green-100 text-green-700 px-2.5 py-0.5 rounded-full">Backend</span>
-          <span class="text-xs text-neutral-400">1 条教训 · Sonnet</span>
-        </div>
-        <div class="bg-red-50 border-l-2 border-red-400 rounded-r-lg p-4">
-          <p class="text-sm font-semibold text-neutral-800 mb-1">Bug: Nginx proxy_buffering on 导致 SSE 被缓存，前端收到批量文本</p>
-          <p class="text-xs text-neutral-500">规则: 任何流式输出接口，Nginx 必须设 proxy_buffering off，部署配置里加注释提醒</p>
-        </div>
-      </div>
-
-      <!-- Security -->
-      <div class="bg-white rounded-xl border border-neutral-200 p-6">
-        <div class="flex items-center gap-2 mb-3">
-          <span class="text-xs font-semibold bg-purple-100 text-purple-700 px-2.5 py-0.5 rounded-full">Security</span>
-          <span class="text-xs text-neutral-400">2 条教训 · Sonnet</span>
-        </div>
-        <div class="space-y-3">
-          <div class="bg-red-50 border-l-2 border-red-400 rounded-r-lg p-4">
-            <p class="text-sm font-semibold text-neutral-800 mb-1">Bug: CORS allow_credentials=True + allow_origins=["*"] 组合被浏览器拒绝</p>
-            <p class="text-xs text-neutral-500">规则: 当 allow_credentials=True 时，allow_origins 不能用通配符，必须列具体域名</p>
-          </div>
-          <div class="bg-red-50 border-l-2 border-red-400 rounded-r-lg p-4">
-            <p class="text-sm font-semibold text-neutral-800 mb-1">Bug: 错误消息中包含 API endpoint 路径，泄露内部架构</p>
-            <p class="text-xs text-neutral-500">规则: 生产错误消息必须脱敏——不含路径、不含 IP、不含内部服务名</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Orchestrator -->
-      <div class="bg-white rounded-xl border border-neutral-200 p-6">
-        <div class="flex items-center gap-2 mb-3">
-          <span class="text-xs font-semibold bg-indigo-100 text-indigo-700 px-2.5 py-0.5 rounded-full">Orchestrator</span>
-          <span class="text-xs text-neutral-400">3 条教训 · Opus</span>
-        </div>
-        <div class="space-y-3">
-          <div class="bg-red-50 border-l-2 border-red-400 rounded-r-lg p-4">
-            <p class="text-sm font-semibold text-neutral-800 mb-1">Bug: 子 Agent 收到不合格上游产出后静默修补，不反馈</p>
-            <p class="text-xs text-neutral-500">规则: 下游反馈协议——子 Agent 用 3 点式拒绝：缺什么 → 为什么阻塞 → 要什么。静默修补是质量衰减的源头</p>
-          </div>
-          <div class="bg-red-50 border-l-2 border-red-400 rounded-r-lg p-4">
-            <p class="text-sm font-semibold text-neutral-800 mb-1">Bug: 两 Agent 同时改同一文件的不同区域被误判冲突</p>
-            <p class="text-xs text-neutral-500">规则: 文件锁粒度细化到行级别区域——不同区域可并行，同区域需排队</p>
-          </div>
-          <div class="bg-red-50 border-l-2 border-red-400 rounded-r-lg p-4">
-            <p class="text-sm font-semibold text-neutral-800 mb-1">Bug: 同一角色被多次调用时，第二实例覆盖第一实例的输出</p>
-            <p class="text-xs text-neutral-500">规则: Agent Handoff Diff Check——后续任务卡片必须标注"已有样式/属性锁定"</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Downstream Feedback Protocol -->
-  <section class="max-w-4xl mx-auto px-6 pb-16 opacity-0" id="feedback-section">
-    <div class="section-divider mb-8"><span class="section-divider-dot"></span></div>
-    <h2 class="font-display text-2xl text-primary-800 mb-6 text-center">下游反馈协议</h2>
-    <p class="text-sm text-neutral-500 text-center mb-8">子 Agent 收到不合格上游产出时的标准拒绝方式</p>
-
-    <div class="bg-white rounded-2xl border border-neutral-200 p-8 max-w-2xl mx-auto">
-      <div class="space-y-6">
-        <div class="flex gap-4 items-start">
-          <div class="w-8 h-8 rounded-full bg-accent-500 text-white flex items-center justify-center font-bold text-sm flex-shrink-0">1</div>
-          <div>
-            <h3 class="font-semibold text-primary-800 mb-1">缺什么</h3>
-            <p class="text-sm text-neutral-500">明确指出上游输出中缺少的具体信息或格式不满足的地方</p>
-          </div>
-        </div>
-        <div class="flex gap-4 items-start">
-          <div class="w-8 h-8 rounded-full bg-accent-500 text-white flex items-center justify-center font-bold text-sm flex-shrink-0">2</div>
-          <div>
-            <h3 class="font-semibold text-primary-800 mb-1">为什么阻塞</h3>
-            <p class="text-sm text-neutral-500">解释缺少这个信息为什么导致自己无法继续执行</p>
-          </div>
-        </div>
-        <div class="flex gap-4 items-start">
-          <div class="w-8 h-8 rounded-full bg-accent-500 text-white flex items-center justify-center font-bold text-sm flex-shrink-0">3</div>
-          <div>
-            <h3 class="font-semibold text-primary-800 mb-1">要什么</h3>
-            <p class="text-sm text-neutral-500">明确给出期望的格式/字段/标准，让上游知道怎么改</p>
-          </div>
-        </div>
-      </div>
-      <div class="mt-6 bg-primary-50 rounded-xl p-4 text-sm text-neutral-600 italic">
-        "静默修补是质量衰减的源头" —— 子 Agent 发现上游问题却不反馈，就像施工队发现设计图有错但不告诉设计师，直接自己改了。第一次还行，第十次房子就塌了。
-      </div>
-    </div>
-  </section>
-
-  <!-- Project Scale Matrix -->
-  <section class="max-w-4xl mx-auto px-6 pb-24 opacity-0" id="scale-section">
-    <div class="section-divider mb-8"><span class="section-divider-dot"></span></div>
-    <h2 class="font-display text-2xl text-primary-800 mb-6 text-center">项目规模裁剪矩阵</h2>
-    <p class="text-sm text-neutral-500 text-center mb-8">不是每个项目都要跑 15 个角色——按规模自动裁剪</p>
-
-    <div class="overflow-x-auto">
-      <table class="w-full text-sm border-collapse">
-        <thead>
-          <tr class="bg-primary-50">
-            <th class="p-4 text-left font-semibold text-primary-800 border-b border-neutral-200">级别</th>
-            <th class="p-4 text-left font-semibold text-primary-800 border-b border-neutral-200">规模</th>
-            <th class="p-4 text-left font-semibold text-primary-800 border-b border-neutral-200">运行角色</th>
-            <th class="p-4 text-left font-semibold text-primary-800 border-b border-neutral-200">阶段</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr class="border-b border-neutral-100">
-            <td class="p-4"><span class="px-2.5 py-0.5 bg-green-100 text-green-700 rounded-full text-xs font-semibold">S</span></td>
-            <td class="p-4 text-neutral-600">单页面 / 小修复 (< 3 文件)</td>
-            <td class="p-4 text-neutral-600">Scout + Fullstack + QA (3 个)</td>
-            <td class="p-4 text-neutral-600">Explore + Build</td>
-          </tr>
-          <tr class="border-b border-neutral-100">
-            <td class="p-4"><span class="px-2.5 py-0.5 bg-blue-100 text-blue-700 rounded-full text-xs font-semibold">M</span></td>
-            <td class="p-4 text-neutral-600">多页面 / 新功能 (< 10 文件)</td>
-            <td class="p-4 text-neutral-600">Scout + BA + PM + Designer + 2 Dev + Reviewer + QA + Security + DevOps + Writer (11 个)</td>
-            <td class="p-4 text-neutral-600">全 5 阶段</td>
-          </tr>
-          <tr class="border-b border-neutral-100">
-            <td class="p-4"><span class="px-2.5 py-0.5 bg-purple-100 text-purple-700 rounded-full text-xs font-semibold">L</span></td>
-            <td class="p-4 text-neutral-600">新系统 / 大重构 (10-30 文件)</td>
-            <td class="p-4 text-neutral-600">全部 14 角色 + Adversarial 加强审查</td>
-            <td class="p-4 text-neutral-600">全 5 阶段 + 额外审查轮次</td>
-          </tr>
-          <tr>
-            <td class="p-4"><span class="px-2.5 py-0.5 bg-red-100 text-red-700 rounded-full text-xs font-semibold">XL</span></td>
-            <td class="p-4 text-neutral-600">完整产品 / 从零搭建 (30+ 文件)</td>
-            <td class="p-4 text-neutral-600">全部 15 角色 + 多次循环 + Memory Curator 归档</td>
-            <td class="p-4 text-neutral-600">全 5 阶段多轮迭代</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </section>
-
-  <!-- Footer -->
-  <footer id="footer" class="bg-primary-950 text-neutral-400 px-6 py-16 opacity-0">
-    <div class="max-w-7xl mx-auto">
-      <div class="flex flex-col md:flex-row items-center justify-between gap-6 mb-8">
-        <a href="/" class="font-display text-xl text-neutral-200 tracking-tight no-underline">AI<span class="text-accent-400">·</span>Lab</a>
-        <div class="flex flex-wrap justify-center gap-6 text-sm">
-          <a href="/patterns/streaming.html" class="text-neutral-400 hover:text-neutral-200 transition-colors no-underline">Patterns</a>
-          <a href="/about.html" class="text-neutral-400 hover:text-neutral-200 transition-colors no-underline">About</a>
-          <a href="/agents.html" class="text-neutral-400 hover:text-neutral-200 transition-colors no-underline">Agents</a>
-          <a href="/behind-the-scenes.html" class="text-neutral-400 hover:text-neutral-200 transition-colors no-underline">Behind the Scenes</a>
-          <a href="/review.html" class="text-neutral-400 hover:text-neutral-200 transition-colors no-underline">Review Tool</a>
-        </div>
-        <a href="https://github.com/qq242115512/ai-interaction-lab" target="_blank" rel="noopener" class="text-neutral-400 hover:text-neutral-200 transition-colors no-underline text-sm">
-          <svg class="w-5 h-5 inline-block mr-1.5 align-text-bottom" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.385-1.335-1.755-1.335-1.755-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.605-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12 24 5.37 18.63 0 12 0z"/></svg>GitHub</a>
-      </div>
-      <div class="border-t border-primary-800 pt-6 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-neutral-500">
-        <span>&copy; 2026 樊书洋 · AI 交互模式实验室</span>
-        <span class="font-mono">v0.5.0</span>
-      </div>
-    </div>
-  </footer>
-
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
-  <script src="js/animations.js?v=2.1"></script>
-
-  <script>
-    document.addEventListener("DOMContentLoaded", function () {
-      if (typeof gsap === "undefined") return;
-      gsap.registerPlugin(ScrollTrigger);
-      var mm = gsap.matchMedia();
-
-      // Nav
-      var navbar = document.getElementById("navbar");
-      if (navbar) { gsap.set(navbar, { autoAlpha: 1 }); gsap.from(navbar, { y: -20, autoAlpha: 0, duration: 0.55, ease: "power3.out" }); }
-
-      // Hero
-      var heroIcon = document.getElementById("hero-icon");
-      if (heroIcon) { gsap.set(heroIcon, { autoAlpha: 1 }); gsap.from(heroIcon, { scale: 0.8, autoAlpha: 0, duration: 0.5, ease: "back.out(1.7)" }); }
-      var heroEyebrow = document.getElementById("hero-eyebrow");
-      if (heroEyebrow) { gsap.set(heroEyebrow, { autoAlpha: 1 }); gsap.from(heroEyebrow, { y: 16, autoAlpha: 0, duration: 0.5, ease: "power3.out", delay: 0.1 }); }
-      var heroTitle = document.getElementById("hero-title");
-      if (heroTitle) { gsap.set(heroTitle, { autoAlpha: 1 }); gsap.from(heroTitle, { y: 30, autoAlpha: 0, duration: 0.65, ease: "power3.out", delay: 0.16 }); }
-      var heroSubtitle = document.getElementById("hero-subtitle");
-      if (heroSubtitle) { gsap.set(heroSubtitle, { autoAlpha: 1 }); gsap.from(heroSubtitle, { y: 20, autoAlpha: 0, duration: 0.5, ease: "power3.out", delay: 0.3 }); }
-
-      // Sections
-      var sections = ["pipeline-section", "agents-grid-section", "lessons-section", "feedback-section", "scale-section"];
-      sections.forEach(function (id) {
-        var el = document.getElementById(id);
-        if (el) { gsap.set(el, { autoAlpha: 1 }); gsap.from(el, { y: 36, autoAlpha: 0, duration: 0.6, ease: "power3.out", scrollTrigger: { trigger: el, start: "top 85%", once: true } }); }
-      });
-
-      // Pipeline nodes stagger
-      var pipelineNodes = document.querySelectorAll(".pipeline-node");
-      if (pipelineNodes.length) {
-        gsap.set(pipelineNodes, { autoAlpha: 1 });
-        gsap.from(pipelineNodes, { scale: 0, autoAlpha: 0, duration: 0.4, stagger: 0.12, ease: "back.out(1.7)", scrollTrigger: { trigger: "#pipeline-section", start: "top 78%", once: true } });
-      }
-
-      // Agent cards render + animate
-      var agents = [
-        { id:"orchestrator",name:"Orchestrator",zh:"协调器",stage:"orch",icon:"🎯",model:"Opus",lines:145,lessons:3,desc:"协调分发、质量把关、接口契约"},
-        { id:"scout",name:"Scout",zh:"侦察兵",stage:"explore",icon:"🔍",model:"Sonnet",lines:112,lessons:0,desc:"摸底调研、技术栈文档"},
-        { id:"ba",name:"BA",zh:"业务分析师",stage:"explore",icon:"📋",model:"Sonnet",lines:120,lessons:0,desc:"需求澄清、用户故事、验收标准"},
-        { id:"adversarial",name:"Adversarial Reviewer",zh:"对抗审查员",stage:"plan",icon:"⚔️",model:"Opus",lines:140,lessons:0,desc:"常规审查+元审查+预验尸"},
-        { id:"pm",name:"PM",zh:"项目经理",stage:"plan",icon:"📊",model:"Sonnet",lines:115,lessons:0,desc:"任务路由、风险登记册、阶段门检查"},
-        { id:"designer",name:"UX/UI Designer",zh:"设计师",stage:"design",icon:"🎨",model:"Opus",lines:130,lessons:0,desc:"视觉设计、交互状态、设计Token、WCAG"},
-        { id:"frontend",name:"Frontend Developer",zh:"前端开发",stage:"build",icon:"💻",model:"Sonnet",lines:125,lessons:2,desc:"HTML/CSS/JS/GSAP 实现"},
-        { id:"backend",name:"Backend Developer",zh:"后端开发",stage:"build",icon:"⚙️",model:"Sonnet",lines:118,lessons:1,desc:"API/数据库/业务逻辑"},
-        { id:"fullstack",name:"Fullstack Developer",zh:"全栈开发",stage:"build",icon:"🔧",model:"Sonnet",lines:110,lessons:0,desc:"端到端垂直切片"},
-        { id:"code-reviewer",name:"Code Reviewer",zh:"代码审查员",stage:"build",icon:"👀",model:"Sonnet",lines:135,lessons:0,desc:"5层分层代码审查"},
-        { id:"qa",name:"QA Engineer",zh:"测试工程师",stage:"build",icon:"🧪",model:"Sonnet",lines:122,lessons:0,desc:"AI专项测试+传统测试"},
-        { id:"security",name:"Security Guardian",zh:"安全卫士",stage:"build",icon:"🛡️",model:"Sonnet",lines:126,lessons:2,desc:"安全漏洞审计"},
-        { id:"devops",name:"DevOps Engineer",zh:"运维工程师",stage:"deliver",icon:"🚀",model:"Sonnet",lines:132,lessons:4,desc:"部署、CI/CD、Git版本管理"},
-        { id:"tech-writer",name:"Technical Writer",zh:"技术文档工程师",stage:"deliver",icon:"📝",model:"Sonnet",lines:108,lessons:0,desc:"文档、ADR、Changelog"},
-        { id:"memory-curator",name:"Memory Curator",zh:"记忆策展人",stage:"deliver",icon:"🧠",model:"Sonnet",lines:116,lessons:0,desc:"跨会话记忆、Session State、教训管理"}
-      ];
-
-      var stageColors = {
-        orch: { bg: "bg-indigo-50", border: "border-indigo-200", text: "text-indigo-700", badge: "bg-indigo-100 text-indigo-700", color: "#4F5CD6", label: "协调" },
-        explore: { bg: "bg-violet-50", border: "border-violet-200", text: "text-violet-700", badge: "bg-violet-100 text-violet-700", color: "#6366F1", label: "探索" },
-        plan: { bg: "bg-purple-50", border: "border-purple-200", text: "text-purple-700", badge: "bg-purple-100 text-purple-700", color: "#8B5CF6", label: "规划" },
-        design: { bg: "bg-pink-50", border: "border-pink-200", text: "text-pink-700", badge: "bg-pink-100 text-pink-700", color: "#EC4899", label: "设计" },
-        build: { bg: "bg-amber-50", border: "border-amber-200", text: "text-amber-700", badge: "bg-amber-100 text-amber-700", color: "#F59E0B", label: "构建" },
-        deliver: { bg: "bg-emerald-50", border: "border-emerald-200", text: "text-emerald-700", badge: "bg-emerald-100 text-emerald-700", color: "#10B981", label: "交付" }
-      };
-
-      var grid = document.getElementById("agents-grid");
-      agents.forEach(function (a) {
-        var sc = stageColors[a.stage];
-        var card = document.createElement("div");
-        card.className = "agent-card-bts bg-white rounded-xl border border-neutral-200 p-5 flex flex-col gap-3";
-        card.style.borderLeft = "3px solid " + sc.color;
-        card.innerHTML =
-          '<div class="flex items-center gap-3">' +
-          '<div class="w-10 h-10 rounded-lg flex items-center justify-center text-lg" style="background:' + sc.color + '20;color:' + sc.color + ';">' + a.icon + '</div>' +
-          '<div><p class="font-semibold text-primary-800 text-sm leading-tight">' + a.name + '</p><p class="text-xs text-neutral-400">' + a.zh + '</p></div>' +
-          '</div>' +
-          '<p class="text-xs text-neutral-500 leading-relaxed">' + a.desc + '</p>' +
-          '<div class="flex items-center justify-between mt-auto">' +
-          '<span class="text-xs px-2.5 py-0.5 rounded-full ' + sc.badge + '">' + a.model + '</span>' +
-          '<span class="text-xs text-neutral-400">SKILL.md ' + a.lines + ' 行' + (a.lessons > 0 ? ' · ' + a.lessons + ' 条教训' : '') + '</span>' +
-          '</div>';
-        grid.appendChild(card);
-      });
-
-      // Animate agent cards
-      setTimeout(function () {
-        var cards = document.querySelectorAll(".agent-card-bts");
-        if (cards.length) {
-          gsap.set(cards, { autoAlpha: 1 });
-          gsap.from(cards, { y: 30, autoAlpha: 0, duration: 0.4, stagger: 0.03, ease: "power2.out", scrollTrigger: { trigger: "#agents-grid-section", start: "top 85%", once: true } });
-        }
-      }, 100);
-
-      // Footer
-      var footer = document.getElementById("footer");
-      if (footer) { gsap.set(footer, { autoAlpha: 1 }); gsap.from(footer, { y: 30, autoAlpha: 0, duration: 0.6, ease: "power3.out", scrollTrigger: { trigger: footer, start: "top 90%", once: true } }); }
-
-      // Mobile menu
-      var hamburger = document.getElementById("hamburger");
-      var mobileMenu = document.getElementById("mobile-menu");
-      if (hamburger && mobileMenu) { hamburger.addEventListener("click", function () { mobileMenu.classList.toggle("open"); }); }
-
-      mm.add("(prefers-reduced-motion: reduce)", function () { gsap.globalTimeline.timeScale(0); return function () { gsap.globalTimeline.timeScale(1); }; });
-      ScrollTrigger.refresh();
-    });
-  </script>
 <script>
-(function(){
-  var reported = new Set();
-  window.onerror = function(msg, url, line, col, err) {
-    var key = (msg||'') + '|' + (url||'') + '|' + line;
-    if (reported.has(key) || reported.size > 10) return;
-    reported.add(key);
-    try {
-      var x = new XMLHttpRequest();
-      x.open('POST', '/api/health', true);
-      x.setRequestHeader('Content-Type', 'application/json');
-      x.send(JSON.stringify({message:String(msg||'').substring(0,500), url:String(url||'').substring(0,200), line:line, col:col, page:location.href, ts:Date.now()}));
-    } catch(e) {}
-  };
-  window.addEventListener('unhandledrejection', function(e) {
-    var key = 'rejection|' + String(e.reason||'').substring(0,100);
-    if (reported.has(key) || reported.size > 10) return;
-    reported.add(key);
-    try {
-      var x = new XMLHttpRequest();
-      x.open('POST', '/api/health', true);
-      x.setRequestHeader('Content-Type', 'application/json');
-      x.send(JSON.stringify({message:'Promise rejection: '+String(e.reason||'').substring(0,500), page:location.href, ts:Date.now()}));
-    } catch(e) {}
-  });
-  console.log('[monitor] Error tracking active');
-})();
+(function(){var r=new Set();window.onerror=function(m,u,l,c,e){var k=(m||'')+'|'+(u||'')+'|'+l;if(r.has(k)||r.size>10)return;r.add(k);try{var x=new XMLHttpRequest();x.open('POST','/api/health',true);x.setRequestHeader('Content-Type','application/json');x.send(JSON.stringify({message:String(m||'').substring(0,500),url:String(u||'').substring(0,200),line:l,col:c,page:location.href,ts:Date.now()}))}catch(e){}};window.addEventListener('unhandledrejection',function(e){var k='rejection|'+String(e.reason||'').substring(0,100);if(r.has(k)||r.size>10)return;r.add(k);try{var x=new XMLHttpRequest();x.open('POST','/api/health',true);x.setRequestHeader('Content-Type','application/json');x.send(JSON.stringify({message:'Promise rejection: '+String(e.reason||'').substring(0,500),page:location.href,ts:Date.now()}))}catch(e){}})})();
+</script>
+<script>
+gsap.registerPlugin(ScrollTrigger);
+document.querySelectorAll('.reveal').forEach((el,i)=>{gsap.fromTo(el,{opacity:0,y:28},{opacity:1,y:0,duration:0.8,delay:i*0.03,ease:'power2.out',scrollTrigger:{trigger:el,start:'top 92%',toggleActions:'play none none none'}})});
 </script>
 </body>
 </html>

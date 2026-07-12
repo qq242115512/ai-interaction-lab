@@ -3,212 +3,86 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>渐进式加载 — AI 交互模式实验室</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧪</text></svg>" />
-
-        <link rel="stylesheet" href="../css/tailwind.min.css?v=2.1">
-  <link rel="stylesheet" href="../css/fonts.css?v=2.1">
-
+  <title>渐进式加载 — 樊书洋</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>" />
+  <link rel="stylesheet" href="../css/tailwind.min.css?v=2.1" />
+  <link rel="stylesheet" href="../css/fonts.css?v=2.1" />
+  <link rel="stylesheet" href="style.css?v=2.2" />
   <style>
     :root { --pa: #14b8a6; }
-    .pattern-accent-text { color: var(--pa); }
-    .pattern-accent-bg { background: var(--pa); }
-    .pattern-accent-border { border-color: var(--pa); }
-    .section-divider { display:flex; align-items:center; gap:1rem; }
-    .section-divider::before,.section-divider::after { content:''; flex:1; height:1px; background:#e8e4e0; }
-    .section-divider-dot { width:8px; height:8px; border-radius:50%; background:var(--pa); flex-shrink:0; }
-    .mobile-menu { max-height:0; overflow:hidden; transition:max-height 0.35s cubic-bezier(0.16,1,0.3,1),opacity 0.25s ease; opacity:0; }
-    .mobile-menu.open { max-height:320px; opacity:1; }
-    body { font-family: 'Inter','Noto Sans SC',sans-serif; }
-    .step-card {
-      background: #fff;
-      border-radius: 1rem;
-      padding: 1.25rem 1.5rem;
-      margin-bottom: 0.75rem;
-      border-left: 4px solid #e8e4e0;
-      transition: all 0.4s ease;
-      opacity: 0.4;
-    }
-    .step-card.revealed {
-      opacity: 1;
-      border-left-color: var(--pa);
-    }
-    .step-card.completed {
-      opacity: 1;
-      border-left-color: #10b981;
-    }
-    .step-num {
-      display: inline-flex;
-      width: 24px;
-      height: 24px;
-      border-radius: 50%;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.72rem;
-      font-weight: 700;
-      margin-right: 8px;
-      background: #d4cec8;
-      color: #fff;
-    }
-    .step-card.revealed .step-num {
-      background: var(--pa);
-      animation: pulse-num 1s infinite;
-    }
-    .step-card.completed .step-num {
-      background: #10b981;
-      animation: none;
-    }
-    @keyframes pulse-num {
-      0%, 100% { box-shadow: 0 0 0 0 rgba(20,184,166,0.4); }
-      50% { box-shadow: 0 0 0 6px rgba(20,184,166,0); }
-    }
+    .phase-card { background: var(--bg-card); border: 1px solid var(--border); border-left: 4px solid var(--border); border-radius: 8px; padding: 20px 24px; margin-bottom: 12px; opacity: 0.4; transition: all 0.45s ease; }
+    .phase-card.active { opacity: 1; border-left-color: var(--pa); }
+    .phase-card.done { opacity: 1; border-left-color: #10b981; }
+    .phase-header { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+    .phase-num { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: #fff; background: var(--border); transition: all 0.35s; }
+    .phase-card.active .phase-num { background: var(--pa); animation: pulse-num 1.2s infinite; }
+    .phase-card.done .phase-num { background: #10b981; animation: none; }
+    .phase-title { font-size: 14px; font-weight: 600; color: var(--text-primary); }
+    .phase-status { font-size: 13px; color: var(--text-muted); padding-left: 40px; }
+    .progress-bar { width: 100%; height: 4px; background: var(--border); border-radius: 2px; margin: 16px 0 24px; overflow: hidden; }
+    .progress-fill { height: 100%; background: var(--pa); border-radius: 2px; transition: width 0.5s ease; width: 0%; }
+    @keyframes pulse-num { 0%,100% { box-shadow: 0 0 0 0 rgba(20,184,166,0.4); } 50% { box-shadow: 0 0 0 8px rgba(20,184,166,0); } }
   </style>
 </head>
-<body class="bg-neutral-100 text-neutral-700 antialiased">
+<body>
 
-  <!-- Navigation -->
-  <nav id="navbar" class="fixed top-0 w-full z-50 bg-neutral-100/90 backdrop-blur-md border-b border-neutral-200">
-    <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-      <a href="/" class="font-display text-2xl text-primary-700 tracking-tight no-underline">AI<span class="text-accent-500">·</span>Lab</a>
-      <div class="hidden md:flex items-center gap-8">
-        <a href="/patterns/streaming.html" class="text-sm font-medium text-neutral-500 hover:text-neutral-800 transition-colors no-underline">Patterns</a>
-        <a href="/about.html" class="text-sm font-medium text-neutral-500 hover:text-neutral-800 transition-colors no-underline">About</a>
-        <a href="/agents.html" class="text-sm font-medium text-neutral-500 hover:text-neutral-800 transition-colors no-underline">Agents</a>
-        <a href="/behind-the-scenes.html" class="text-sm font-medium text-neutral-500 hover:text-neutral-800 transition-colors no-underline">Behind the Scenes</a>
-        <a href="/review.html" class="px-6 py-2.5 bg-accent-500 text-white font-semibold rounded-full text-sm hover:bg-accent-600 transition-colors shadow-lg shadow-accent-500/25 no-underline">Try Review Tool</a>
-      </div>
-      <button id="hamburger" class="md:hidden flex flex-col gap-1.5 p-2 bg-transparent border-0 cursor-pointer" aria-label="菜单">
-        <span class="block w-6 h-0.5 bg-neutral-700 rounded transition-transform duration-300"></span>
-        <span class="block w-6 h-0.5 bg-neutral-700 rounded transition-opacity duration-300"></span>
-        <span class="block w-6 h-0.5 bg-neutral-700 rounded transition-transform duration-300"></span>
-      </button>
-    </div>
-    <div id="mobile-menu" class="mobile-menu md:hidden bg-neutral-100/95 backdrop-blur-md border-b border-neutral-200">
-      <div class="px-6 py-4 flex flex-col gap-3">
-        <a href="/patterns/streaming.html" class="text-sm font-medium text-neutral-600 hover:text-neutral-900 no-underline py-2">Patterns</a>
-        <a href="/about.html" class="text-sm font-medium text-neutral-600 hover:text-neutral-900 no-underline py-2">About</a>
-        <a href="/agents.html" class="text-sm font-medium text-neutral-600 hover:text-neutral-900 no-underline py-2">Agents</a>
-        <a href="/behind-the-scenes.html" class="text-sm font-medium text-neutral-600 hover:text-neutral-900 no-underline py-2">Behind the Scenes</a>
-        <a href="/review.html" class="px-6 py-2.5 bg-accent-500 text-white font-semibold rounded-full text-sm hover:bg-accent-600 transition-colors text-center no-underline shadow-lg shadow-accent-500/25">Try Review Tool</a>
-      </div>
-    </div>
-  </nav>
+<nav id="navbar"><div class="inner"><a href="/" class="logo">樊书洋<span style="color:var(--accent)">.</span></a><div class="links"><a href="../about.html">关于</a><a href="../agents.html">Agents</a><a href="../behind-the-scenes.html">幕后</a></div></div></nav>
 
-  <!-- Pattern Hero -->
-  <section class="pt-28 pb-12 md:pt-36 md:pb-16 px-6 text-center">
-    <div class="max-w-3xl mx-auto">
-      <div class="text-5xl mb-4">🪜</div>
-      <p class="text-xs font-semibold tracking-widest uppercase mb-4" style="color:var(--pa)">AI Interaction Pattern</p>
-      <h1 class="font-display text-3xl md:text-5xl text-primary-900 leading-tight mb-4">渐进式加载</h1>
-      <p class="text-lg md:text-xl text-neutral-500">按认知顺序分步展开，降低信息过载</p>
-    </div>
-  </section>
+<section class="pattern-hero"><div class="icon">🪜</div><p class="tag font-mono" style="color:var(--pa)">Pattern 07</p><h1 class="font-display" style="font-size:clamp(32px,5vw,48px);line-height:1.15;margin-bottom:12px">渐进式加载</h1><p style="font-size:17px;color:var(--text-muted)">按认知顺序分步展开，降低信息过载</p></section>
 
-  <!-- Design Rationale -->
-  <section class="max-w-3xl mx-auto px-6 pb-16">
-    <div class="section-divider mb-8"><span class="section-divider-dot"></span></div>
-    <h2 class="font-display text-2xl text-primary-800 mb-6">设计思路</h2>
-    <div class="space-y-4 text-neutral-600 leading-relaxed">
-      <p><strong class="text-neutral-800">解决的问题：</strong>复杂信息一次性展示会导致认知过载。6 个维度、每个 3-4 条发现、每条关联设计原则——这个信息量足以让任何人放弃阅读。引用<strong class="text-neutral-800">米勒定律（7+/-2）</strong>和<strong class="text-neutral-800">Hick 定律（希克定律）</strong>——选项越多决策越慢。</p>
-      <p><strong class="text-neutral-800">设计决策：</strong>SSE（Server-Sent Events）分阶段推送状态更新——视觉分析、流式生成、解析整理、完成。每阶段有独立的图标和文字，符合渐进式信息披露（Progressive Disclosure）原则。用户看到的是信息逐层展开的过程，不是一个 spinner 转 30 秒后突然全出来。</p>
-      <p><strong class="text-neutral-800">生活类比：</strong>新闻的标题、导语、正文结构。你可以只看标题了解发生了什么，也可以深读正文了解细节。没有人强迫你一开始就读全文。好的渐进式加载让用户自己控制深入程度——就像爬楼梯，每一步都有新的发现，而不是站在一面 10 米高的信息墙前不知所措。</p>
-      <div class="flex flex-wrap gap-2 pt-2">
-        <span class="inline-block px-3 py-1 text-xs font-medium rounded-full border" style="background:#f0fdfa;color:#0d9488;border-color:#99f6e4;">米勒定律 7+/-2</span>
-        <span class="inline-block px-3 py-1 text-xs font-medium rounded-full border" style="background:#f0fdfa;color:#0d9488;border-color:#99f6e4;">Hick 定律</span>
-        <span class="inline-block px-3 py-1 text-xs font-medium rounded-full border" style="background:#f0fdfa;color:#0d9488;border-color:#99f6e4;">渐进式披露</span>
-        <span class="inline-block px-3 py-1 text-xs font-medium rounded-full border" style="background:#f0fdfa;color:#0d9488;border-color:#99f6e4;">认知负荷</span>
-      </div>
-    </div>
-  </section>
+<section class="page-section"><div class="section-heading font-mono">Design Rationale</div>
+<div style="color:var(--text-muted);line-height:1.8;font-size:15px;display:flex;flex-direction:column;gap:16px">
+<p><strong style="color:var(--text-primary)">解决的问题：</strong>复杂信息一次性展示会导致认知过载。6 个维度、每个 3-4 条发现、每条关联设计原则——这个信息量足以让任何人放弃阅读。引用<strong style="color:var(--text-primary)">米勒定律（7+/-2）</strong>和<strong style="color:var(--text-primary)">Hick 定律（希克定律）</strong>——选项越多决策越慢。</p>
+<p><strong style="color:var(--text-primary)">设计决策：</strong>SSE（Server-Sent Events）分阶段推送状态更新——视觉分析、流式生成、解析整理、完成。每阶段有独立的图标和文字，符合<strong style="color:var(--text-primary)">渐进式信息披露</strong>（Progressive Disclosure）原则。同时满足<strong style="color:var(--text-primary)">Doherty Threshold（多尔蒂阈值）</strong>——系统响应时间小于 400ms 时，用户保持心流状态，不会切换注意力。</p>
+<p><strong style="color:var(--text-primary)">生活类比：</strong>新闻的标题、导语、正文结构。你可以只看标题了解发生了什么，也可以深读正文了解细节。没有人强迫你一开始就读全文。好的渐进式加载让用户自己控制深入程度——就像爬楼梯，每一步都有新的发现。</p>
+<div class="principles-tags"><span>米勒定律 7+/-2</span><span>Hick 定律</span><span>渐进式披露</span><span>Doherty Threshold</span><span>认知负荷</span></div></div></section>
 
-  <!-- Live Demo -->
-  <section class="max-w-3xl mx-auto px-6 pb-20">
-    <div class="section-divider mb-8"><span class="section-divider-dot"></span></div>
-    <h2 class="font-display text-2xl text-primary-800 mb-6">交互 Demo</h2>
-    <p class="text-sm text-neutral-500 mb-6">点击"开始渐进式加载"，观察信息按认知顺序逐层展开——每一步完成才展示下一步。</p>
+<section class="page-section"><div class="section-heading font-mono">Live Demo</div>
+<p style="font-size:14px;color:var(--text-muted);margin-bottom:24px">点击按钮后，观察信息按认知顺序逐层展开——每一步完成才展示下一步。</p>
 
-    <div class="text-center mb-8">
-      <button id="startBtn" class="px-8 py-3 text-white font-semibold rounded-full text-sm hover:opacity-90 transition-opacity shadow-lg" style="background:var(--pa);">开始渐进式加载</button>
-    </div>
+<div style="text-align:center;margin-bottom:28px">
+  <button id="startBtn" class="btn btn-primary">开始渐进式加载</button>
+</div>
 
-    <!-- Step Cards -->
-    <div id="steps" class="hidden relative">
-      <!-- Connecting line -->
-      <div class="absolute left-[23px] top-12 bottom-12 w-0.5 bg-neutral-200 transition-colors duration-500" id="connector"></div>
+<div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
 
-      <div class="step-card relative z-10" id="sc1">
-        <div class="flex items-center gap-3">
-          <span class="step-num">1</span>
-          <strong class="text-sm text-primary-800">视觉分析</strong>
-        </div>
-        <div class="text-xs text-neutral-500 mt-2 ml-[36px] step-placeholder">等待中...</div>
-      </div>
-      <div class="step-card relative z-10" id="sc2">
-        <div class="flex items-center gap-3">
-          <span class="step-num">2</span>
-          <strong class="text-sm text-primary-800">流式生成</strong>
-        </div>
-        <div class="text-xs text-neutral-500 mt-2 ml-[36px] step-placeholder">等待第 1 步完成...</div>
-      </div>
-      <div class="step-card relative z-10" id="sc3">
-        <div class="flex items-center gap-3">
-          <span class="step-num">3</span>
-          <strong class="text-sm text-primary-800">整理展示</strong>
-        </div>
-        <div class="text-xs text-neutral-500 mt-2 ml-[36px] step-placeholder">等待第 2 步完成...</div>
-      </div>
-    </div>
-  </section>
+<div id="phases" style="display:none">
+  <div class="phase-card" id="phase1">
+    <div class="phase-header"><span class="phase-num">1</span><span class="phase-title">视觉分析</span></div>
+    <div class="phase-status" id="phase1Status">等待中...</div>
+  </div>
+  <div class="phase-card" id="phase2">
+    <div class="phase-header"><span class="phase-num">2</span><span class="phase-title">流式生成</span></div>
+    <div class="phase-status" id="phase2Status">等待第 1 步完成...</div>
+  </div>
+  <div class="phase-card" id="phase3">
+    <div class="phase-header"><span class="phase-num">3</span><span class="phase-title">整理展示</span></div>
+    <div class="phase-status" id="phase3Status">等待第 2 步完成...</div>
+  </div>
+</div>
+</section>
 
-  <!-- How It Works -->
-  <section class="max-w-3xl mx-auto px-6 pb-16">
-    <div class="section-divider mb-8"><span class="section-divider-dot"></span></div>
-    <h2 class="font-display text-2xl text-primary-800 mb-6">实现方式</h2>
-    <div class="space-y-6">
-      <div class="flex gap-4">
-        <div class="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm" style="background:var(--pa);">1</div>
-        <div>
-          <h3 class="font-semibold text-primary-800 mb-1">SSE 推送 "正在识别设计元素..."</h3>
-          <p class="text-neutral-600 text-sm">用户上传图片后，SSE 首先推送 <code class="text-xs font-mono bg-neutral-200 px-1.5 py-0.5 rounded">step: visual</code> 事件，前端点亮第 1 张卡片，显示 GLM-4V 正在分析。</p>
-        </div>
-      </div>
-      <div class="flex gap-4">
-        <div class="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm" style="background:var(--pa);">2</div>
-        <div>
-          <h3 class="font-semibold text-primary-800 mb-1">"正在生成评审报告..." + 流式文本</h3>
-          <p class="text-neutral-600 text-sm">visual_done 事件完成第 1 步并开启第 2 步。随后 chunk 事件逐 token 推送评审文本，用户看到文字实时生成。</p>
-        </div>
-      </div>
-      <div class="flex gap-4">
-        <div class="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm" style="background:var(--pa);">3</div>
-        <div>
-          <h3 class="font-semibold text-primary-800 mb-1">"正在整理评审报告..." → 展示完整结果</h3>
-          <p class="text-neutral-600 text-sm">done 事件触发所有步骤完成状态，第 2 步显示综合评分，第 3 步展示完整的维度摘要和发现列表。</p>
-        </div>
-      </div>
-    </div>
-  </section>
+<section class="page-section"><div class="section-heading font-mono">How It Works</div>
+<div class="step-item"><div class="step-num">1</div><div class="step-content"><h3>SSE 推送阶段事件</h3><p>后端通过 SSE 推送 <code style="font-size:12px;background:var(--bg-card);padding:2px 6px;border-radius:4px">step: visual</code> 事件，前端收到后点亮第 1 张卡片，显示"GLM-4V 正在分析设计元素..."。用户立即知道系统在工作。</p></div></div>
+<div class="step-item"><div class="step-num">2</div><div class="step-content"><h3>逐 token 流式推送 + 阶段过渡</h3><p>visual_done 事件完成第 1 步并开启第 2 步。随后 chunk 事件逐 token 推送评审文本，用户看到文字实时生成——满足 Doherty Threshold 的 < 400ms 响应要求。</p></div></div>
+<div class="step-item"><div class="step-num">3</div><div class="step-content"><h3>done 事件触发全部完成</h3><p>最后一个 <code style="font-size:12px;background:var(--bg-card);padding:2px 6px;border-radius:4px">done</code> 事件标记所有步骤完成，前端展示完整的维度摘要和发现列表。用户经历了"分析→生成→整理"的完整认知旅程。</p></div></div></section>
 
-  <!-- Code Reference -->
-  <section class="max-w-4xl mx-auto px-6 pb-20">
-    <div class="section-divider mb-8"><span class="section-divider-dot"></span></div>
-    <h2 class="font-display text-2xl text-primary-800 mb-6">源码参考</h2>
-    <div class="bg-primary-950 rounded-xl overflow-hidden border border-primary-800">
-      <div class="flex items-center justify-between px-5 py-2.5 bg-primary-900 border-b border-primary-800">
-        <span class="text-xs font-mono text-neutral-400">src/backend/routers/stream.py</span>
-      </div>
-      <pre class="p-5 overflow-x-auto"><code class="text-sm font-mono text-neutral-200 leading-relaxed">async def stream_review_with_steps(visual: str, dims: list):
+<section class="page-section"><div class="section-heading font-mono">Source Code</div>
+<div class="code-block"><div class="header font-mono">src/backend/routers/stream.py — phased SSE</div><pre>async def stream_review_with_steps(visual: str, dims: list):
     """SSE with progressive step events."""
-    yield f"data: {json.dumps({'step': 'visual', 'message': '正在识别设计元素...'})}\n\n"
+    yield f"data: {json.dumps({'step': 'visual',
+        'message': '正在识别设计元素...'})}\n\n"
     await asyncio.sleep(0.1)
 
     visual_result = await glm_analyze_image(visual)
-    yield f"data: {json.dumps({'step': 'visual_done', 'message': '视觉分析完成'})}\n\n"
+    yield f"data: {json.dumps({'step': 'visual_done',
+        'message': '视觉分析完成'})}\n\n"
 
     client = deepseek_client()
     response = client.chat.completions.create(
         model="deepseek-chat",
-        messages=[{"role": "user", "content": build_prompt(visual_result, dims)}],
+        messages=[{"role": "user",
+            "content": build_prompt(visual_result, dims)}],
         stream=True
     )
 
@@ -217,179 +91,105 @@
         if chunk.choices[0].delta.content:
             text = chunk.choices[0].delta.content
             full_text += text
-            yield f"data: {json.dumps({'event': 'chunk', 'text': text})}\n\n"
+            yield f"data: {json.dumps({'event': 'chunk',
+                'text': text})}\n\n"
 
-    # Parse final result
     result = parse_json_response(full_text)
-    yield f"data: {json.dumps({'event': 'done', **result})}\n\n"</code></pre>
-    </div>
-  </section>
+    yield f"data: {json.dumps({'event': 'done',
+        **result})}\n\n"</pre></div></section>
 
-  <!-- Footer -->
-  <!-- Pattern Navigation -->
-  <section class="max-w-4xl mx-auto px-6 pb-8">
-    <div class="section-divider mb-8"><span class="section-divider-dot"></span></div>
-    <div class="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3">
-      <a href="confirmation.html" class="group flex items-center gap-3 px-5 py-3 bg-white border border-neutral-200 rounded-2xl text-sm text-neutral-600 hover:border-primary-300 hover:shadow-sm transition-all no-underline">
-        <span class="text-lg flex-shrink-0">←</span>
-        <div><span class="text-xs text-neutral-400 block">上一个模式</span><span class="font-semibold text-primary-700">确认机制</span></div>
-      </a>
-      <a href="streaming.html" class="group flex items-center gap-3 px-5 py-3 bg-white border border-neutral-200 rounded-2xl text-sm text-neutral-600 hover:border-primary-300 hover:shadow-sm transition-all no-underline text-right">
-        <div><span class="text-xs text-neutral-400 block">下一个模式</span><span class="font-semibold text-primary-700">流式输出</span></div>
-        <span class="text-lg flex-shrink-0">→</span>
-      </a>
-    </div>
-  </section>
+<div class="pattern-nav"><div class="pattern-nav-inner">
+  <a href="confirmation.html"><span>←</span><div><span class="label">上一个模式</span><span class="title">确认机制</span></div></a>
+  <a href="streaming.html"><div><span class="label">下一个模式</span><span class="title">流式输出</span></div><span>→</span></a>
+</div></div>
 
-  <footer class="bg-primary-950 text-neutral-400 py-16 px-6">
-    <div class="max-w-7xl mx-auto">
-      <div class="flex flex-col md:flex-row justify-between items-center gap-6 mb-8">
-        <a href="/" class="font-display text-2xl text-neutral-200 no-underline">AI<span class="text-accent-500">·</span>Lab</a>
-        <div class="flex gap-6 text-sm">
-          <a href="/about.html" class="hover:text-neutral-200 transition-colors no-underline">About</a>
-          <a href="/patterns/streaming.html" class="hover:text-neutral-200 transition-colors no-underline">Patterns</a>
-          <a href="/agents.html" class="hover:text-neutral-200 transition-colors no-underline">Agents</a>
-          <a href="https://github.com/qq242115512/ai-interaction-lab" class="hover:text-neutral-200 transition-colors no-underline" target="_blank">GitHub</a>
-        </div>
-      </div>
-      <div class="border-t border-primary-800 pt-6 flex flex-col sm:flex-row justify-between items-center gap-2 text-xs">
-        <p>&copy; 2026 Fanshuyang. Built with AI, shipped with care.</p>
-      </div>
-    </div>
-  </footer>
+<footer class="site-footer"><div class="footer-links"><a href="../about.html">关于</a><a href="https://github.com/qq242115512/ai-interaction-lab">GitHub</a><a href="mailto:fsy20060225@163.com">fsy20060225@163.com</a></div><p class="footer-credit font-mono">designed & built with AI · 2026</p></footer>
 
-  <!-- GSAP -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
-  <script src="../js/animations.js?v=2.1"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script>(function(){var r=new Set();window.onerror=function(m,u,l,c,e){var k=(m||'')+'|'+(u||'')+'|'+l;if(r.has(k)||r.size>10)return;r.add(k);try{var x=new XMLHttpRequest();x.open('POST','/api/health',true);x.setRequestHeader('Content-Type','application/json');x.send(JSON.stringify({message:String(m||'').substring(0,500),url:String(u||'').substring(0,200),line:l,col:c,page:location.href,ts:Date.now()}))}catch(e){}};window.addEventListener('unhandledrejection',function(e){var k='rejection|'+String(e.reason||'').substring(0,100);if(r.has(k)||r.size>10)return;r.add(k);try{var x=new XMLHttpRequest();x.open('POST','/api/health',true);x.setRequestHeader('Content-Type','application/json');x.send(JSON.stringify({message:'Promise rejection: '+String(e.reason||'').substring(0,500),page:location.href,ts:Date.now()}))}catch(e){}})})();</script>
 
-  <script>
-    (function() {
-      var running = false;
-
-      function revealStep(num) {
-        var card = document.getElementById('sc' + num);
-        card.classList.add('revealed');
-        card.style.background = '#fff';
-      }
-
-      function completeStep(num) {
-        var card = document.getElementById('sc' + num);
-        card.classList.remove('revealed');
-        card.classList.add('completed');
-        card.style.background = '#f0fdfa';
-      }
-
-      function sleep(ms) { return new Promise(function(r) { setTimeout(r, ms); }); }
-
-      function resetSteps() {
-        ['sc1', 'sc2', 'sc3'].forEach(function(id, idx) {
-          var c = document.getElementById(id);
-          c.classList.remove('revealed', 'completed');
-          c.style.background = '#fff';
-          c.querySelector('.step-placeholder').innerHTML = idx === 0 ? '等待中...' : ('等待第 ' + idx + ' 步完成...');
-        });
-        document.getElementById('connector').style.background = '#e8e4e0';
-      }
-
-      document.getElementById('startBtn').addEventListener('click', async function() {
-        if (running) return;
-        running = true;
-        var btn = this;
-        btn.disabled = true;
-        btn.textContent = '加载中...';
-        btn.style.opacity = '0.7';
-
-        var stepsEl = document.getElementById('steps');
-        stepsEl.classList.remove('hidden');
-        resetSteps();
-        stepsEl.scrollIntoView({ behavior: 'smooth' });
-        await sleep(300);
-
-        // Step 1: Visual Analysis
-        revealStep(1);
-        document.getElementById('sc1').querySelector('.step-placeholder').innerHTML =
-          '<div class="flex items-center gap-2"><span class="inline-block w-4 h-4 border-2 border-teal-300 border-t-teal-500 rounded-full animate-spin"></span> 正在识别设计元素...</div>';
-        await sleep(2000);
-        completeStep(1);
-        document.getElementById('sc1').style.background = '#f0fdfa';
-        document.getElementById('sc1').querySelector('.step-placeholder').innerHTML =
-          '<span style="color:#10b981;">&#10003; 设计元素识别完成</span>';
-
-        // Step 2: Streaming Generation
-        revealStep(2);
-        var step2Placeholder = document.getElementById('sc2').querySelector('.step-placeholder');
-        step2Placeholder.innerHTML = '<div class="flex items-center gap-2 mb-2"><span class="inline-block w-4 h-4 border-2 border-teal-300 border-t-teal-500 rounded-full animate-spin"></span> 正在生成评审报告...</div>';
-        await sleep(600);
-
-        var lines = [
-          '分析截图布局结构...',
-          '识别 4 个主要功能区域',
-          '提取色彩方案（蓝灰色系为主）',
-          '检测 12 个交互组件',
-          '计算信息架构评分...',
-          '评估视觉层级关系...',
-          '生成详细改进建议...'
-        ];
-        for (var i = 0; i < lines.length; i++) {
-          await sleep(350);
-          step2Placeholder.innerHTML += '<div class="text-neutral-500 ml-5">' + lines[i] + '</div>';
-        }
-        await sleep(400);
-        completeStep(2);
-        document.getElementById('sc2').style.background = '#f0fdfa';
-        document.getElementById('sc2').querySelector('.step-placeholder').innerHTML =
-          '<span style="color:#10b981;">&#10003; 流式生成完成 — 共生成 7 条分析结果</span>';
-
-        // Step 3: Organize & Display
-        revealStep(3);
-        document.getElementById('sc3').querySelector('.step-placeholder').innerHTML =
-          '<div class="flex items-center gap-2"><span class="inline-block w-4 h-4 border-2 border-teal-300 border-t-teal-500 rounded-full animate-spin"></span> 正在整理评审报告...</div>';
-        await sleep(1000);
-        completeStep(3);
-        document.getElementById('sc3').style.background = '#f0fdfa';
-        document.getElementById('sc3').querySelector('.step-placeholder').innerHTML =
-          '<span style="color:#10b981;">&#10003; 评审完成 - 耗时 6.2 秒</span>';
-
-        document.getElementById('connector').style.background = '#10b981';
-
-        btn.disabled = false;
-        btn.textContent = '重新演示';
-        btn.style.opacity = '1';
-        running = false;
-      });
-
-      document.getElementById('hamburger').addEventListener('click', function() {
-        document.getElementById('mobile-menu').classList.toggle('open');
-      });
-    })();
-  </script>
 <script>
-(function(){
-  var reported = new Set();
-  window.onerror = function(msg, url, line, col, err) {
-    var key = (msg||'') + '|' + (url||'') + '|' + line;
-    if (reported.has(key) || reported.size > 10) return;
-    reported.add(key);
-    try {
-      var x = new XMLHttpRequest();
-      x.open('POST', '/api/health', true);
-      x.setRequestHeader('Content-Type', 'application/json');
-      x.send(JSON.stringify({message:String(msg||'').substring(0,500), url:String(url||'').substring(0,200), line:line, col:col, page:location.href, ts:Date.now()}));
-    } catch(e) {}
-  };
-  window.addEventListener('unhandledrejection', function(e) {
-    var key = 'rejection|' + String(e.reason||'').substring(0,100);
-    if (reported.has(key) || reported.size > 10) return;
-    reported.add(key);
-    try {
-      var x = new XMLHttpRequest();
-      x.open('POST', '/api/health', true);
-      x.setRequestHeader('Content-Type', 'application/json');
-      x.send(JSON.stringify({message:'Promise rejection: '+String(e.reason||'').substring(0,500), page:location.href, ts:Date.now()}));
-    } catch(e) {}
+(function() {
+  var running = false;
+
+  function sleep(ms) { return new Promise(function(r) { setTimeout(r, ms); }); }
+
+  function setPhase(n, state) {
+    var card = document.getElementById('phase' + n);
+    card.className = 'phase-card' + (state === 'active' ? ' active' : '') + (state === 'done' ? ' done' : '');
+  }
+
+  function updateProgress(pct) {
+    document.getElementById('progressFill').style.width = pct + '%';
+  }
+
+  document.getElementById('startBtn').addEventListener('click', async function() {
+    if (running) return;
+    running = true;
+    var btn = this;
+    btn.disabled = true;
+    btn.textContent = '加载中...';
+    btn.style.opacity = '0.7';
+
+    var phasesEl = document.getElementById('phases');
+    phasesEl.style.display = 'block';
+    // Reset all
+    for (var i = 1; i <= 3; i++) {
+      var card = document.getElementById('phase' + i);
+      card.className = 'phase-card';
+      document.getElementById('phase' + i + 'Status').innerHTML = i === 1 ? '等待中...' : '等待第 ' + (i - 1) + ' 步完成...';
+    }
+    updateProgress(0);
+    phasesEl.scrollIntoView({ behavior: 'smooth' });
+    await sleep(400);
+
+    // Phase 1: Visual Analysis
+    setPhase(1, 'active');
+    updateProgress(10);
+    document.getElementById('phase1Status').innerHTML = '<span style="display:flex;align-items:center;gap:8px"><span style="display:inline-block;width:14px;height:14px;border:2px solid var(--pa);border-radius:50%;border-top-color:transparent;animation:spin 0.8s linear infinite"></span>正在识别设计元素...</span>';
+    await sleep(2000);
+    setPhase(1, 'done');
+    updateProgress(33);
+    document.getElementById('phase1Status').innerHTML = '<span style="color:#10b981">&#10003; 设计元素识别完成 — 检测到 4 个主区域、12 个组件</span>';
+
+    // Phase 2: Streaming
+    setPhase(2, 'active');
+    updateProgress(40);
+    var p2s = document.getElementById('phase2Status');
+    p2s.innerHTML = '<span style="display:flex;align-items:center;gap:8px"><span style="display:inline-block;width:14px;height:14px;border:2px solid var(--pa);border-radius:50%;border-top-color:transparent;animation:spin 0.8s linear infinite"></span>正在生成结构化数据...</span>';
+    await sleep(600);
+
+    var lines = ['分析截图布局结构...', '识别 4 个主要功能区域', '提取色彩方案（蓝灰色系为主）', '检测 12 个交互组件', '计算信息架构评分...', '评估视觉层级关系...', '生成详细改进建议...'];
+    for (var i = 0; i < lines.length; i++) {
+      await sleep(350);
+      p2s.innerHTML += '<div style="color:var(--text-muted);padding-left:40px;font-size:12px;margin-top:2px">' + lines[i] + '</div>';
+      updateProgress(40 + Math.round((i + 1) / lines.length * 30));
+    }
+    await sleep(300);
+    setPhase(2, 'done');
+    updateProgress(70);
+    document.getElementById('phase2Status').innerHTML = '<span style="color:#10b981">&#10003; 流式生成完成 — 共生成 7 条分析结果</span>';
+
+    // Phase 3: Render
+    setPhase(3, 'active');
+    updateProgress(80);
+    document.getElementById('phase3Status').innerHTML = '<span style="display:flex;align-items:center;gap:8px"><span style="display:inline-block;width:14px;height:14px;border:2px solid var(--pa);border-radius:50%;border-top-color:transparent;animation:spin 0.8s linear infinite"></span>正在整理评审报告...</span>';
+    await sleep(1200);
+    setPhase(3, 'done');
+    updateProgress(100);
+    document.getElementById('phase3Status').innerHTML = '<span style="color:#10b981">&#10003; 评审完成 — 耗时 5.8 秒，综合评分 7.5/10</span>';
+
+    btn.disabled = false;
+    btn.textContent = '重新演示';
+    btn.style.opacity = '1';
+    running = false;
   });
-  console.log('[monitor] Error tracking active');
+
+  // Inject spin keyframe
+  var style = document.createElement('style');
+  style.textContent = '@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}';
+  document.head.appendChild(style);
 })();
 </script>
 </body>

@@ -2,359 +2,180 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
-    <meta name="description" content="AI 交互模式实验室 — 樊书洋的个人作品集。展示 7 种 AI 交互设计模式、15 角色 Agent 协作体系，不会写代码的设计学生用 AI 工具链从零构建的专业级产品。" />
-  <meta property="og:title" content="AI 交互模式实验室 — 樊书洋" />
-  <meta property="og:description" content="展示 7 种 AI 交互设计模式 + 15 角色 AI Agent 协作体系。设计学生的 AI 工程实践。" />
-  <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://fanshuyang.top/" />
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="AI 交互模式实验室 — 樊书洋" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>关于我 — AI 交互模式实验室</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧪</text></svg>" />
-
-        <link rel="stylesheet" href="css/tailwind.min.css?v=2.1">
-  <link rel="stylesheet" href="css/fonts.css?v=2.1">
-
-  <style>
-    @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
-    }
-    :focus-visible { outline: 2px solid #e07340; outline-offset: 2px; border-radius: 2px; }
-    .section-divider { display: flex; align-items: center; gap: 1rem; }
-    .section-divider::before, .section-divider::after { content: ''; flex: 1; height: 1px; background: #e8e4e0; }
-    .section-divider-dot { width: 8px; height: 8px; border-radius: 50%; background: #e07340; flex-shrink: 0; }
-    .mobile-menu { max-height: 0; overflow: hidden; transition: max-height 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease; opacity: 0; }
-    .mobile-menu.open { max-height: 320px; opacity: 1; }
-  </style>
-</head>
-<body class="bg-neutral-100 font-body text-neutral-700 antialiased">
-
-  <!-- Navigation -->
-  <nav id="navbar" class="fixed top-0 w-full z-50 bg-neutral-100/90 backdrop-blur-md border-b border-neutral-200">
-    <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-      <a href="/" class="font-display text-2xl text-primary-700 tracking-tight no-underline">AI<span class="text-accent-500">·</span>Lab</a>
-      <div class="hidden md:flex items-center gap-8">
-        <a href="/patterns/streaming.html" class="text-sm font-medium text-neutral-500 hover:text-neutral-800 transition-colors no-underline">Patterns</a>
-        <a href="/about.html" class="text-sm font-medium text-accent-500 transition-colors no-underline">About</a>
-        <a href="/agents.html" class="text-sm font-medium text-neutral-500 hover:text-neutral-800 transition-colors no-underline">Agents</a>
-        <a href="/behind-the-scenes.html" class="text-sm font-medium text-neutral-500 hover:text-neutral-800 transition-colors no-underline">Behind the Scenes</a>
-        <a href="/review.html" class="px-6 py-2.5 bg-accent-500 text-white font-semibold rounded-full text-sm hover:bg-accent-600 transition-colors shadow-lg shadow-accent-500/25 no-underline">Try Review Tool</a>
-      </div>
-      <button id="hamburger" class="md:hidden flex flex-col gap-1.5 p-2 bg-transparent border-0 cursor-pointer" aria-label="打开菜单">
-        <span class="block w-6 h-0.5 bg-neutral-700 rounded transition-transform duration-300"></span>
-        <span class="block w-6 h-0.5 bg-neutral-700 rounded transition-opacity duration-300"></span>
-        <span class="block w-6 h-0.5 bg-neutral-700 rounded transition-transform duration-300"></span>
-      </button>
-    </div>
-    <div id="mobile-menu" class="mobile-menu md:hidden bg-neutral-100/95 backdrop-blur-md border-b border-neutral-200">
-      <div class="px-6 py-4 flex flex-col gap-3">
-        <a href="/patterns/streaming.html" class="text-sm font-medium text-neutral-600 hover:text-neutral-900 no-underline py-2">Patterns</a>
-        <a href="/about.html" class="text-sm font-medium text-accent-500 no-underline py-2">About</a>
-        <a href="/agents.html" class="text-sm font-medium text-neutral-600 hover:text-neutral-900 no-underline py-2">Agents</a>
-        <a href="/behind-the-scenes.html" class="text-sm font-medium text-neutral-600 hover:text-neutral-900 no-underline py-2">Behind the Scenes</a>
-        <a href="/review.html" class="px-6 py-2.5 bg-accent-500 text-white font-semibold rounded-full text-sm hover:bg-accent-600 transition-colors text-center no-underline shadow-lg shadow-accent-500/25">Try Review Tool</a>
-      </div>
-    </div>
-  </nav>
-
-  <!-- Hero -->
-  <section class="pt-28 pb-12 md:pt-36 md:pb-16 px-6 text-center">
-    <div class="max-w-3xl mx-auto">
-      <div class="text-6xl md:text-7xl mb-6 opacity-0" id="hero-emoji">👤</div>
-      <p class="text-xs font-semibold text-accent-500 uppercase tracking-widest mb-4 opacity-0" id="hero-eyebrow">About Me</p>
-      <h1 class="font-display text-3xl md:text-5xl lg:text-6xl text-primary-900 leading-tight mb-4 opacity-0" id="hero-title">樊书洋</h1>
-      <p class="text-base md:text-lg text-neutral-500 leading-relaxed max-w-xl mx-auto opacity-0" id="hero-subtitle">
-        智能交互设计 · 南京传媒学院 · 大二<br />
-        求职方向：<strong class="text-neutral-700">AI 交互设计师实习</strong>
-      </p>
-    </div>
-  </section>
-
-  <!-- Personal Intro -->
-  <section class="max-w-3xl mx-auto px-6 pb-16 opacity-0" id="intro-section">
-    <div class="section-divider mb-8"><span class="section-divider-dot"></span></div>
-    <h2 class="font-display text-2xl text-primary-800 mb-6">关于我</h2>
-    <div class="space-y-4 text-neutral-600 leading-relaxed">
-      <p>南京传媒学院智能交互设计专业大二学生。不写代码，但我设计的 AI 交互系统让 15 个 AI 角色零出错协作。</p>
-      <p>我的核心理念：<strong class="text-accent-600">"不会写代码不是短板——是视角优势。"</strong> 因为不陷入实现细节，我能更纯粹地思考交互逻辑、用户心理和系统设计。当其他人在纠结 CSS 像素对齐时，我在想"这个交互模式背后的设计原则是什么"。</p>
-      <p>这个项目从零到上线，每一行代码都是 AI 写的——但我负责所有关键决策：架构设计、交互模式选择、Prompt 工程、质量把关、部署运维。我的角色不是程序员，是<strong class="text-neutral-800">AI 团队的架构师和产品经理</strong>。</p>
-    </div>
-  </section>
-
-  <!-- Dark Quote Panel -->
-  <section class="bg-primary-900 text-neutral-200 py-24 px-6 opacity-0" id="quote-section">
-    <div class="max-w-2xl mx-auto text-center">
-      <p class="font-display text-xl md:text-2xl text-neutral-100 leading-relaxed italic mb-6">
-        "不会写代码的设计学生，用 AI 工具链从零做出了解 AI 交互设计的产品 + 设计了让 AI 团队不出错的协作体系。"
-      </p>
-      <p class="text-sm text-neutral-300 mb-1">这是我的核心叙事</p>
-      <p class="text-xs text-neutral-400">面试官看到的不只是 Demo——是设计思维 + 系统化工程能力</p>
-    </div>
-  </section>
-
-  <!-- Skills & Tools -->
-  <section class="max-w-5xl mx-auto px-6 py-24 opacity-0" id="skills-section">
-    <div class="section-divider mb-8"><span class="section-divider-dot"></span></div>
-    <h2 class="font-display text-2xl text-primary-800 mb-10 text-center">技能与工具链</h2>
-
-    <div class="mb-10">
-      <h3 class="text-sm font-semibold text-accent-500 uppercase tracking-widest mb-4">AI 工具</h3>
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div class="bg-white rounded-xl border border-neutral-200 p-5 text-center hover:-translate-y-1 hover:shadow-lg transition-all duration-300">
-          <div class="text-3xl mb-2">🧠</div><p class="font-semibold text-primary-800 text-sm">DeepSeek</p><p class="text-xs text-neutral-400 mt-1">主力推理模型</p>
-        </div>
-        <div class="bg-white rounded-xl border border-neutral-200 p-5 text-center hover:-translate-y-1 hover:shadow-lg transition-all duration-300">
-          <div class="text-3xl mb-2">👁️</div><p class="font-semibold text-primary-800 text-sm">GLM-4V</p><p class="text-xs text-neutral-400 mt-1">视觉识别</p>
-        </div>
-        <div class="bg-white rounded-xl border border-neutral-200 p-5 text-center hover:-translate-y-1 hover:shadow-lg transition-all duration-300">
-          <div class="text-3xl mb-2">🤖</div><p class="font-semibold text-primary-800 text-sm">Claude</p><p class="text-xs text-neutral-400 mt-1">Agent 协调 + 代码生成</p>
-        </div>
-        <div class="bg-white rounded-xl border border-neutral-200 p-5 text-center hover:-translate-y-1 hover:shadow-lg transition-all duration-300">
-          <div class="text-3xl mb-2">🔗</div><p class="font-semibold text-primary-800 text-sm">Hindsight</p><p class="text-xs text-neutral-400 mt-1">记忆系统 + 知识图谱</p>
-        </div>
-      </div>
-    </div>
-
-    <div class="mb-10">
-      <h3 class="text-sm font-semibold text-accent-500 uppercase tracking-widest mb-4">设计工具</h3>
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div class="bg-white rounded-xl border border-neutral-200 p-5 text-center hover:-translate-y-1 hover:shadow-lg transition-all duration-300">
-          <div class="text-3xl mb-2">🎨</div><p class="font-semibold text-primary-800 text-sm">Figma</p><p class="text-xs text-neutral-400 mt-1">UI 设计与原型</p>
-        </div>
-        <div class="bg-white rounded-xl border border-neutral-200 p-5 text-center hover:-translate-y-1 hover:shadow-lg transition-all duration-300">
-          <div class="text-3xl mb-2">🎬</div><p class="font-semibold text-primary-800 text-sm">GSAP</p><p class="text-xs text-neutral-400 mt-1">Web 动画引擎</p>
-        </div>
-        <div class="bg-white rounded-xl border border-neutral-200 p-5 text-center hover:-translate-y-1 hover:shadow-lg transition-all duration-300">
-          <div class="text-3xl mb-2">🎯</div><p class="font-semibold text-primary-800 text-sm">Tailwind CSS</p><p class="text-xs text-neutral-400 mt-1">Utility-first 样式框架</p>
-        </div>
-        <div class="bg-white rounded-xl border border-neutral-200 p-5 text-center hover:-translate-y-1 hover:shadow-lg transition-all duration-300">
-          <div class="text-3xl mb-2">📐</div><p class="font-semibold text-primary-800 text-sm">Nielsen / WCAG</p><p class="text-xs text-neutral-400 mt-1">设计原则 + 无障碍标准</p>
-        </div>
-      </div>
-    </div>
-
-    <div class="mb-10">
-      <h3 class="text-sm font-semibold text-accent-500 uppercase tracking-widest mb-4">开发工具</h3>
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div class="bg-white rounded-xl border border-neutral-200 p-5 text-center hover:-translate-y-1 hover:shadow-lg transition-all duration-300">
-          <div class="text-3xl mb-2">⚡</div><p class="font-semibold text-primary-800 text-sm">FastAPI</p><p class="text-xs text-neutral-400 mt-1">Python 后端框架</p>
-        </div>
-        <div class="bg-white rounded-xl border border-neutral-200 p-5 text-center hover:-translate-y-1 hover:shadow-lg transition-all duration-300">
-          <div class="text-3xl mb-2">📄</div><p class="font-semibold text-primary-800 text-sm">HTML/CSS/JS</p><p class="text-xs text-neutral-400 mt-1">前端三件套</p>
-        </div>
-        <div class="bg-white rounded-xl border border-neutral-200 p-5 text-center hover:-translate-y-1 hover:shadow-lg transition-all duration-300">
-          <div class="text-3xl mb-2">🎭</div><p class="font-semibold text-primary-800 text-sm">GSAP</p><p class="text-xs text-neutral-400 mt-1">专业级动画</p>
-        </div>
-        <div class="bg-white rounded-xl border border-neutral-200 p-5 text-center hover:-translate-y-1 hover:shadow-lg transition-all duration-300">
-          <div class="text-3xl mb-2">🧩</div><p class="font-semibold text-primary-800 text-sm">Agent 体系</p><p class="text-xs text-neutral-400 mt-1">15 角色协作架构</p>
-        </div>
-      </div>
-    </div>
-
-    <div>
-      <h3 class="text-sm font-semibold text-accent-500 uppercase tracking-widest mb-4">DevOps</h3>
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div class="bg-white rounded-xl border border-neutral-200 p-5 text-center hover:-translate-y-1 hover:shadow-lg transition-all duration-300">
-          <div class="text-3xl mb-2">🐳</div><p class="font-semibold text-primary-800 text-sm">Docker</p><p class="text-xs text-neutral-400 mt-1">容器化部署</p>
-        </div>
-        <div class="bg-white rounded-xl border border-neutral-200 p-5 text-center hover:-translate-y-1 hover:shadow-lg transition-all duration-300">
-          <div class="text-3xl mb-2">🌐</div><p class="font-semibold text-primary-800 text-sm">Nginx</p><p class="text-xs text-neutral-400 mt-1">反向代理 + HTTPS</p>
-        </div>
-        <div class="bg-white rounded-xl border border-neutral-200 p-5 text-center hover:-translate-y-1 hover:shadow-lg transition-all duration-300">
-          <div class="text-3xl mb-2">🔒</div><p class="font-semibold text-primary-800 text-sm">HTTPS</p><p class="text-xs text-neutral-400 mt-1">SSL/TLS 证书</p>
-        </div>
-        <div class="bg-white rounded-xl border border-neutral-200 p-5 text-center hover:-translate-y-1 hover:shadow-lg transition-all duration-300">
-          <div class="text-3xl mb-2">🔄</div><p class="font-semibold text-primary-800 text-sm">GitHub Actions</p><p class="text-xs text-neutral-400 mt-1">CI/CD 自动部署</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Project Timeline -->
-  <section class="max-w-3xl mx-auto px-6 pb-24 opacity-0" id="timeline-section">
-    <div class="section-divider mb-8"><span class="section-divider-dot"></span></div>
-    <h2 class="font-display text-2xl text-primary-800 mb-10 text-center">项目里程碑</h2>
-
-    <div class="space-y-0">
-      <div class="flex gap-4">
-        <div class="flex flex-col items-center">
-          <div class="w-3 h-3 rounded-full bg-accent-500 shadow-[0_0_0_4px_#fdebe3] flex-shrink-0 mt-1.5"></div>
-          <div class="w-0.5 bg-neutral-200 flex-1"></div>
-        </div>
-        <div class="pb-8">
-          <div class="flex items-center gap-3 mb-1"><span class="font-mono text-xs text-accent-500 font-semibold">v0.1.0</span><span class="text-xs text-neutral-400">2026 年 5 月</span></div>
-          <h3 class="font-semibold text-primary-800 mb-1">项目启动</h3>
-          <p class="text-sm text-neutral-500">搭建项目骨架：FastAPI 后端 + 纯 HTML 前端 + Nginx 部署。第一个 AI 评审 API 跑通。</p>
-        </div>
-      </div>
-      <div class="flex gap-4">
-        <div class="flex flex-col items-center">
-          <div class="w-3 h-3 rounded-full bg-accent-500 shadow-[0_0_0_4px_#fdebe3] flex-shrink-0 mt-1.5"></div>
-          <div class="w-0.5 bg-neutral-200 flex-1"></div>
-        </div>
-        <div class="pb-8">
-          <div class="flex items-center gap-3 mb-1"><span class="font-mono text-xs text-accent-500 font-semibold">v0.2.0</span><span class="text-xs text-neutral-400">2026 年 5 月</span></div>
-          <h3 class="font-semibold text-primary-800 mb-1">7 种交互模式定义</h3>
-          <p class="text-sm text-neutral-500">明确了流式输出、结构化卡片、澄清提问等 7 种模式，每个有独立 Demo 页面。</p>
-        </div>
-      </div>
-      <div class="flex gap-4">
-        <div class="flex flex-col items-center">
-          <div class="w-3 h-3 rounded-full bg-accent-500 shadow-[0_0_0_4px_#fdebe3] flex-shrink-0 mt-1.5"></div>
-          <div class="w-0.5 bg-neutral-200 flex-1"></div>
-        </div>
-        <div class="pb-8">
-          <div class="flex items-center gap-3 mb-1"><span class="font-mono text-xs text-accent-500 font-semibold">v0.3.0</span><span class="text-xs text-neutral-400">2026 年 5 月</span></div>
-          <h3 class="font-semibold text-primary-800 mb-1">15 角色 Agent 体系</h3>
-          <p class="text-sm text-neutral-500">设计并实现完整软件团队角色映射：PO/Orchestrator/Scout/BA/PM/Designer/Frontend/Backend/Fullstack/Code Reviewer/QA/Adversarial/Security/DevOps/Tech Writer/Memory Curator。</p>
-        </div>
-      </div>
-      <div class="flex gap-4">
-        <div class="flex flex-col items-center">
-          <div class="w-3 h-3 rounded-full bg-accent-500 shadow-[0_0_0_4px_#fdebe3] flex-shrink-0 mt-1.5"></div>
-          <div class="w-0.5 bg-neutral-200 flex-1"></div>
-        </div>
-        <div class="pb-8">
-          <div class="flex items-center gap-3 mb-1"><span class="font-mono text-xs text-accent-500 font-semibold">v0.4.0</span><span class="text-xs text-neutral-400">2026 年 6 月</span></div>
-          <h3 class="font-semibold text-primary-800 mb-1">系统机制 + 安全加固</h3>
-          <p class="text-sm text-neutral-500">项目规模评估矩阵、下游反馈协议、Agent Handoff Diff Check、教训飞轮四套机制上线。CORS + Rate Limiting + 注入过滤 + CSP 安全头。</p>
-        </div>
-      </div>
-      <div class="flex gap-4">
-        <div class="flex flex-col items-center">
-          <div class="w-3 h-3 rounded-full bg-accent-500 shadow-[0_0_0_4px_#fdebe3] flex-shrink-0 mt-1.5"></div>
-          <div class="w-0.5 bg-neutral-200 flex-1"></div>
-        </div>
-        <div class="pb-8">
-          <div class="flex items-center gap-3 mb-1"><span class="font-mono text-xs text-accent-500 font-semibold">v0.5.0</span><span class="text-xs text-neutral-400">2026 年 6 月</span></div>
-          <h3 class="font-semibold text-primary-800 mb-1">页面重设计 + 第 8 张卡片</h3>
-          <p class="text-sm text-neutral-500">暖珊瑚色主题 + GSAP 动画 + Noto Serif SC 字体。新增 Agent 协作仪表盘卡片。M 级 14 角色工作流完整跑通。</p>
-        </div>
-      </div>
-      <div class="flex gap-4">
-        <div class="flex flex-col items-center">
-          <div class="w-3 h-3 rounded-full bg-accent-500 shadow-[0_0_0_4px_#fdebe3] flex-shrink-0 mt-1.5"></div>
-        </div>
-        <div class="pb-4">
-          <div class="flex items-center gap-3 mb-1"><span class="font-mono text-xs text-accent-500 font-semibold">v0.5.2</span><span class="text-xs text-neutral-400">2026 年 6 月</span></div>
-          <h3 class="font-semibold text-primary-800 mb-1">CI/CD + 7 辅助页面</h3>
-          <p class="text-sm text-neutral-500">自托管 Runner 自动部署。About / Behind the Scenes / Agents / Principles 等 7 个页面补齐，Tailwind CSS 全面迁移。</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Contact CTA -->
-  <section class="bg-primary-50 py-24 px-6 opacity-0" id="contact-section">
-    <div class="max-w-xl mx-auto text-center">
-      <div class="section-divider mb-8"><span class="section-divider-dot"></span></div>
-      <h2 class="font-display text-2xl text-primary-800 mb-4">联系我</h2>
-      <p class="text-neutral-500 mb-8 leading-relaxed">正在寻找 AI 交互设计师实习岗位。如果你对我的项目感兴趣，或者有合适的实习机会，欢迎联系。</p>
-      <div class="flex flex-col sm:flex-row gap-4 justify-center">
-        <a href="mailto:fsy20060225@163.com" class="px-8 py-3.5 bg-accent-500 text-white font-semibold rounded-full text-lg hover:bg-accent-600 transition-colors shadow-lg shadow-accent-500/25 no-underline inline-flex items-center justify-center gap-2">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
-          fsy20060225@163.com
-        </a>
-        <a href="https://github.com/qq242115512/ai-interaction-lab" target="_blank" rel="noopener" class="px-8 py-3.5 border-2 border-primary-300 text-primary-700 font-semibold rounded-full text-lg hover:bg-primary-100 transition-colors no-underline inline-flex items-center justify-center gap-2">
-          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.385-1.335-1.755-1.335-1.755-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.605-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12 24 5.37 18.63 0 12 0z"/></svg>
-          GitHub
-        </a>
-      </div>
-    </div>
-  </section>
-
-  <!-- Footer -->
-  <footer id="footer" class="bg-primary-950 text-neutral-400 px-6 py-16 opacity-0">
-    <div class="max-w-7xl mx-auto">
-      <div class="flex flex-col md:flex-row items-center justify-between gap-6 mb-8">
-        <a href="/" class="font-display text-xl text-neutral-200 tracking-tight no-underline">AI<span class="text-accent-400">·</span>Lab</a>
-        <div class="flex flex-wrap justify-center gap-6 text-sm">
-          <a href="/patterns/streaming.html" class="text-neutral-400 hover:text-neutral-200 transition-colors no-underline">Patterns</a>
-          <a href="/about.html" class="text-neutral-400 hover:text-neutral-200 transition-colors no-underline">About</a>
-          <a href="/agents.html" class="text-neutral-400 hover:text-neutral-200 transition-colors no-underline">Agents</a>
-          <a href="/behind-the-scenes.html" class="text-neutral-400 hover:text-neutral-200 transition-colors no-underline">Behind the Scenes</a>
-          <a href="/review.html" class="text-neutral-400 hover:text-neutral-200 transition-colors no-underline">Review Tool</a>
-        </div>
-        <a href="https://github.com/qq242115512/ai-interaction-lab" target="_blank" rel="noopener" class="text-neutral-400 hover:text-neutral-200 transition-colors no-underline text-sm">
-          <svg class="w-5 h-5 inline-block mr-1.5 align-text-bottom" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.385-1.335-1.755-1.335-1.755-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.605-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12 24 5.37 18.63 0 12 0z"/></svg>GitHub</a>
-      </div>
-      <div class="border-t border-primary-800 pt-6 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-neutral-500">
-        <span>&copy; 2026 樊书洋 · AI 交互模式实验室</span>
-        <span class="font-mono">v0.5.0</span>
-      </div>
-    </div>
-  </footer>
-
+  <meta name="description" content="樊书洋 — AI 交互设计师。不写代码的设计学生，用 AI 工具链从零构建的专业级产品。" />
+  <meta property="og:title" content="关于樊书洋 — AI 交互设计师" />
+  <meta property="og:description" content="AI 交互设计师 · 南京传媒学院 · 设计 AI 协作系统" />
+  <meta property="og:type" content="website" />
+  <title>关于 — 樊书洋</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>" />
+  <link rel="stylesheet" href="css/tailwind.min.css?v=2.1" />
+  <link rel="stylesheet" href="css/fonts.css?v=2.1" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
-  <script src="js/animations.js?v=2.1"></script>
+<style>
+:root{--bg:#0A0E17;--bg-card:#111820;--bg-card-hover:#161D27;--text-primary:#F0F0F0;--text-muted:#8B949E;--accent:#E07340;--border:#1E2938;--border-hover:#2D3A4E}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:0.01ms!important;transition-duration:0.01ms!important}}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:2px}
+body{background:var(--bg);color:var(--text-primary);font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;-webkit-font-smoothing:antialiased}
+.font-display{font-family:'DM Serif Display','Noto Serif SC','Songti SC','SimSun',serif}
+.font-mono{font-family:'JetBrains Mono','Cascadia Code',monospace}
+#navbar{position:fixed;top:0;width:100%;z-index:50;background:rgba(10,14,23,0.85);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid var(--border)}
+#navbar .inner{max-width:1200px;margin:0 auto;padding:0 48px;height:68px;display:flex;align-items:center;justify-content:space-between}
+#navbar .logo{font-size:18px;font-weight:700;color:var(--text-primary);text-decoration:none}
+#navbar .links{display:flex;align-items:center;gap:36px}
+#navbar .links a{color:var(--text-muted);font-size:15px;font-weight:500;text-decoration:none;transition:color 0.25s}
+#navbar .links a:hover{color:var(--text-primary)}
+#navbar .links a.active{color:var(--text-primary)}
+.section-label{display:flex;align-items:center;gap:16px;margin-bottom:48px;font-size:13px;color:var(--accent);text-transform:uppercase;letter-spacing:0.14em;font-weight:500}
+.section-label::after{content:'';flex:1;height:1px;background:var(--border)}
+.page-hero{padding:180px 48px 80px;max-width:1200px;margin:0 auto}
+.page-body{max-width:800px;margin:0 auto;padding:0 48px 80px}
+.timeline-item{display:flex;gap:20px;padding-bottom:32px}
+.timeline-dot{width:12px;height:12px;border-radius:50%;background:var(--accent);flex-shrink:0;margin-top:4px;position:relative}
+.timeline-dot::after{content:'';position:absolute;top:12px;left:5px;width:1px;height:calc(100% + 20px);background:var(--border)}
+.timeline-item:last-child .timeline-dot::after{display:none}
+.skill-card{background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:24px;text-align:center;transition:border-color 0.25s,transform 0.25s}
+.skill-card:hover{border-color:var(--accent);transform:translateY(-2px)}
+.site-footer{border-top:1px solid var(--border);padding:48px 48px 72px;max-width:1200px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px}
+.footer-links{display:flex;align-items:center;gap:28px}
+.footer-links a{color:var(--text-muted);text-decoration:none;font-size:14px;font-weight:500;transition:color 0.2s}
+.footer-links a:hover{color:var(--accent)}
+.footer-credit{font-size:13px;color:var(--text-muted)}
+.reveal{opacity:0;transform:translateY(28px)}
+@media(max-width:768px){#navbar .inner{padding:0 24px}#navbar .links{display:none}.page-hero{padding:160px 24px 60px}.page-body{padding:0 24px 60px}.site-footer{flex-direction:column;align-items:flex-start;padding:40px 24px 64px}}
+</style>
+</head>
+<body>
+<nav id="navbar"><div class="inner">
+<a href="/" class="logo">樊书洋<span style="color:var(--accent)">.</span></a>
+<div class="links">
+<a href="about.html" class="active">关于</a>
+<a href="agents.html">Agents</a>
+<a href="behind-the-scenes.html">幕后</a>
+</div></div></nav>
 
-  <script>
-    document.addEventListener("DOMContentLoaded", function () {
-      if (typeof gsap === "undefined") return;
-      gsap.registerPlugin(ScrollTrigger);
-      var mm = gsap.matchMedia();
+<section class="page-hero">
+<p class="font-mono section-label reveal" style="margin-bottom:32px">$ whoami</p>
+<h1 class="font-display reveal" style="font-size:clamp(40px,6vw,64px);line-height:1.1;margin-bottom:24px">樊书洋</h1>
+<p class="reveal" style="font-size:18px;color:var(--text-muted);max-width:540px;line-height:1.6">
+智能交互设计 · 南京传媒学院 · 大二<br/>
+求职方向：<span style="color:var(--text-primary);font-weight:600">AI 交互设计师实习</span>
+</p>
+</section>
 
-      var navbar = document.getElementById("navbar");
-      if (navbar) { gsap.set(navbar, { autoAlpha: 1 }); gsap.from(navbar, { y: -20, autoAlpha: 0, duration: 0.55, ease: "power3.out" }); }
+<section class="page-body">
+<div class="section-label font-mono reveal">// About</div>
+<div class="reveal" style="color:var(--text-muted);line-height:1.8;font-size:15px;display:flex;flex-direction:column;gap:20px">
+<p>南京传媒学院智能交互设计专业大二学生。<span style="color:var(--text-primary)">不写代码，但我设计的 AI 交互系统让 15 个 AI 角色零出错协作。</span></p>
+<p>我的核心理念：<span style="color:var(--accent);font-weight:600">"不会写代码不是短板——是视角优势。"</span> 因为不陷入实现细节，我能更纯粹地思考交互逻辑、用户心理和系统设计。当其他人在纠结像素对齐时，我在想"这个交互模式背后的设计原则是什么"。</p>
+<p>这个项目从零到上线，每一行代码都是 AI 写的——但我负责所有关键决策：架构设计、交互模式选择、Prompt 工程、质量把关、部署运维。我的角色不是程序员，是<span style="color:var(--text-primary);font-weight:600">AI 团队的架构师和产品经理</span>。</p>
+</div>
+</section>
 
-      var heroEmoji = document.getElementById("hero-emoji");
-      if (heroEmoji) { gsap.set(heroEmoji, { autoAlpha: 1 }); gsap.from(heroEmoji, { scale: 0.8, autoAlpha: 0, duration: 0.5, ease: "back.out(1.7)" }); }
+<section style="background:var(--bg-card);padding:80px 48px;margin-bottom:80px">
+<div class="reveal" style="max-width:680px;margin:0 auto;text-align:center">
+<p class="font-display" style="font-size:clamp(22px,3.5vw,32px);color:var(--text-muted);line-height:1.55">
+"不会写代码的设计学生，<br/>用 AI 工具链从零做出了解 AI 交互设计的产品<br/>+ 设计了让 AI 团队不出错的协作体系。"
+</p>
+<p style="font-size:14px;color:var(--text-muted);margin-top:24px">这就是我的核心叙事</p>
+</div>
+</section>
 
-      var heroEyebrow = document.getElementById("hero-eyebrow");
-      if (heroEyebrow) { gsap.set(heroEyebrow, { autoAlpha: 1 }); gsap.from(heroEyebrow, { y: 16, autoAlpha: 0, duration: 0.5, ease: "power3.out", delay: 0.1 }); }
+<section class="page-body">
+<div class="section-label font-mono reveal">// Skills & Tools</div>
+<div class="reveal" style="margin-bottom:48px">
+<h3 class="font-mono" style="font-size:13px;color:var(--accent);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:20px">AI 工具</h3>
+<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px">
+<div class="skill-card"><div style="font-size:14px;font-weight:600;color:var(--text-primary);margin-bottom:4px">DeepSeek</div><div style="font-size:12px;color:var(--text-muted)">主力推理模型</div></div>
+<div class="skill-card"><div style="font-size:14px;font-weight:600;color:var(--text-primary);margin-bottom:4px">GLM-4V</div><div style="font-size:12px;color:var(--text-muted)">视觉识别</div></div>
+<div class="skill-card"><div style="font-size:14px;font-weight:600;color:var(--text-primary);margin-bottom:4px">Claude</div><div style="font-size:12px;color:var(--text-muted)">Agent 协调 + 代码生成</div></div>
+<div class="skill-card"><div style="font-size:14px;font-weight:600;color:var(--text-primary);margin-bottom:4px">LlamaIndex</div><div style="font-size:12px;color:var(--text-muted)">RAG 记忆系统</div></div>
+</div></div>
+<div class="reveal" style="margin-bottom:48px">
+<h3 class="font-mono" style="font-size:13px;color:var(--accent);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:20px">设计工具</h3>
+<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px">
+<div class="skill-card"><div style="font-size:14px;font-weight:600;color:var(--text-primary);margin-bottom:4px">Figma</div><div style="font-size:12px;color:var(--text-muted)">UI 设计与原型</div></div>
+<div class="skill-card"><div style="font-size:14px;font-weight:600;color:var(--text-primary);margin-bottom:4px">GSAP</div><div style="font-size:12px;color:var(--text-muted)">Web 动画引擎</div></div>
+<div class="skill-card"><div style="font-size:14px;font-weight:600;color:var(--text-primary);margin-bottom:4px">Tailwind CSS</div><div style="font-size:12px;color:var(--text-muted)">Utility-first 框架</div></div>
+<div class="skill-card"><div style="font-size:14px;font-weight:600;color:var(--text-primary);margin-bottom:4px">WCAG / 尼尔森</div><div style="font-size:12px;color:var(--text-muted)">设计原则 + 无障碍</div></div>
+</div></div>
+<div class="reveal">
+<h3 class="font-mono" style="font-size:13px;color:var(--accent);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:20px">DevOps</h3>
+<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px">
+<div class="skill-card"><div style="font-size:14px;font-weight:600;color:var(--text-primary);margin-bottom:4px">FastAPI</div><div style="font-size:12px;color:var(--text-muted)">Python 后端</div></div>
+<div class="skill-card"><div style="font-size:14px;font-weight:600;color:var(--text-primary);margin-bottom:4px">Nginx</div><div style="font-size:12px;color:var(--text-muted)">反向代理 + HTTPS</div></div>
+<div class="skill-card"><div style="font-size:14px;font-weight:600;color:var(--text-primary);margin-bottom:4px">Docker</div><div style="font-size:12px;color:var(--text-muted)">容器化部署</div></div>
+<div class="skill-card"><div style="font-size:14px;font-weight:600;color:var(--text-primary);margin-bottom:4px">CI/CD</div><div style="font-size:12px;color:var(--text-muted)">自托管 Runner 部署</div></div>
+</div></div>
+</section>
 
-      var heroTitle = document.getElementById("hero-title");
-      if (heroTitle) { gsap.set(heroTitle, { autoAlpha: 1 }); gsap.from(heroTitle, { y: 30, autoAlpha: 0, duration: 0.65, ease: "power3.out", delay: 0.16 }); }
+<section class="page-body">
+<div class="section-label font-mono reveal">// Timeline</div>
+<div class="reveal" style="display:flex;flex-direction:column">
+<div class="timeline-item"><div class="timeline-dot"></div><div>
+<span class="font-mono" style="font-size:12px;color:var(--accent)">v0.1.0</span> <span style="font-size:12px;color:var(--text-muted)">2026 年 5 月</span>
+<h3 style="font-size:16px;font-weight:600;margin:4px 0">项目启动</h3>
+<p style="font-size:14px;color:var(--text-muted)">FastAPI 后端 + 纯 HTML 前端 + Nginx 部署。第一个 AI 评审 API 跑通。</p>
+</div></div>
+<div class="timeline-item"><div class="timeline-dot"></div><div>
+<span class="font-mono" style="font-size:12px;color:var(--accent)">v0.2.0</span> <span style="font-size:12px;color:var(--text-muted)">2026 年 5 月</span>
+<h3 style="font-size:16px;font-weight:600;margin:4px 0">7 种交互模式定义</h3>
+<p style="font-size:14px;color:var(--text-muted)">流式输出、结构化卡片、澄清提问等 7 种模式，每个有独立 Demo 页面。</p>
+</div></div>
+<div class="timeline-item"><div class="timeline-dot"></div><div>
+<span class="font-mono" style="font-size:12px;color:var(--accent)">v0.3.0</span> <span style="font-size:12px;color:var(--text-muted)">2026 年 5 月</span>
+<h3 style="font-size:16px;font-weight:600;margin:4px 0">15 角色 Agent 体系</h3>
+<p style="font-size:14px;color:var(--text-muted)">完整软件团队角色映射，从 Orchestrator 到 Memory Curator。</p>
+</div></div>
+<div class="timeline-item"><div class="timeline-dot"></div><div>
+<span class="font-mono" style="font-size:12px;color:var(--accent)">v0.4.0</span> <span style="font-size:12px;color:var(--text-muted)">2026 年 6 月</span>
+<h3 style="font-size:16px;font-weight:600;margin:4px 0">系统机制 + 安全加固</h3>
+<p style="font-size:14px;color:var(--text-muted)">规模评估矩阵、下游反馈协议、教训飞轮。CORS + Rate Limiting + CSP。</p>
+</div></div>
+<div class="timeline-item"><div class="timeline-dot"></div><div>
+<span class="font-mono" style="font-size:12px;color:var(--accent)">v0.5.0</span> <span style="font-size:12px;color:var(--text-muted)">2026 年 6 月</span>
+<h3 style="font-size:16px;font-weight:600;margin:4px 0">页面重设计 + 第 8 张卡片</h3>
+<p style="font-size:14px;color:var(--text-muted)">Midnight Slate × Burnt Copper 设计语言。Agent 协作仪表盘。14 角色工作流完整跑通。</p>
+</div></div>
+<div class="timeline-item"><div class="timeline-dot"></div><div>
+<span class="font-mono" style="font-size:12px;color:var(--accent)">v2.0</span> <span style="font-size:12px;color:var(--text-muted)">2026 年 7 月</span>
+<h3 style="font-size:16px;font-weight:600;margin:4px 0">全站深色主题升级</h3>
+<p style="font-size:14px;color:var(--text-muted)">从浅灰文档站 → 设计师个人品牌站。AI 辅助设计评审驱动的迭代流程。</p>
+</div></div>
+</div>
+</section>
 
-      var heroSubtitle = document.getElementById("hero-subtitle");
-      if (heroSubtitle) { gsap.set(heroSubtitle, { autoAlpha: 1 }); gsap.from(heroSubtitle, { y: 20, autoAlpha: 0, duration: 0.5, ease: "power3.out", delay: 0.3 }); }
+<section class="page-body">
+<div class="section-label font-mono reveal">// Contact</div>
+<div class="reveal" style="text-align:center">
+<p style="font-size:16px;color:var(--text-muted);margin-bottom:28px;line-height:1.7">正在寻找 AI 交互设计师实习岗位。<br/>如果你对我的项目感兴趣，或者有合适的实习机会，欢迎联系。</p>
+<div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap">
+<a href="mailto:fsy20060225@163.com" style="display:inline-flex;align-items:center;gap:8px;background:var(--accent);color:#fff;padding:14px 36px;border-radius:8px;font-size:15px;font-weight:600;text-decoration:none;font-family:'JetBrains Mono',monospace;height:48px;transition:opacity 0.2s">fsy20060225@163.com</a>
+<a href="https://github.com/qq242115512/ai-interaction-lab" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:8px;background:transparent;color:var(--text-primary);padding:14px 36px;border-radius:8px;font-size:15px;font-weight:500;text-decoration:none;border:1px solid var(--border);font-family:'JetBrains Mono',monospace;height:48px;transition:border-color 0.25s">GitHub</a>
+</div></div>
+</section>
 
-      var scrollSections = ["intro-section", "quote-section", "skills-section", "timeline-section", "contact-section"];
-      scrollSections.forEach(function (id) {
-        var el = document.getElementById(id);
-        if (el) { gsap.set(el, { autoAlpha: 1 }); gsap.from(el, { y: 36, autoAlpha: 0, duration: 0.6, ease: "power3.out", scrollTrigger: { trigger: el, start: "top 85%", once: true } }); }
-      });
+<footer class="site-footer reveal">
+<div class="footer-links">
+<a href="about.html">关于</a>
+<a href="https://github.com/qq242115512/ai-interaction-lab">GitHub</a>
+<a href="mailto:fsy20060225@163.com">fsy20060225@163.com</a>
+</div>
+<p class="footer-credit font-mono">designed & built with AI · 2026</p>
+</footer>
 
-      var footer = document.getElementById("footer");
-      if (footer) { gsap.set(footer, { autoAlpha: 1 }); gsap.from(footer, { y: 30, autoAlpha: 0, duration: 0.6, ease: "power3.out", scrollTrigger: { trigger: footer, start: "top 90%", once: true } }); }
-
-      var hamburger = document.getElementById("hamburger");
-      var mobileMenu = document.getElementById("mobile-menu");
-      if (hamburger && mobileMenu) { hamburger.addEventListener("click", function () { mobileMenu.classList.toggle("open"); }); }
-
-      mm.add("(prefers-reduced-motion: reduce)", function () { gsap.globalTimeline.timeScale(0); return function () { gsap.globalTimeline.timeScale(1); }; });
-      ScrollTrigger.refresh();
-    });
-  </script>
 <script>
 (function(){
-  var reported = new Set();
-  window.onerror = function(msg, url, line, col, err) {
-    var key = (msg||'') + '|' + (url||'') + '|' + line;
-    if (reported.has(key) || reported.size > 10) return;
-    reported.add(key);
-    try {
-      var x = new XMLHttpRequest();
-      x.open('POST', '/api/health', true);
-      x.setRequestHeader('Content-Type', 'application/json');
-      x.send(JSON.stringify({message:String(msg||'').substring(0,500), url:String(url||'').substring(0,200), line:line, col:col, page:location.href, ts:Date.now()}));
-    } catch(e) {}
-  };
-  window.addEventListener('unhandledrejection', function(e) {
-    var key = 'rejection|' + String(e.reason||'').substring(0,100);
-    if (reported.has(key) || reported.size > 10) return;
-    reported.add(key);
-    try {
-      var x = new XMLHttpRequest();
-      x.open('POST', '/api/health', true);
-      x.setRequestHeader('Content-Type', 'application/json');
-      x.send(JSON.stringify({message:'Promise rejection: '+String(e.reason||'').substring(0,500), page:location.href, ts:Date.now()}));
-    } catch(e) {}
-  });
-  console.log('[monitor] Error tracking active');
+  var reported=new Set();
+  window.onerror=function(m,u,l,c,e){var k=(m||'')+'|'+(u||'')+'|'+l;if(reported.has(k)||reported.size>10)return;reported.add(k);try{var x=new XMLHttpRequest();x.open('POST','/api/health',true);x.setRequestHeader('Content-Type','application/json');x.send(JSON.stringify({message:String(m||'').substring(0,500),url:String(u||'').substring(0,200),line:l,col:c,page:location.href,ts:Date.now()}))}catch(e){}};
+  window.addEventListener('unhandledrejection',function(e){var k='rejection|'+String(e.reason||'').substring(0,100);if(reported.has(k)||reported.size>10)return;reported.add(k);try{var x=new XMLHttpRequest();x.open('POST','/api/health',true);x.setRequestHeader('Content-Type','application/json');x.send(JSON.stringify({message:'Promise rejection: '+String(e.reason||'').substring(0,500),page:location.href,ts:Date.now()}))}catch(e){}});
 })();
+</script>
+<script>
+gsap.registerPlugin(ScrollTrigger);
+document.querySelectorAll('.reveal').forEach((el,i)=>{gsap.fromTo(el,{opacity:0,y:28},{opacity:1,y:0,duration:0.8,delay:i*0.04,ease:'power2.out',scrollTrigger:{trigger:el,start:'top 92%',toggleActions:'play none none none'}})});
 </script>
 </body>
 </html>
