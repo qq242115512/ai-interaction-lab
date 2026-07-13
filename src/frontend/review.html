@@ -7,15 +7,19 @@
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:0.01ms!important;transition-duration:0.01ms!important}}
 :focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:2px}
+body::before{content:'';position:fixed;inset:0;z-index:9999;pointer-events:none;opacity:0.035;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
 body{background:var(--bg);color:var(--text-primary);font-family:system-ui,-apple-system,'PingFang SC','Microsoft YaHei',sans-serif;-webkit-font-smoothing:antialiased}
 .font-display{font-family:'DM Serif Display','Noto Serif SC',serif}
 .font-mono{font-family:'JetBrains Mono','Cascadia Code',monospace}
-#navbar{position:fixed;top:0;width:100%;z-index:50;background:rgba(10,14,23,0.85);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid var(--border)}
+#navbar{position:fixed;top:0;width:100%;z-index:50;background:rgba(10,14,23,0.82);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid transparent;transition:border-color 0.4s,background 0.4s}
+#navbar.scrolled{border-bottom-color:var(--border);background:rgba(10,14,23,0.92)}
 #navbar .inner{max-width:1200px;margin:0 auto;padding:0 48px;height:68px;display:flex;align-items:center;justify-content:space-between}
 #navbar .logo{font-size:18px;font-weight:700;color:var(--text-primary);text-decoration:none}
 #navbar .links{display:flex;align-items:center;gap:36px}
-#navbar .links a{color:var(--text-muted);font-size:15px;font-weight:500;text-decoration:none;transition:color 0.25s}
+#navbar .links a{color:var(--text-muted);font-size:15px;font-weight:500;text-decoration:none;position:relative;padding:4px 0;transition:color 0.25s}
 #navbar .links a:hover{color:var(--text-primary)}
+#navbar .links a::after{content:'';position:absolute;bottom:-2px;left:0;width:0;height:1.5px;background:var(--accent);transition:width 0.35s cubic-bezier(0.16,1,0.3,1)}
+#navbar .links a:hover::after{width:100%}
 .hero-wrap{padding:160px 48px 60px;max-width:800px;margin:0 auto;text-align:center}
 .section-wrap{max-width:800px;margin:0 auto;padding:0 48px 40px}
 .section-heading{font-size:13px;color:var(--accent);text-transform:uppercase;letter-spacing:0.14em;font-weight:500;margin-bottom:20px}
@@ -108,7 +112,7 @@ body{background:var(--bg);color:var(--text-primary);font-family:system-ui,-apple
 
 <section id="chatSection" class="section-wrap" style="display:none"><div class="section-heading font-mono">// 追问 AI 导师</div><div id="chatMessages" style="display:flex;flex-direction:column;gap:12px;margin-bottom:16px;min-height:100px"></div><div style="display:flex;gap:12px"><input id="chatInput" style="flex:1;padding:12px 20px;border-radius:8px;border:1px solid var(--border);background:var(--bg-card);color:var(--text-primary);font-size:14px;outline:none" placeholder="对评审内容有任何疑问？在这里追问..."/><button id="chatSendBtn" class="btn-primary" style="padding:12px 24px;border-radius:8px">发送</button></div></section>
 
-<footer class="site-footer"><div class="footer-links"><a href="about.html">关于</a><a href="https://github.com/qq242115512/ai-interaction-lab">GitHub</a><a href="mailto:fsy20060225@163.com">fsy20060225@163.com</a></div><p class="footer-credit font-mono">designed & built with AI · 2026</p></footer>
+<footer class="site-footer"><div class="footer-links"><a href="about.html">关于</a><a href="https://github.com/qq242115512/ai-interaction-lab">GitHub</a><a href="mailto:fsy20060225@163.com">fsy20060225@163.com</a></div><p class="footer-credit font-mono">一人 · 十五个 Agent · 零行手写代码 · 2026</p></footer>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
@@ -119,5 +123,6 @@ body{background:var(--bg);color:var(--text-primary);font-family:system-ui,-apple
 <script src="js/chat.js?v=2.2"></script>
 <script src="js/main.js?v=2.2"></script>
 <script src="js/animations.js?v=2.1"></script>
+<script>const navbar=document.getElementById('navbar');window.addEventListener('scroll',()=>{navbar.classList.toggle('scrolled',window.scrollY>10)});</script>
 <script>(function(){var r=new Set();window.onerror=function(m,u,l,c,e){var k=(m||'')+'|'+(u||'')+'|'+l;if(r.has(k)||r.size>10)return;r.add(k);try{var x=new XMLHttpRequest();x.open('POST','/api/health',true);x.setRequestHeader('Content-Type','application/json');x.send(JSON.stringify({message:String(m||'').substring(0,500),url:String(u||'').substring(0,200),line:l,col:c,page:location.href,ts:Date.now()}))}catch(e){}};window.addEventListener('unhandledrejection',function(e){var k='rejection|'+String(e.reason||'').substring(0,100);if(r.has(k)||r.size>10)return;r.add(k);try{var x=new XMLHttpRequest();x.open('POST','/api/health',true);x.setRequestHeader('Content-Type','application/json');x.send(JSON.stringify({message:'Promise rejection: '+String(e.reason||'').substring(0,500),page:location.href,ts:Date.now()}))}catch(e){}})})();</script>
 </body></html>

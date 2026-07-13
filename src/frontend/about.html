@@ -3,14 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="樊书洋 — AI 交互设计师。不写代码的设计学生，用 AI 工具链从零构建的专业级产品。" />
+  <meta name="description" content="关于樊书洋 — AI 交互设计师。不写代码的设计学生，用 AI 工具链从零构建的专业级产品。" />
   <meta property="og:title" content="关于樊书洋 — AI 交互设计师" />
   <meta property="og:description" content="AI 交互设计师 · 南京传媒学院 · 设计 AI 协作系统" />
   <meta property="og:type" content="website" />
   <title>关于 — 樊书洋</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>" />
-  <link rel="stylesheet" href="css/tailwind.min.css?v=2.1" />
-  <link rel="stylesheet" href="css/fonts.css?v=2.1" />
+  <link rel="stylesheet" href="css/fonts.css?v=2.3" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 <style>
@@ -18,33 +17,37 @@
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:0.01ms!important;transition-duration:0.01ms!important}}
 :focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:2px}
+body::before{content:'';position:fixed;inset:0;z-index:9999;pointer-events:none;opacity:0.035;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
 body{background:var(--bg);color:var(--text-primary);font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;-webkit-font-smoothing:antialiased}
-.font-display{font-family:'DM Serif Display','Noto Serif SC','Songti SC','SimSun',serif}
+.font-display{font-family:'DM Serif Display','Noto Serif SC','Songti SC',serif}
 .font-mono{font-family:'JetBrains Mono','Cascadia Code',monospace}
-#navbar{position:fixed;top:0;width:100%;z-index:50;background:rgba(10,14,23,0.85);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid var(--border)}
+#navbar{position:fixed;top:0;width:100%;z-index:50;background:rgba(10,14,23,0.82);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid transparent;transition:border-color 0.4s,background 0.4s}
+#navbar.scrolled{border-bottom-color:var(--border);background:rgba(10,14,23,0.92)}
 #navbar .inner{max-width:1200px;margin:0 auto;padding:0 48px;height:68px;display:flex;align-items:center;justify-content:space-between}
 #navbar .logo{font-size:18px;font-weight:700;color:var(--text-primary);text-decoration:none}
 #navbar .links{display:flex;align-items:center;gap:36px}
-#navbar .links a{color:var(--text-muted);font-size:15px;font-weight:500;text-decoration:none;transition:color 0.25s}
+#navbar .links a{color:var(--text-muted);font-size:15px;font-weight:500;text-decoration:none;position:relative;padding:4px 0;transition:color 0.25s}
 #navbar .links a:hover{color:var(--text-primary)}
 #navbar .links a.active{color:var(--text-primary)}
+#navbar .links a::after{content:'';position:absolute;bottom:-2px;left:0;width:0;height:1.5px;background:var(--accent);transition:width 0.35s cubic-bezier(0.16,1,0.3,1)}
+#navbar .links a:hover::after,#navbar .links a.active::after{width:100%}
 .section-label{display:flex;align-items:center;gap:16px;margin-bottom:48px;font-size:13px;color:var(--accent);text-transform:uppercase;letter-spacing:0.14em;font-weight:500}
-.section-label::after{content:'';flex:1;height:1px;background:var(--border)}
+.section-label::after{content:'';flex:1;height:1px;background:linear-gradient(to right,var(--border) 0%,transparent 100%)}
 .page-hero{padding:180px 48px 80px;max-width:1200px;margin:0 auto}
 .page-body{max-width:800px;margin:0 auto;padding:0 48px 80px}
 .timeline-item{display:flex;gap:20px;padding-bottom:32px}
 .timeline-dot{width:12px;height:12px;border-radius:50%;background:var(--accent);flex-shrink:0;margin-top:4px;position:relative}
 .timeline-dot::after{content:'';position:absolute;top:12px;left:5px;width:1px;height:calc(100% + 20px);background:var(--border)}
 .timeline-item:last-child .timeline-dot::after{display:none}
-.skill-card{background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:24px;text-align:center;transition:border-color 0.25s,transform 0.25s}
-.skill-card:hover{border-color:var(--accent);transform:translateY(-2px)}
+.skill-card{background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:24px;text-align:center;transition:border-color 0.25s,transform 0.25s,box-shadow 0.25s}
+.skill-card:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 6px 20px rgba(224,115,64,0.08)}
 .site-footer{border-top:1px solid var(--border);padding:48px 48px 72px;max-width:1200px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px}
 .footer-links{display:flex;align-items:center;gap:28px}
 .footer-links a{color:var(--text-muted);text-decoration:none;font-size:14px;font-weight:500;transition:color 0.2s}
 .footer-links a:hover{color:var(--accent)}
 .footer-credit{font-size:13px;color:var(--text-muted)}
-.reveal{opacity:0;transform:translateY(28px)}
-@media(max-width:768px){#navbar .inner{padding:0 24px}#navbar .links{display:none}.page-hero{padding:160px 24px 60px}.page-body{padding:0 24px 60px}.site-footer{flex-direction:column;align-items:flex-start;padding:40px 24px 64px}}
+.reveal{opacity:0;transform:translateY(32px)}
+@media(max-width:768px){#navbar .inner{padding:0 24px}#navbar .links{display:none}.page-hero{padding:140px 24px 60px}.page-body{padding:0 24px 60px}.site-footer{flex-direction:column;align-items:flex-start;padding:40px 24px 64px}}
 </style>
 </head>
 <body>
@@ -76,7 +79,7 @@ body{background:var(--bg);color:var(--text-primary);font-family:system-ui,-apple
 
 <section style="background:var(--bg-card);padding:80px 48px;margin-bottom:80px">
 <div class="reveal" style="max-width:680px;margin:0 auto;text-align:center">
-<p class="font-display" style="font-size:clamp(22px,3.5vw,32px);color:var(--text-muted);line-height:1.55">
+<p class="font-display" style="font-size:clamp(22px,3.5vw,32px);color:var(--text-muted);line-height:1.55;font-style:italic">
 "不会写代码的设计学生，<br/>用 AI 工具链从零做出了解 AI 交互设计的产品<br/>+ 设计了让 AI 团队不出错的协作体系。"
 </p>
 <p style="font-size:14px;color:var(--text-muted);margin-top:24px">这就是我的核心叙事</p>
@@ -137,7 +140,7 @@ body{background:var(--bg);color:var(--text-primary);font-family:system-ui,-apple
 <div class="timeline-item"><div class="timeline-dot"></div><div>
 <span class="font-mono" style="font-size:12px;color:var(--accent)">v0.5.0</span> <span style="font-size:12px;color:var(--text-muted)">2026 年 6 月</span>
 <h3 style="font-size:16px;font-weight:600;margin:4px 0">页面重设计 + 第 8 张卡片</h3>
-<p style="font-size:14px;color:var(--text-muted)">Midnight Slate × Burnt Copper 设计语言。Agent 协作仪表盘。14 角色工作流完整跑通。</p>
+<p style="font-size:14px;color:var(--text-muted)">Midnight Slate × Burnt Copper 设计语言。Agent 协作仪表盘。14 角色工作流跑通。</p>
 </div></div>
 <div class="timeline-item"><div class="timeline-dot"></div><div>
 <span class="font-mono" style="font-size:12px;color:var(--accent)">v2.0</span> <span style="font-size:12px;color:var(--text-muted)">2026 年 7 月</span>
@@ -152,7 +155,7 @@ body{background:var(--bg);color:var(--text-primary);font-family:system-ui,-apple
 <div class="reveal" style="text-align:center">
 <p style="font-size:16px;color:var(--text-muted);margin-bottom:28px;line-height:1.7">正在寻找 AI 交互设计师实习岗位。<br/>如果你对我的项目感兴趣，或者有合适的实习机会，欢迎联系。</p>
 <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap">
-<a href="mailto:fsy20060225@163.com" style="display:inline-flex;align-items:center;gap:8px;background:var(--accent);color:#fff;padding:14px 36px;border-radius:8px;font-size:15px;font-weight:600;text-decoration:none;font-family:'JetBrains Mono',monospace;height:48px;transition:opacity 0.2s">fsy20060225@163.com</a>
+<a href="mailto:fsy20060225@163.com" style="display:inline-flex;align-items:center;gap:8px;background:var(--accent);color:#fff;padding:14px 36px;border-radius:8px;font-size:15px;font-weight:600;text-decoration:none;font-family:'JetBrains Mono',monospace;height:48px;transition:opacity 0.2s,box-shadow 0.2s" onmouseenter="this.style.boxShadow='0 8px 24px rgba(224,115,64,0.3)'" onmouseleave="this.style.boxShadow='none'">fsy20060225@163.com</a>
 <a href="https://github.com/qq242115512/ai-interaction-lab" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:8px;background:transparent;color:var(--text-primary);padding:14px 36px;border-radius:8px;font-size:15px;font-weight:500;text-decoration:none;border:1px solid var(--border);font-family:'JetBrains Mono',monospace;height:48px;transition:border-color 0.25s">GitHub</a>
 </div></div>
 </section>
@@ -163,19 +166,17 @@ body{background:var(--bg);color:var(--text-primary);font-family:system-ui,-apple
 <a href="https://github.com/qq242115512/ai-interaction-lab">GitHub</a>
 <a href="mailto:fsy20060225@163.com">fsy20060225@163.com</a>
 </div>
-<p class="footer-credit font-mono">designed & built with AI · 2026</p>
+<p class="footer-credit font-mono">一人 · 十五个 Agent · 零行手写代码 · 2026</p>
 </footer>
 
 <script>
-(function(){
-  var reported=new Set();
-  window.onerror=function(m,u,l,c,e){var k=(m||'')+'|'+(u||'')+'|'+l;if(reported.has(k)||reported.size>10)return;reported.add(k);try{var x=new XMLHttpRequest();x.open('POST','/api/health',true);x.setRequestHeader('Content-Type','application/json');x.send(JSON.stringify({message:String(m||'').substring(0,500),url:String(u||'').substring(0,200),line:l,col:c,page:location.href,ts:Date.now()}))}catch(e){}};
-  window.addEventListener('unhandledrejection',function(e){var k='rejection|'+String(e.reason||'').substring(0,100);if(reported.has(k)||reported.size>10)return;reported.add(k);try{var x=new XMLHttpRequest();x.open('POST','/api/health',true);x.setRequestHeader('Content-Type','application/json');x.send(JSON.stringify({message:'Promise rejection: '+String(e.reason||'').substring(0,500),page:location.href,ts:Date.now()}))}catch(e){}});
-})();
+(function(){var r=new Set();window.onerror=function(m,u,l,c,e){var k=(m||'')+'|'+(u||'')+'|'+l;if(r.has(k)||r.size>10)return;r.add(k);try{var x=new XMLHttpRequest();x.open('POST','/api/health',true);x.setRequestHeader('Content-Type','application/json');x.send(JSON.stringify({message:String(m||'').substring(0,500),url:String(u||'').substring(0,200),line:l,col:c,page:location.href,ts:Date.now()}))}catch(e){}};window.addEventListener('unhandledrejection',function(e){var k='rejection|'+String(e.reason||'').substring(0,100);if(r.has(k)||r.size>10)return;r.add(k);try{var x=new XMLHttpRequest();x.open('POST','/api/health',true);x.setRequestHeader('Content-Type','application/json');x.send(JSON.stringify({message:'Promise rejection: '+String(e.reason||'').substring(0,500),page:location.href,ts:Date.now()}))}catch(e){}})})();
 </script>
 <script>
 gsap.registerPlugin(ScrollTrigger);
-document.querySelectorAll('.reveal').forEach((el,i)=>{gsap.fromTo(el,{opacity:0,y:28},{opacity:1,y:0,duration:0.8,delay:i*0.04,ease:'power2.out',scrollTrigger:{trigger:el,start:'top 92%',toggleActions:'play none none none'}})});
+const navbar = document.getElementById('navbar');
+window.addEventListener('scroll', () => { navbar.classList.toggle('scrolled', window.scrollY > 10); });
+document.querySelectorAll('.reveal').forEach((el,i)=>{gsap.fromTo(el,{opacity:0,y:32},{opacity:1,y:0,duration:0.8,delay:i*0.04,ease:'power2.out',scrollTrigger:{trigger:el,start:'top 94%',toggleActions:'play none none none'}})});
 </script>
 </body>
 </html>
